@@ -1,0 +1,10 @@
+about_resource: dockerfile_parse-0.0.5-py2-none-any.whl
+download_url: https://pypi.python.org/packages/source/c/colorama/colorama-0.3.3.tar.gz
+version: 0.0.5
+
+name: dockerfile_parse
+home_url: https://github.com/DBuildService/dockerfile-parse
+owner: Red Hat
+dje_license: bds-new
+license_text_file: dockerfile_parse.LICENSE
+copyright: Copyright (c) 2015, Red Hat, Inc.

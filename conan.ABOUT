@@ -1,0 +1,19 @@
+about_resource: .
+
+name: Conan
+version: 0.1.0
+
+owner: nexB Inc.
+
+home_url: http://nexb.com
+
+vcs_tool: git
+vcs_repository: https://github.com/pombredanne/conan.git
+
+description: Docker utilities
+
+license: apache-2.0
+license_text_file: apache-2.0.LICENSE
+notice_file: NOTICE
+
+copyright: Copyright (c) 2016 nexB Inc. and others
