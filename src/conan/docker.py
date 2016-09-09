@@ -111,7 +111,7 @@ extracted = ('-extract', '-djcx',)
 def listdir(location):
     """
     Return a list of files and directories in the location directory or an empty
-    list. Ignore extracted directed directories..
+    list. Ignore extracted directed directories.
     """
     if not isdir(location):
         return []
@@ -768,18 +768,24 @@ def match_images2dockerfiles(images, dockerfiles):
 @click.command()
 @click.argument('directory', type=click.Path(exists=True, readable=True))
 @click.option('-e', '--extract', is_flag=True, is_eager=True, help='Find built Docker images and their layers. For each image found, extract and merge all layers in a single rootfs-like structure.')
-@click.option('--image_json', is_flag=True, is_eager=True, help='Find built Docker images and their layers. Print information as JSON.')
-@click.option('-c', '--image_csv', is_flag=True, is_eager=True, help='Find built Docker images and their layers. Print information as CSV.')
-@click.option('--dockerfile_json', is_flag=True, is_eager=True, help='Find source Dockerfile files. Print information as JSON.')
-@click.option('-d', '--dockerfile_csv', is_flag=True, is_eager=True, help='Find source Dockerfile files. Print information  as CSV.')
-@click.option('--layerid_len', default=DEFAULT_LAYER_ID_LEN, help='Use an different layer ID length than the default 64 characters.')
+@click.option('--image-json', is_flag=True, is_eager=True, help='Find built Docker images and their layers. Print information as JSON.')
+@click.option('-c', '--image-csv', is_flag=True, is_eager=True, help='Find built Docker images and their layers. Print information as CSV.')
+@click.option('--dockerfile-json', is_flag=True, is_eager=True, help='Find source Dockerfile files. Print information as JSON.')
+@click.option('-d', '--dockerfile-csv', is_flag=True, is_eager=True, help='Find source Dockerfile files. Print information  as CSV.')
+@click.option('-l', '--layerid-len', default=DEFAULT_LAYER_ID_LEN, help='Use a different layer ID length than the default 64 characters to avoid very long ids.')
 @click.help_option('-h', '--help')
 def docker(directory, extract=False, image_json=False, image_csv=False, dockerfile_json=False, dockerfile_csv=False, layerid_len=DEFAULT_LAYER_ID_LEN):
     """
     Search input for Docker images in DIRECTORY.
-    Either extract and merge found Docker images in an "-extract" directory and print results.
-    Or print information about the Docker images and their layers (printed in sequence) as json.
-    Use --help for help
+
+    Based on options either:
+    
+    - extract and merge found Docker images in an "-extract" directory and print results.
+
+    - print information about the Docker images and their layers (printed in sequence) as JSON or CSV.
+
+    - print information about Dockerfiles as JSON or CSV.
+
     The CSV or JSON output are printed to screen. Use a > redirect to save in a file.
     """
     loc = os.path.abspath(os.path.expanduser(directory))

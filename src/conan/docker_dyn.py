@@ -46,10 +46,21 @@ def installed_images(image_id=None):
     if rc >= 0:
         # skip the first header line
         for line in stdout.splitlines(False)[1:]:
+            # split on spaces and keep the first three elements
             name, tag, imid = line.split()[:3]
+            imid= get_real_id(imid)
             logger.info('installed_images: %(name)s, %(tag)s, %(imid)s' % locals())
             if not image_id or (image_id and imid.startswith(image_id)):
                 yield name, tag, imid
+
+def get_real_id(imid):
+    """
+    Return bare id. Remove hash algo prefix from image or layer id if present (such
+    as sha256:).
+    """
+    if ':' in imid:
+        _hash, _, imid = imid.partition(':')
+    return imid
 
 
 def installed_image_history(image_id):
@@ -71,7 +82,7 @@ def installed_image_history(image_id):
             layer_command, _, right = right.strip().partition('  ')
             _size, _, right = right.strip().partition('  ')
             _comment = right.strip()
-            yield layer_id, layer_command
+            yield get_real_id(layer_id), layer_command
 
 
 def installed_rpms(image_id):
@@ -103,16 +114,23 @@ def installed_rpms_by_image_layer(image_id=None, layer_id_len=DEFAULT_LAYER_ID_L
 
 
 @click.command()
-@click.option('-i', '--image_id', default=None, help='Limit the data collection only to this image id.')
-@click.option('-l', '--id_len', default=DEFAULT_LAYER_ID_LEN, help='Use a layer ID length different than the default 64 characters.')
+@click.option('-i', '--image-id', default=None, help='Limit the data collection only to this image id. Run docker images --no-trunc to list the full image ids. Do not use the sha256: prefix when requesting an id.')
+@click.option('-l', '--id-len', default=DEFAULT_LAYER_ID_LEN, help='Use a different layer or image ID length than the default 64 characters to avoid very long ids.')
 @click.help_option('-h', '--help')
 def docker_rpms(image_id=None, id_len=DEFAULT_LAYER_ID_LEN):
     """
     Query the local Docker install to find all newly installed RPMs in a given layer.
-    All available images and layers are queried.
-    Results are printed to screen as CSV
+    All available images and layers are queried. 
+    RPMs are listed only in the layers where they were first installed.
+    
+    Results are printed to screen as CSV with these columns:
+    
+    image_id,image_name,image_tag,layer_id,layer_order,layer_command,installed_rpm_file
+
+    Note that if a layer does not contain RPMs or is not for an RPM-based distro the results may be empty.
+    
+    The rows are repeated for each RPM found.
     Use a > redirect to save in a file.
-    Use --help for help
     """
     headers = 'image_id image_name image_tag layer_id layer_order layer_command installed_rpm_file'.split()
     data = installed_rpms_by_image_layer(image_id, id_len)
