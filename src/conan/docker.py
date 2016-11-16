@@ -3,7 +3,7 @@
 # The Conan software is licensed under the Apache License version 2.0.
 # Data generated with Conan require an acknowledgment.
 # Conan is a trademark of nexB Inc.
-# 
+#
 # You may not use this software except in compliance with the License.
 # You may obtain a copy of the License at: http://apache.org/licenses/LICENSE-2.0
 # Unless required by applicable law or agreed to in writing, software distributed
@@ -180,11 +180,9 @@ class Image(object):
 #         else:
 #             logger.debug('Image: Location: %(location)r has no "repositories" JSON file' % locals())
 
-        # collect the layers
-        layer_ids = [n for n in dir_contents if n != REPOSITORIES_JSON_FILE]
-        # check if we have real layer ids as directories
-        has_possible_layers = all(isdir(join(location, n)) and is_image_id(n, layerid_len) for n in layer_ids)
-        assert has_possible_layers
+        # collect the layers if we have real layer ids as directories
+        layer_ids = [layer_id for layer_id in dir_contents if is_image_id(layer_id, layerid_len) and isdir(join(location, layer_id))]
+        assert layer_ids
         logger.debug('Image: Location is a candidate repo: %(location)r with valid layer dirs' % locals())
         # build layer objects proper and keep a track of layers by id
         layers = [Layer(layer_id, join(location, layer_id)) for layer_id in layer_ids]
@@ -497,7 +495,7 @@ def get_image(location, echo=print, layerid_len=DEFAULT_LAYER_ID_LEN):
         image = Image(location, layerid_len=layerid_len)
         echo('Found Docker image at: %(location)r' % locals())
         return {location: image}
-    except:
+    except Exception, e:
         logger.debug('get_image: Not an image directory: %(location)r' % locals())
         # not an image
         return {}
@@ -779,7 +777,7 @@ def docker(directory, extract=False, image_json=False, image_csv=False, dockerfi
     Search input for Docker images in DIRECTORY.
 
     Based on options either:
-    
+
     - extract and merge found Docker images in an "-extract" directory and print results.
 
     - print information about the Docker images and their layers (printed in sequence) as JSON or CSV.
