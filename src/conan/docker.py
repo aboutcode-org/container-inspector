@@ -73,8 +73,10 @@ layer to the latest (or selected tagged layer) at runtime using the AUFS union
 file system. In AUFS, any files prefixed with .wh. are "white outs" files
 deleting files in the underlying layers.
 
-See the specification saved at references/docker_image_spec_v1.md
-and at https://github.com/docker/docker/blob/master/image/spec/v1.md
+See the specifications saved in docs/references/
+This script implements V1.0
+Additional specs for v1.1 and v1.2 are not yet supported though they offer some
+backward compatibility with v1.0
 
 See also:
 https://github.com/docker/docker/blob/eaa1fc41c6cbdf589831d607e86e0ee38c2d053f/docs/reference/api/docker_remote_api_v1.22.md#image-tarball-format
