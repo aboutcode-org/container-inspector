@@ -54,6 +54,7 @@ setup(
         'click',
         'unicodecsv',
         'dockerfile-parse',
+        'attrs',
     ],
 
     entry_points={
