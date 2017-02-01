@@ -1,9 +1,9 @@
-# Copyright (c) 2016 nexB Inc. and others. All rights reserved.
+# Copyright (c) 2017 nexB Inc. and others. All rights reserved.
 # http://nexb.com and https://github.com/pombredanne/conan/
 # The Conan software is licensed under the Apache License version 2.0.
 # Data generated with Conan require an acknowledgment.
 # Conan is a trademark of nexB Inc.
-# 
+#
 # You may not use this software except in compliance with the License.
 # You may obtain a copy of the License at: http://apache.org/licenses/LICENSE-2.0
 # Unless required by applicable law or agreed to in writing, software distributed
@@ -22,90 +22,40 @@ from commoncode import fileutils
 
 from conan import docker
 from conan.docker import Layer
-from conan.docker import sorted_layers
 from conan.docker import NonSortableLayersError
-from conan.docker import InconsistentLayersOderingError
+from conan.cli import collect_images
+from conan.utils import rebuild_rootfs
+from conan import InconsistentLayersOderingError
+from conan.cli import collect_and_rebuild_rootfs
+from conan.dockerfile import normalized_layer_command
+from conan.utils import find_shortest_prefix_length
 
 
-class TestDocker(FileBasedTesting):
+class TestDockerCli(FileBasedTesting):
     test_data_dir = os.path.join(os.path.dirname(__file__), 'data')
 
     def test_collect_images(self):
-        test_dir = self.extract_test_tar('docker/images.tgz')
-        result = docker.collect_images(test_dir)
+        test_dir = self.extract_test_tar('docker/v10_format/images.tgz')
+        result = collect_images(test_dir)
         assert len(result) == 3
 
     def test_collect_images_single(self):
-        test_dir = self.extract_test_tar('docker/busybox2.tgz')
-        result = docker.collect_images(test_dir)
+        test_dir = self.extract_test_tar('docker/v10_format/busybox2.tgz')
+        result = collect_images(test_dir)
         assert len(result) == 1
 
-    def test_Image(self):
-        test_dir = self.extract_test_tar('docker/busybox.tgz')
-        docker.Image(test_dir)
-
-    def test_Image_without_repositories_file(self):
-        test_dir = self.extract_test_tar('docker/busybox_no_repo.tgz')
-        assert docker.Image(test_dir)
-
-    def test_extract_merge(self):
-        test_dir = self.extract_test_tar('docker/busybox.tgz')
-        image = docker.Image(test_dir)
-        target_dir = self.get_temp_dir()
-        image.extract_merge(target_dir)
-        expected = self.extract_test_tar('docker/check_busybox_layer.tar')
-        assert testcase.is_same(target_dir, expected)
-
-    def test_extract_merge_without_repositories_file(self):
-        test_dir = self.extract_test_tar('docker/busybox_no_repo.tgz')
-        image = docker.Image(test_dir)
-        target_dir = self.get_temp_dir()
-        image.extract_merge(target_dir)
-        expected = self.extract_test_tar('docker/check_busybox_layer.tar')
-        assert testcase.is_same(target_dir, expected)
-
-    def test_extract_merge_with_delete(self):
-        test_dir = self.extract_test_tar('docker/busybox2.tgz')
-        image = docker.Image(test_dir)
-        target_dir = self.get_temp_dir()
-        image.extract_merge(target_dir)
-        expected = [
-            '/lib/librt-0.9.33.2.so',
-            '/lib/libgcc_s.so.1',
-            '/lib/libutil-0.9.33.2.so',
-            '/lib/libuClibc-0.9.33.2.so',
-            '/lib/libm-0.9.33.2.so',
-            '/lib/libresolv-0.9.33.2.so',
-            '/lib/libnsl-0.9.33.2.so',
-            '/lib/libpthread-0.9.33.2.so'
-        ]
-        assert sorted(expected) == sorted(f.replace(target_dir, '') for f in fileutils.file_iter(target_dir))
-
-    def test_extract_merge_with_delete_with_out_of_order_layers(self):
-        test_dir = self.extract_test_tar('docker/busybox2.tgz')
-        image = docker.Image(test_dir)
-
-        # shuffle artificially the layer order
-        image.layers = OrderedDict(sorted(image.layers.items()))
-
-        target_dir = self.get_temp_dir()
-        try:
-            image.extract_merge(target_dir)
-        except InconsistentLayersOderingError:
-            pass
-
-    def test_collect_many(self):
-        test_dir = self.extract_test_tar('docker/merge.tgz')
+    def test_collect_images_many(self):
+        test_dir = self.extract_test_tar('docker/v10_format/merge.tgz')
         base = os.path.dirname(test_dir).strip('\\/')
-        result = docker.collect_images(test_dir)
+        result = collect_images(test_dir)
         result = [f.replace(base, '').lstrip('\\/') for f in result]
         expected = ['merge.tgz/merge/busybox', 'merge.tgz/merge/busybox2']
         assert sorted(expected) == sorted(result)
 
-    def test_collect_merge(self):
-        test_dir = self.extract_test_tar('docker/merge.tgz')
+    def test_collect_and_rebuild_rootfs(self):
+        test_dir = self.extract_test_tar('docker/v10_format/merge.tgz')
         print(test_dir)
-        result = docker.collect_and_extract_merge(test_dir, echo=print)
+        result = collect_and_rebuild_rootfs(test_dir, echo=print)
         base = os.path.dirname(test_dir).strip('\\/')
         result = [(f.replace(base, '').lstrip('\\/'), set([w.replace(base, '').lstrip('\\/') for w in wo]),)
                     for f, wo in result.items()]
@@ -131,7 +81,97 @@ class TestDocker(FileBasedTesting):
         ]
         assert expected == result
 
-    def test_sort_layers(self):
+
+class TestDockerFormat10(FileBasedTesting):
+    test_data_dir = os.path.join(os.path.dirname(__file__), 'data')
+
+    def test_ImageV10(self):
+        test_dir = self.extract_test_tar('docker/v10_format/busybox.tgz')
+        docker.ImageV10(test_dir)
+
+    def test_ImageV10_without_repositories_file(self):
+        test_dir = self.extract_test_tar('docker/v10_format/busybox_no_repo.tgz')
+        assert docker.ImageV10(test_dir)
+
+
+class TestDockerUtils(FileBasedTesting):
+    test_data_dir = os.path.join(os.path.dirname(__file__), 'data')
+
+    def test_rebuild_rootfs_format_v10(self):
+        test_dir = self.extract_test_tar('docker/v10_format/busybox.tgz')
+        image = docker.ImageV10(test_dir)
+        target_dir = self.get_temp_dir()
+        rebuild_rootfs(image, target_dir)
+        expected = self.extract_test_tar('docker/v10_format/check_busybox_layer.tar')
+        assert testcase.is_same(target_dir, expected)
+
+    def test_rebuild_rootfs_format_v10_without_repositories_file(self):
+        test_dir = self.extract_test_tar('docker/v10_format/busybox_no_repo.tgz')
+        image = docker.ImageV10(test_dir)
+        target_dir = self.get_temp_dir()
+        rebuild_rootfs(image, target_dir)
+        expected = self.extract_test_tar('docker/v10_format/check_busybox_layer.tar')
+        assert testcase.is_same(target_dir, expected)
+
+    def test_rebuild_rootfs_format_v10_with_delete(self):
+        test_dir = self.extract_test_tar('docker/v10_format/busybox2.tgz')
+        image = docker.ImageV10(test_dir)
+        target_dir = self.get_temp_dir()
+        rebuild_rootfs(image, target_dir)
+        expected = [
+            '/lib/librt-0.9.33.2.so',
+            '/lib/libgcc_s.so.1',
+            '/lib/libutil-0.9.33.2.so',
+            '/lib/libuClibc-0.9.33.2.so',
+            '/lib/libm-0.9.33.2.so',
+            '/lib/libresolv-0.9.33.2.so',
+            '/lib/libnsl-0.9.33.2.so',
+            '/lib/libpthread-0.9.33.2.so'
+        ]
+        assert sorted(expected) == sorted(f.replace(target_dir, '') for f in fileutils.file_iter(target_dir))
+
+    def test_find_shortest_prefix_length(self):
+        strings = [
+            '766dd2d9abcf5a4cc87729e938c005b0714309659b197fca61e4fd9b775b6b7b',
+            'c89045c0bfe8cd62c539d0cc227eaeab7f5445002b8a711c0d5f47ec7716ad51',
+            '045df3e66e28eadb9be8c9156f638a4f9cfe286a696dd06sadasdadas41153e0d76e3e6af1',
+            '3fc782251abe2cf96c2b1f95d3e4d20396774fa6522ec0e45a6cbf8e27edc381',
+            '0c752394b855e8f15d2dc1fba6f10f4386ff6c0ab6fc6a253285bcfbfdd214sdaasdasdaf5',
+            '34e94e67e63a0f079d9336b3c2a52e814d138e5b3f1f614a0cfe273814ed7c0a',
+            '511136ea3c5a64f264b78b5433614aec563103b4d4702f3ba7d4d2698e22c158',
+        ]
+        assert 2 == find_shortest_prefix_length(strings)
+
+    def test_find_shortest_prefix_length_2(self):
+        strings = [
+            '766dd2d9abcf5a4cc87729e938c005b0714309659b197fca61e4fd9b775b6b7b',
+            '7c89045c0bfe8cd62c539d0cc227eaeab7f5445002b8a711c0d5f47ec7716ad51',
+            '7045df3e66e28eadb9be8c9156f638a4f9cfe286a696dd06sadasdadas41153e0d76e3e6af1',
+            '73fc782251abe2cf96c2b1f95d3e4d20396774fa6522ec0e45a6cbf8e27edc381',
+            '70c752394b855e8f15d2dc1fba6f10f4386ff6c0ab6fc6a253285bcfbfdd214sdaasdasdaf5',
+            '734e94e67e63a0f079d9336b3c2a52e814d138e5b3f1f614a0cfe273814ed7c0a',
+            '7511136ea3c5a64f264b78b5433614aec563103b4d4702f3ba7d4d2698e22c158',
+        ]
+        assert 3 == find_shortest_prefix_length(strings)
+
+    def test_rebuild_rootfs_format_v10_with_delete_with_out_of_order_layers(self):
+        test_dir = self.extract_test_tar('docker/v10_format/busybox2.tgz')
+        image = docker.ImageV10(test_dir)
+
+        # shuffle artificially the layer order
+        image.layers = OrderedDict(sorted(image.layers.items()))
+
+        target_dir = self.get_temp_dir()
+        try:
+            rebuild_rootfs(image, target_dir)
+        except InconsistentLayersOderingError:
+            pass
+
+
+class TestDocker(FileBasedTesting):
+    test_data_dir = os.path.join(os.path.dirname(__file__), 'data')
+
+    def test_Layer_sort(self):
         # ordered in correct layer order, top to bottom
         test_data = [
             ('511136ea3c5a64f264b78b5433614aec563103b4d4702f3ba7d4d2698e22c158', {'parent': None}),
@@ -172,7 +212,7 @@ class TestDocker(FileBasedTesting):
         shuffled = sorted(test_data)
 
         layers = [Layer(lid, **data) for lid, data in shuffled]
-        result = sorted_layers(layers)
+        result = Layer.sort(layers)
         result = [(l.layer_id, {'parent': l.parent_id}) for l in result]
 
         expected = test_data
@@ -183,7 +223,7 @@ class TestDocker(FileBasedTesting):
             assert pid == last
             last = {'parent': lid}
 
-    def test_sort_layers_with_non_sortable_layers_raise_exception(self):
+    def test_Layer_sort_with_non_sortable_layers_raise_exception(self):
         # ordered in random layer order, one layer is not in the stream
         test_data = [
             ('766dd2d9abcf5a4cc87729e938c005b0714309659b197fca61e4fd9b775b6b7b', {'parent': 'c89045c0bfe8cd62c539d0cc227eaeab7f5445002b8a711c0d5f47ec7716ad51'}),
@@ -197,9 +237,13 @@ class TestDocker(FileBasedTesting):
 
         layers = [Layer(lid, **data) for lid, data in test_data]
         try:
-            sorted_layers(layers)
+            Layer.sort(layers)
         except NonSortableLayersError:
             pass
+
+
+class TestDockerfile(FileBasedTesting):
+    test_data_dir = os.path.join(os.path.dirname(__file__), 'data')
 
     def test_normalized_layer_command(self):
         # tuple of command and expected result tuples
@@ -218,28 +262,4 @@ class TestDocker(FileBasedTesting):
             ('#(nop) WORKDIR /', ('WORKDIR', '/')),
         ]
         for layer_command, expected in test_data:
-            assert expected == docker.normalized_layer_command(layer_command)
-
-    def test_find_shortest_prefix_length(self):
-        strings = [
-            '766dd2d9abcf5a4cc87729e938c005b0714309659b197fca61e4fd9b775b6b7b',
-            'c89045c0bfe8cd62c539d0cc227eaeab7f5445002b8a711c0d5f47ec7716ad51',
-            '045df3e66e28eadb9be8c9156f638a4f9cfe286a696dd06sadasdadas41153e0d76e3e6af1',
-            '3fc782251abe2cf96c2b1f95d3e4d20396774fa6522ec0e45a6cbf8e27edc381',
-            '0c752394b855e8f15d2dc1fba6f10f4386ff6c0ab6fc6a253285bcfbfdd214sdaasdasdaf5',
-            '34e94e67e63a0f079d9336b3c2a52e814d138e5b3f1f614a0cfe273814ed7c0a',
-            '511136ea3c5a64f264b78b5433614aec563103b4d4702f3ba7d4d2698e22c158',
-        ]
-        assert 2 == docker.find_shortest_prefix_length(strings)
-
-    def test_find_shortest_prefix_length_2(self):
-        strings = [
-            '766dd2d9abcf5a4cc87729e938c005b0714309659b197fca61e4fd9b775b6b7b',
-            '7c89045c0bfe8cd62c539d0cc227eaeab7f5445002b8a711c0d5f47ec7716ad51',
-            '7045df3e66e28eadb9be8c9156f638a4f9cfe286a696dd06sadasdadas41153e0d76e3e6af1',
-            '73fc782251abe2cf96c2b1f95d3e4d20396774fa6522ec0e45a6cbf8e27edc381',
-            '70c752394b855e8f15d2dc1fba6f10f4386ff6c0ab6fc6a253285bcfbfdd214sdaasdasdaf5',
-            '734e94e67e63a0f079d9336b3c2a52e814d138e5b3f1f614a0cfe273814ed7c0a',
-            '7511136ea3c5a64f264b78b5433614aec563103b4d4702f3ba7d4d2698e22c158',
-        ]
-        assert 3 == docker.find_shortest_prefix_length(strings)
+            assert expected == normalized_layer_command(layer_command)

@@ -1,0 +1,3 @@
+FROM scratch
+MAINTAINER You Myself and I.
+ADD hello /
