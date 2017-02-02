@@ -114,7 +114,7 @@ def no_print(*args, **kwargs):
 @click.option('-l', '--layerid-len', default=DEFAULT_LAYER_ID_LEN,
               help='Use a different layer ID length than the default 64 characters to avoid very long ids.')
 @click.help_option('-h', '--help')
-def docker(directory, extract=False,
+def conan(directory, extract=False,
            image_json=False, image_csv=False,
            dockerfile_json=False, dockerfile_csv=False,
            layerid_len=DEFAULT_LAYER_ID_LEN):

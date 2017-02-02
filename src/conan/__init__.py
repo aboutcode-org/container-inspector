@@ -17,17 +17,14 @@ __version__ = '1.0.0'
 
 DEFAULT_LAYER_ID_LEN = 64
 
-REPOSITORIES_JSON_FILE_V11 = 'repositories'
-MANIFEST_JSON_FILE_V10 = 'manifest.json'
+REPO_V10_REPOSITORIES_FILE = 'repositories'
+REPO_V11_MANIFEST_JSON_FILE = 'manifest.json'
 
-LAYER_TAR_FILE = 'layer.tar'
-LAYER_JSON_FILE = 'json'
 LAYER_VERSION_FILE = 'VERSION'
-LAYER_FILES = set([LAYER_TAR_FILE, LAYER_JSON_FILE, LAYER_VERSION_FILE])
-
+LAYER_JSON_FILE = 'json'
+LAYER_TAR_FILE = 'layer.tar'
 
 docker_version = re.compile('docker/([^\s]+)')
-
 
 
 class InconsistentLayersOderingError(Exception):

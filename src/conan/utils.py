@@ -78,8 +78,11 @@ def find_shortest_prefix_length(strings):
     return shortest_len
 
 
-AUFS_SPECIAL_FILE_PREFIX = '.wh..wh.'
-AUFS_WHITEOUT_PREFIX = '.wh.'
+WHITEOUT_PREFIX = '.wh.'
+WHITEOUT_SPECIAL_DIR_PREFIX = '.wh..wh.'
+# TODO: we do not haneld these yet (see the OCI spec)
+# https://github.com/opencontainers/image-spec/blob/master/layer.md#whiteouts
+WHITEOUT_OPAQUE_PREFIX = '.wh..wh.opq'
 
 
 def rebuild_rootfs(image, target_dir, layerid_len=DEFAULT_LAYER_ID_LEN):
@@ -113,6 +116,14 @@ def rebuild_rootfs(image, target_dir, layerid_len=DEFAULT_LAYER_ID_LEN):
             if x.warnings or  x.errors:
                 extract_errors.extend(xevents)
 
+
+        # FIXME: the order of ops is WRONG: we are getting whiteouts incorrectly
+        # it should be:
+        # 1. extract a layer to temp.
+        # 2. find whiteouts in that layer.
+        # 3. remove whiteouts in the previous layer stack (e.g. the WIP rootfs)
+        # 4. finall copy the extracted layer over the WIP rootfs 
+
         # move extracted layer to target_dir
         logger.debug('Moving extracted layer from: %(temp_target)r to: %(target_dir)r')
         fileutils.copytree(temp_target, target_dir)
@@ -123,14 +134,14 @@ def rebuild_rootfs(image, target_dir, layerid_len=DEFAULT_LAYER_ID_LEN):
             # delete AUFS dirs and apply whiteout deletions
             for dr in dirs[:]:
                 whiteable_dir = join(top, dr)
-                if dr.startswith(AUFS_WHITEOUT_PREFIX):
+                if dr.startswith(WHITEOUT_PREFIX):
                     # delete the .wh. dir...
                     dirs.remove(dr)
                     logger.debug('Deleting whiteout dir: %(whiteable_dir)r' % locals())
                     fileutils.delete(whiteable_dir)
 
                     # ... and delete the corresponding dir it does "whiteout"
-                    base_dir = dr[len(AUFS_WHITEOUT_PREFIX):]
+                    base_dir = dr[len(WHITEOUT_PREFIX):]
                     try:
                         dirs.remove(base_dir)
                     except ValueError:
@@ -143,7 +154,7 @@ def rebuild_rootfs(image, target_dir, layerid_len=DEFAULT_LAYER_ID_LEN):
                     whiteouts.append(wdo)
 
                 # delete AUFS special dirs
-                elif dr.startswith(AUFS_SPECIAL_FILE_PREFIX):
+                elif dr.startswith(WHITEOUT_SPECIAL_DIR_PREFIX):
                     dirs.remove(dr)
                     logger.debug('Deleting AUFS special dir:  %(whiteable_dir)r' % locals())
                     fileutils.delete(whiteable_dir)
@@ -152,13 +163,13 @@ def rebuild_rootfs(image, target_dir, layerid_len=DEFAULT_LAYER_ID_LEN):
             all_files = set(files)
             for fl in all_files:
                 whiteable_file = join(top, fl)
-                if fl.startswith(AUFS_WHITEOUT_PREFIX):
+                if fl.startswith(WHITEOUT_PREFIX):
                     # delete the .wh. marker file...
                     logger.debug('Deleting whiteout file: %(whiteable_file)r' % locals())
                     fileutils.delete(whiteable_file)
                     # ... and delete the corresponding file it does "whiteout"
                     # e.g. logically delete
-                    base_file = fl[len(AUFS_WHITEOUT_PREFIX):]
+                    base_file = fl[len(WHITEOUT_PREFIX):]
 
                     wfo = join(top, base_file)
                     whiteouts.append(wfo)
@@ -167,7 +178,7 @@ def rebuild_rootfs(image, target_dir, layerid_len=DEFAULT_LAYER_ID_LEN):
                         fileutils.delete(wfo)
 
                 # delete AUFS special files
-                elif fl.startswith(AUFS_SPECIAL_FILE_PREFIX):
+                elif fl.startswith(WHITEOUT_SPECIAL_DIR_PREFIX):
                     logger.debug('Deleting AUFS special file:  %(whiteable_file)r' % locals())
                     fileutils.delete(whiteable_file)
                     whiteouts.append(whiteable_file)

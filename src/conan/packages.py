@@ -11,7 +11,9 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from __future__ import print_function, absolute_import
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import logging
 import sys
@@ -118,13 +120,15 @@ def installed_rpms_by_image_layer(image_id=None, layer_id_len=DEFAULT_LAYER_ID_L
 @click.option('-i', '--image-id', default=None, help='Limit the data collection only to this image id. Run docker images --no-trunc to list the full image ids. Do not use the sha256: prefix when requesting an id.')
 @click.option('-l', '--id-len', default=DEFAULT_LAYER_ID_LEN, help='Use a different layer or image ID length than the default 64 characters to avoid very long ids.')
 @click.help_option('-h', '--help')
-def docker_rpms(image_id=None, id_len=DEFAULT_LAYER_ID_LEN):
+def conan_packages(image_id=None, id_len=DEFAULT_LAYER_ID_LEN):
     """
-    Query the local Docker install to find all newly installed RPMs in a given layer.
-    All available images and layers in your local Dcoker installation are queried. 
-    RPMs are listed only in the layers where they were first installed.
-    
-    Results are printed to screen as CSV with these columns:
+    Query the local Docker installation to find all newly installed RPMs in a given
+    layer. All available images and layers in your local Dcoker installation are
+    queried. 
+
+    An RPM version is  listed only in the layer where it is first installed (or first updated).
+
+    Results are printed to stdout as CSV with these columns:
     
     image_id,image_name,image_tag,layer_id,layer_order,layer_command,installed_rpm_file
 
