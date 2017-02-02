@@ -21,7 +21,7 @@ from commoncode.testcase import FileBasedTesting
 from commoncode import fileutils
 
 from conan import docker
-from conan.docker import Layer
+from conan.docker import LayerOld
 from conan.docker import NonSortableLayersError
 from conan.cli import collect_images
 from conan.utils import rebuild_rootfs
@@ -168,10 +168,10 @@ class TestDockerUtils(FileBasedTesting):
             pass
 
 
-class TestDocker(FileBasedTesting):
+class TestDockerLayerOld(FileBasedTesting):
     test_data_dir = os.path.join(os.path.dirname(__file__), 'data')
 
-    def test_Layer_sort(self):
+    def test_LayerOld_sort(self):
         # ordered in correct layer order, top to bottom
         test_data = [
             ('511136ea3c5a64f264b78b5433614aec563103b4d4702f3ba7d4d2698e22c158', {'parent': None}),
@@ -211,8 +211,8 @@ class TestDocker(FileBasedTesting):
         # sort in layer id order, which is a random for our purpose
         shuffled = sorted(test_data)
 
-        layers = [Layer(lid, **data) for lid, data in shuffled]
-        result = Layer.sort(layers)
+        layers = [LayerOld(lid, **data) for lid, data in shuffled]
+        result = LayerOld.sort(layers)
         result = [(l.layer_id, {'parent': l.parent_id}) for l in result]
 
         expected = test_data
@@ -223,7 +223,7 @@ class TestDocker(FileBasedTesting):
             assert pid == last
             last = {'parent': lid}
 
-    def test_Layer_sort_with_non_sortable_layers_raise_exception(self):
+    def test_LayerOld_sort_with_non_sortable_layers_raise_exception(self):
         # ordered in random layer order, one layer is not in the stream
         test_data = [
             ('766dd2d9abcf5a4cc87729e938c005b0714309659b197fca61e4fd9b775b6b7b', {'parent': 'c89045c0bfe8cd62c539d0cc227eaeab7f5445002b8a711c0d5f47ec7716ad51'}),
@@ -235,9 +235,9 @@ class TestDocker(FileBasedTesting):
             ('511136ea3c5a64f264b78b5433614aec563103b4d4702f3ba7d4d2698e22c158', {'parent': None}),
         ]
 
-        layers = [Layer(lid, **data) for lid, data in test_data]
+        layers = [LayerOld(lid, **data) for lid, data in test_data]
         try:
-            Layer.sort(layers)
+            LayerOld.sort(layers)
         except NonSortableLayersError:
             pass
 
