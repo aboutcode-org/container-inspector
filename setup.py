@@ -59,8 +59,8 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'conan_infos=conan.docker:docker',
-            'conan_rpms=conan.docker_dyn:docker_rpms',
+            'conan=conan.cli:conan',
+            'conan-inv=conan.packages:conan_packages',
         ],
     },
 
