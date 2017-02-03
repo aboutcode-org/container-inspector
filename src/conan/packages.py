@@ -23,7 +23,7 @@ import unicodecsv
 
 from commoncode import command
 
-from conan.docker import DEFAULT_LAYER_ID_LEN
+from conan import DEFAULT_ID_LEN
 
 
 logger = logging.getLogger(__name__)
@@ -98,7 +98,7 @@ def installed_rpms(image_id):
     return stdout.splitlines(False) if rc >= 0 else []
 
 
-def installed_rpms_by_image_layer(image_id=None, layer_id_len=DEFAULT_LAYER_ID_LEN):
+def installed_rpms_by_image_layer(image_id=None, layer_id_len=DEFAULT_ID_LEN):
     """
     Return  tuples of (image id, image name, layer id, layer_order, layer_command unique RPM file names newly installed
     in this layer.
@@ -118,9 +118,9 @@ def installed_rpms_by_image_layer(image_id=None, layer_id_len=DEFAULT_LAYER_ID_L
 
 @click.command()
 @click.option('-i', '--image-id', default=None, help='Limit the data collection only to this image id. Run docker images --no-trunc to list the full image ids. Do not use the sha256: prefix when requesting an id.')
-@click.option('-l', '--id-len', default=DEFAULT_LAYER_ID_LEN, help='Use a different layer or image ID length than the default 64 characters to avoid very long ids.')
+@click.option('-l', '--id-len', default=DEFAULT_ID_LEN, help='Use a different layer or image ID length than the default 64 characters to avoid very long ids.')
 @click.help_option('-h', '--help')
-def conan_packages(image_id=None, id_len=DEFAULT_LAYER_ID_LEN):
+def conan_packages(image_id=None, id_len=DEFAULT_ID_LEN):
     """
     Query the local Docker installation to find all newly installed RPMs in a given
     layer. All available images and layers in your local Dcoker installation are

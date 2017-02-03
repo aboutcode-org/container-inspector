@@ -21,9 +21,25 @@ import os
 
 from commoncode.testcase import FileBasedTesting
 
-from conan.docker import Layer
+from conan.image_v11 import Layer
+from conan.image_v11 import Image
+from commoncode import fileutils
 
-regen = True
+
+def check_expected(result, expected, regen=False):
+    """
+    Check euquality between a result collection and an expected JSON file.
+    Regen the expected file if regen is True.
+    """
+    if regen:
+        with open(expected, 'wb') as ex:
+            ex.write(json.dumps(result, indent=2))
+
+    with open(expected) as ex:
+        expected = json.loads(ex.read(), object_pairs_hook=OrderedDict)
+
+    assert expected == result
+
 
 class TestLayer(FileBasedTesting):
     test_data_dir = os.path.join(os.path.dirname(__file__), 'data')
@@ -38,13 +54,23 @@ class TestLayer(FileBasedTesting):
             layer_dir = os.path.join(test_dir, layer_id)
             layer = Layer.load_layer(layer_dir)
             expected = os.path.join(expected_dir, layer_id + '.expected.json')
-
-            if regen:
-                with open(expected, 'wb') as ex:
-                    ex.write(json.dumps(layer.as_dict(), indent=2))
-
-            with open(expected) as ex:
-                expected = json.loads(ex.read(), object_pairs_hook=OrderedDict)
+            result = layer.as_dict()
+            check_expected(result, expected)
 
 
-            assert expected == layer.as_dict()
+class TestImage(FileBasedTesting):
+    test_data_dir = os.path.join(os.path.dirname(__file__), 'data')
+
+    def test_Image(self):
+        Image()
+
+    def test_load_image_config(self):
+        test_dir = self.get_test_loc('images/config')
+        expected_dir = self.get_test_loc('images/config_expected')
+        for config_file in os.listdir(test_dir):
+            base_name = fileutils.file_base_name(config_file)
+            config_file = os.path.join(test_dir, config_file)
+            image = Image.load_image_config(config_file)
+            expected = os.path.join(expected_dir, base_name + '.expected.json')
+            result = image.as_dict()
+            check_expected(result, expected)

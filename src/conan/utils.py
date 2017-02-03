@@ -15,20 +15,16 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from collections import OrderedDict
+from collections import Mapping
+from copy import deepcopy
+import json
 import logging
 import os
-from os.path import join
 from os.path import isdir
-import re
 
-
-from commoncode import fileutils
-from commoncode import filetype
-
-from conan import DEFAULT_LAYER_ID_LEN
-from conan import LAYER_TAR_FILE
-from conan import InconsistentLayersOderingError
-
+from commoncode.hash import sha256
+from pip._vendor.requests.compat import str
 
 
 logger = logging.getLogger(__name__)
@@ -37,12 +33,15 @@ logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
 
 
-def is_image_or_layer_id(s, layerid_len=DEFAULT_LAYER_ID_LEN):
+
+def load_json(location):
     """
-    Return True if the string s looks like a layer ID.
-    Checks at most layerid_len characters
+    Return the data loaded from a JSON file at `location`.
+    Ensure that the mapping are ordered.
     """
-    return re.compile(r'^[a-f0-9]{%(layerid_len)d}$' % locals()).match
+    with open(location) as loc:
+        data = json.loads(loc.read(), object_pairs_hook=OrderedDict)
+    return data
 
 
 def listdir(location):
@@ -78,109 +77,141 @@ def find_shortest_prefix_length(strings):
     return shortest_len
 
 
-WHITEOUT_PREFIX = '.wh.'
-WHITEOUT_SPECIAL_DIR_PREFIX = '.wh..wh.'
-# TODO: we do not haneld these yet (see the OCI spec)
-# https://github.com/opencontainers/image-spec/blob/master/layer.md#whiteouts
-WHITEOUT_OPAQUE_PREFIX = '.wh..wh.opq'
-
-
-def rebuild_rootfs(image, target_dir, layerid_len=DEFAULT_LAYER_ID_LEN):
+def get_command(cmd):
     """
-    Extract and merge all layers to target_dir. Extraction is done in
-    sequence from bottom (root) to top (latest layer).
-
-    Return a mapping of errors and a list of whiteouts/deleted files.
-
-    The extraction process consists of these steps:
-     - extract the layer in a temp directory
-     - move layer to the target directory, overwriting existing files
-     - if any, remove AUFS special files/dirs in the target directory
-     - if any, remove whiteouts file/directory pairs in the target directory
+    Clean the command for this layer.
     """
-
-    from extractcode.extract import extract_file
-
-    assert filetype.is_dir(target_dir)
-    assert os.path.exists(target_dir)
-    extract_errors = []
-    # log whiteouts deletions
-    whiteouts = []
-
-    for layer_id, layer in image.layers.items():
-        layer_tarball = join(image.repo_dir, layer_id[:layerid_len], LAYER_TAR_FILE)
-        logger.debug('Extracting layer tarball: %(layer_tarball)r' % locals())
-        temp_target = fileutils.get_temp_dir('conan-docker')
-        xevents = list(extract_file(layer_tarball, temp_target))
-        for x in xevents:
-            if x.warnings or  x.errors:
-                extract_errors.extend(xevents)
+    # FIXME: this need to be cleaned further
+    return cmd and ' '.join([c for c in cmd if not c.startswith(('/bin/sh', '-c',))]) or ''
 
 
-        # FIXME: the order of ops is WRONG: we are getting whiteouts incorrectly
-        # it should be:
-        # 1. extract a layer to temp.
-        # 2. find whiteouts in that layer.
-        # 3. remove whiteouts in the previous layer stack (e.g. the WIP rootfs)
-        # 4. finall copy the extracted layer over the WIP rootfs 
+def sha256_digest(location):
+    """
+    Return an algorithm-prefixed checksum for the file content at location.
+    """
+    return 'sha256:' + sha256(location)
 
-        # move extracted layer to target_dir
-        logger.debug('Moving extracted layer from: %(temp_target)r to: %(target_dir)r')
-        fileutils.copytree(temp_target, target_dir)
-        fileutils.delete(temp_target)
 
-        logger.debug('Merging extracted layers and applying AUFS whiteouts/deletes')
-        for top, dirs, files in fileutils.walk(target_dir):
-            # delete AUFS dirs and apply whiteout deletions
-            for dr in dirs[:]:
-                whiteable_dir = join(top, dr)
-                if dr.startswith(WHITEOUT_PREFIX):
-                    # delete the .wh. dir...
-                    dirs.remove(dr)
-                    logger.debug('Deleting whiteout dir: %(whiteable_dir)r' % locals())
-                    fileutils.delete(whiteable_dir)
+def as_bare_id(string):
+    """
+    Return an id stripped from its leading checksum algorithm prefix if present.
+    """
+    if not string:
+        return string
+    if string.startswith('sha256:'):
+        _, _, string = string.partition('sha256:')
+    return string
 
-                    # ... and delete the corresponding dir it does "whiteout"
-                    base_dir = dr[len(WHITEOUT_PREFIX):]
-                    try:
-                        dirs.remove(base_dir)
-                    except ValueError:
-                        msg = ('Inconsistent layers ordering: '
-                               'missing directory to whiteout: %(base_dir)r' % locals())
-                        raise InconsistentLayersOderingError(msg)
-                    wdo = join(top, base_dir)
-                    logger.debug('Deleting real dir:  %(wdo)r' % locals())
-                    fileutils.delete(wdo)
-                    whiteouts.append(wdo)
 
-                # delete AUFS special dirs
-                elif dr.startswith(WHITEOUT_SPECIAL_DIR_PREFIX):
-                    dirs.remove(dr)
-                    logger.debug('Deleting AUFS special dir:  %(whiteable_dir)r' % locals())
-                    fileutils.delete(whiteable_dir)
+# Common empty elements (used to distinguish these from a boolean)
+EMPTIES = (None, {}, [], set(), tuple(), '', OrderedDict(), 0,)
 
-            # delete AUFS files and apply whiteout deletions
-            all_files = set(files)
-            for fl in all_files:
-                whiteable_file = join(top, fl)
-                if fl.startswith(WHITEOUT_PREFIX):
-                    # delete the .wh. marker file...
-                    logger.debug('Deleting whiteout file: %(whiteable_file)r' % locals())
-                    fileutils.delete(whiteable_file)
-                    # ... and delete the corresponding file it does "whiteout"
-                    # e.g. logically delete
-                    base_file = fl[len(WHITEOUT_PREFIX):]
 
-                    wfo = join(top, base_file)
-                    whiteouts.append(wfo)
-                    if base_file in all_files:
-                        logger.debug('Deleting real file:  %(wfo)r' % locals())
-                        fileutils.delete(wfo)
+def merge_update_mappings(map1, map2, mapping=dict):
+    """
+    Return a new mapping and a list of warnings merging two mappings such that:
+     - identical values are left unchanged
+     - when values differ:
+      - if one of the two values is None or empty or an empty stripped string, keep
+        the non-empty value.
+      - otherwise the map1 value is kept and a warning message is added to the warnings
+        that the values differ
+    This procedure is applied recursively.
 
-                # delete AUFS special files
-                elif fl.startswith(WHITEOUT_SPECIAL_DIR_PREFIX):
-                    logger.debug('Deleting AUFS special file:  %(whiteable_file)r' % locals())
-                    fileutils.delete(whiteable_file)
-                    whiteouts.append(whiteable_file)
+    `mapping` is the mapping class to retrun either a dict or OrderedDict.
 
-    return extract_errors, whiteouts
+    For example:
+    >>> map1 = {
+    ...   '1': {
+    ...     'first': {1:2, 2:3},
+    ...     'second': 'third',
+    ...     'third': 'one',
+    ...     'fourth': None,
+    ...     'sixth': False,
+    ...     'seventh': False,
+    ...   },
+    ...   '2': [1, 2, 3]
+    ... }
+    >>> map2 = {
+    ...   '1': {
+    ...     'first': {1:3, 3:4},
+    ...     'second': 'third',
+    ...     'third': 'two',
+    ...     'fourth': 'some',
+    ...     'fifth': None,
+    ...     'seventh': True,
+    ...   },
+    ...   '2': [1, 2, 3, 4]
+    ... }
+    >>> res, warn = merge_update_mappings(map1, map2)
+    >>> expected = {
+    ...   '1': {
+    ...     'first': {1: 2, 2: 3, 3: 4},
+    ...     'second': 'third',
+    ...     'third': 'one',
+    ...     'fourth': 'some',
+    ...     'fifth': None,
+    ...     'sixth': False,
+    ...     'seventh': True,
+    ...   },
+    ...   '2': [1, 2, 3, 4]}
+    >>> assert expected == dict(res)
+    >>> ex_warn = [
+    ...   'WARNING: Values differ for "third": keeping first value: "one" != "two".',
+    ...   'WARNING: Values differ for "1": keeping first value: "2" != "3".'
+    ... ]
+    >>> assert ex_warn == warn
+    """
+    warnings = []
+
+    if map1 and not map2:
+        return mapping(map1), warnings
+
+    if map2 and not map1:
+        return mapping(map2), warnings
+
+    keys = map1.keys()
+    keys.extend(k2 for k2 in map2.keys() if k2 not in keys)
+    new_map = mapping()
+    for key in keys:
+        value1 = deepcopy(map1.get(key))
+        value2 = deepcopy(map2.get(key))
+
+        # strip strings
+        if isinstance(value1, str):
+            value1 = value1.strip()
+        if isinstance(value2, str):
+            value2 = value2.strip()
+
+        if value1 == value2:
+            new_map[key] = value1
+
+        elif isinstance(value1, bool) or isinstance(value2, bool):
+            new_map[key] = bool(value1 or value2)
+
+        elif value1 and value2 in EMPTIES:
+            new_map[key] = value1
+
+        elif value2 and value1 in EMPTIES:
+            new_map[key] = value2
+
+        elif isinstance(value1, Mapping):
+            assert isinstance(value2, Mapping)
+            # recurse to merge v1 and v2
+            new_value, vwarns = merge_update_mappings(value1, value2, mapping)
+            warnings.extend(vwarns)
+            new_map[key] = new_value
+
+        elif isinstance(value1, (list, tuple, set)):
+            assert isinstance(value2, (list, tuple, set))
+            # append new v2 items to v1
+            new_value = value1 + [v for v in value2 if v not in value1]
+            new_map[key] = new_value
+
+        elif value1 != value2:
+            new_map[key] = value1
+            wmessage = 'WARNING: Values differ for "%(key)s": keeping first value: "%(value1)s" != "%(value2)s".' % locals()
+            warnings.append(wmessage)
+
+    return new_map, warnings
+

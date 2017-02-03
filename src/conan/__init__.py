@@ -11,14 +11,18 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import re
 
 __version__ = '1.0.0'
 
-DEFAULT_LAYER_ID_LEN = 64
+DEFAULT_ID_LEN = 64
 
-REPO_V10_REPOSITORIES_FILE = 'repositories'
-REPO_V11_MANIFEST_JSON_FILE = 'manifest.json'
+REPOSITORIES_FILE = 'repositories'
+MANIFEST_JSON_FILE = 'manifest.json'
 
 LAYER_VERSION_FILE = 'VERSION'
 LAYER_JSON_FILE = 'json'
@@ -26,11 +30,14 @@ LAYER_TAR_FILE = 'layer.tar'
 
 docker_version = re.compile('docker/([^\s]+)')
 
+EMPTY_SHA256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+EMPTY_DIGEST = 'sha256:'+ EMPTY_SHA256
 
-class InconsistentLayersOderingError(Exception):
-    pass
 
-
-class NonSortableLayersError(Exception):
-    pass
+def is_image_or_layer_id(s, layerid_len=DEFAULT_ID_LEN):
+    """
+    Return True if the string `s` looks like a layer ID. Checks at most layerid_len
+    characters with a default to DEFAULT_ID_LEN (e.g. 64).
+    """
+    return re.compile(r'^[a-f0-9]{%(layerid_len)d}$' % locals()).match
 

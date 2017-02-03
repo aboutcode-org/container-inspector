@@ -26,11 +26,11 @@ import unicodecsv
 
 from commoncode import fileutils
 
-from conan import DEFAULT_LAYER_ID_LEN
-from conan.docker import get_image
+from conan import DEFAULT_ID_LEN
+from conan.image_v10 import ImageV10
 from conan.dockerfile import flatten_dockerfiles
 from conan.dockerfile import collect_dockerfiles
-from conan.utils import rebuild_rootfs
+from conan.rootfs import rebuild_rootfs
 
 
 logger = logging.getLogger(__name__)
@@ -39,9 +39,22 @@ logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
 
 
+def get_image(location, echo=print, layerid_len=DEFAULT_ID_LEN):
+    """
+    Return a dictionary location -> image object if the location is an ImageV10
+    directory. Return an empty dictionary otherwise.
+    """
+    try:
+        image = ImageV10(location, layerid_len=layerid_len)
+        echo('Found Docker image at: %(location)r' % locals())
+        return {location: image}
+    except Exception, e:
+        logger.debug('get_image: Not an image directory: %(location)r' % locals())
+        # not an image
+        return {}
 
 
-def collect_images(location, echo=print, layerid_len=DEFAULT_LAYER_ID_LEN):
+def collect_images(location, echo=print, layerid_len=DEFAULT_ID_LEN):
     """
     Collect all images in a directory tree. Return a map of location ->
     Image
@@ -60,7 +73,7 @@ def collect_images(location, echo=print, layerid_len=DEFAULT_LAYER_ID_LEN):
     return images
 
 
-def collect_and_rebuild_rootfs(location, echo=print, layerid_len=DEFAULT_LAYER_ID_LEN):
+def collect_and_rebuild_rootfs(location, echo=print, layerid_len=DEFAULT_ID_LEN):
     """
     Collect all images in a directory tree. Extract/merges the layers side-by-
     side with the image directory with an extract suffix.
@@ -111,13 +124,13 @@ def no_print(*args, **kwargs):
               help='Find source Dockerfile files. Print information as JSON.')
 @click.option('-d', '--dockerfile-csv', is_flag=True, is_eager=True,
               help='Find source Dockerfile files. Print information  as CSV.')
-@click.option('-l', '--layerid-len', default=DEFAULT_LAYER_ID_LEN,
+@click.option('-l', '--layerid-len', default=DEFAULT_ID_LEN,
               help='Use a different layer ID length than the default 64 characters to avoid very long ids.')
 @click.help_option('-h', '--help')
 def conan(directory, extract=False,
            image_json=False, image_csv=False,
            dockerfile_json=False, dockerfile_csv=False,
-           layerid_len=DEFAULT_LAYER_ID_LEN):
+           layerid_len=DEFAULT_ID_LEN):
     """
     Search and collect Docker images data in DIRECTORY.
 

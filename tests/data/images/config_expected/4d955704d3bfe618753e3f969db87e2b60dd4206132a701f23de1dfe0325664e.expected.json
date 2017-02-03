@@ -1,0 +1,53 @@
+{
+  "docker_version": "1.13.0", 
+  "os": "linux", 
+  "architecture": "amd64", 
+  "created": "2017-02-01T09:45:44.138970446Z", 
+  "author": null, 
+  "container": null, 
+  "comment": "initial import", 
+  "config": {
+    "Hostname": "", 
+    "Domainname": "", 
+    "User": "", 
+    "AttachStdin": false, 
+    "AttachStdout": false, 
+    "AttachStderr": false, 
+    "Tty": false, 
+    "OpenStdin": false, 
+    "StdinOnce": false, 
+    "Env": null, 
+    "Cmd": null, 
+    "Image": "", 
+    "Volumes": null, 
+    "WorkingDir": "", 
+    "Entrypoint": null, 
+    "OnBuild": null, 
+    "Labels": null
+  }, 
+  "image_id": null, 
+  "parent_digest": null, 
+  "config_digest": "sha256:4d955704d3bfe618753e3f969db87e2b60dd4206132a701f23de1dfe0325664e", 
+  "top_layer_id": null, 
+  "top_layer_digest": "sha256:c2c0564e4d42ab2b8e947861d9324a6ab087818731e818bc8667c7523507c4f9", 
+  "layers": [
+    {
+      "docker_version": null, 
+      "os": null, 
+      "architecture": null, 
+      "created": "2017-02-01T09:45:44.138970446Z", 
+      "author": null, 
+      "container": null, 
+      "comment": "initial import", 
+      "config": {}, 
+      "created_by": null, 
+      "empty_layer": false, 
+      "id": null, 
+      "parent": null, 
+      "layer_id": null, 
+      "layer_digest": "sha256:c2c0564e4d42ab2b8e947861d9324a6ab087818731e818bc8667c7523507c4f9", 
+      "layer_size": 0, 
+      "command": null
+    }
+  ]
+}
