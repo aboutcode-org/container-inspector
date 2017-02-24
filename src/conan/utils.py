@@ -24,7 +24,6 @@ import os
 from os.path import isdir
 
 from commoncode.hash import sha256
-from pip._vendor.requests.compat import str
 
 
 logger = logging.getLogger(__name__)
@@ -89,7 +88,7 @@ def sha256_digest(location):
     """
     Return an algorithm-prefixed checksum for the file content at location.
     """
-    return 'sha256:' + sha256(location)
+    return location and ('sha256:' + unicode(sha256(location)))
 
 
 def as_bare_id(string):

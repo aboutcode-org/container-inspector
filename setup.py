@@ -25,7 +25,7 @@ def read(*names, **kwargs):
 
 setup(
     name='conan',
-    version='1.0.0',
+    version='2.0.0',
     license='Apache-2.0',
     description='Docker-related utilities.',
     long_description='Docker-related utilities.',
@@ -53,13 +53,14 @@ setup(
         'scancode-toolkit',
         'click',
         'unicodecsv',
-        'dockerfile-parse',
+        'dockerfile_parse',
         'attrs',
     ],
 
     entry_points={
         'console_scripts': [
             'conan=conan.cli:conan',
+            'repos=conan.cli:conanv11',
             'conan-inv=conan.packages:conan_packages',
         ],
     },

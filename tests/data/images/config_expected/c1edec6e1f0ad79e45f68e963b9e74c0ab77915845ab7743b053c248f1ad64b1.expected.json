@@ -34,11 +34,12 @@
       "Some other label": ""
     }
   }, 
-  "image_id": null, 
+  "image_id": "c1edec6e1f0ad79e45f68e963b9e74c0ab77915845ab7743b053c248f1ad64b1", 
   "parent_digest": null, 
   "config_digest": "sha256:c1edec6e1f0ad79e45f68e963b9e74c0ab77915845ab7743b053c248f1ad64b1", 
   "top_layer_id": null, 
   "top_layer_digest": null, 
+  "layer_digests": [], 
   "layers": [
     {
       "docker_version": null, 
@@ -51,7 +52,6 @@
       "config": {}, 
       "created_by": "/bin/sh -c #(nop)  MAINTAINER You Myself and I.", 
       "empty_layer": true, 
-      "id": null, 
       "parent": null, 
       "layer_id": null, 
       "layer_digest": null, 
@@ -69,7 +69,6 @@
       "config": {}, 
       "created_by": "/bin/sh -c #(nop) ADD file:4cf1ddc0e2f550529d17989d68a7968b07a51044244d4f432e778929d1a83a48 in / ", 
       "empty_layer": false, 
-      "id": null, 
       "parent": null, 
       "layer_id": null, 
       "layer_digest": "sha256:2d3d307589a202188a779ec6d094a39a396d7d48d6fef273b902af4389bcfd62", 
@@ -87,12 +86,12 @@
       "config": {}, 
       "created_by": "/bin/sh -c #(nop)  LABEL Some other label=", 
       "empty_layer": true, 
-      "id": null, 
       "parent": null, 
       "layer_id": null, 
       "layer_digest": null, 
       "layer_size": 0, 
       "command": null
     }
-  ]
+  ], 
+  "tags": []
 }

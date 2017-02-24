@@ -17,6 +17,7 @@ from __future__ import unicode_literals
 
 from collections import defaultdict
 from collections import OrderedDict
+from functools import partial
 import json
 import logging
 from os.path import exists
@@ -27,18 +28,20 @@ import attr
 
 from commoncode import filetype
 from commoncode import fileutils
+from commoncode.fileutils import file_base_name
+from commoncode.fileutils import parent_directory
 
-from conan import MANIFEST_JSON_FILE
-from conan import LAYER_VERSION_FILE
 from conan import LAYER_JSON_FILE
 from conan import LAYER_TAR_FILE
+from conan import LAYER_VERSION_FILE
+from conan import MANIFEST_JSON_FILE
 
+from conan.utils import as_bare_id
+from conan.utils import get_command
 from conan.utils import listdir
 from conan.utils import load_json
-from conan.utils import get_command
-from conan.utils import sha256_digest
 from conan.utils import merge_update_mappings
-from conan.utils import as_bare_id
+from conan.utils import sha256_digest
 
 
 logger = logging.getLogger(__name__)
@@ -51,8 +54,13 @@ logger = logging.getLogger(__name__)
 Objects to handle Docker repositories, images and layers data in v1.1 and v1.2 format.
 """
 
+defaultdict_list = partial(defaultdict, list)
+
 
 class AsDictMixin(object):
+    """
+    A mixin to add an as_dict() method to an attr-based class.
+    """
     def as_dict(self):
         return attr.asdict(self, dict_factory=OrderedDict)
 
@@ -60,7 +68,7 @@ class AsDictMixin(object):
 @attr.attributes
 class Registry(AsDictMixin):
     """
-    A collection of several Repositories that may not be related.
+    A collection of several Repositories (that may or may not be related).
     """
     repositories = attr.attrib(
         default=attr.Factory(dict),
@@ -69,9 +77,28 @@ class Registry(AsDictMixin):
 
     def unique_layers(self):
         """
-        Return a list of unique layers in this registry.
+        Yield a tuple of (repo_dir, layer object) for every unique layer in this registry.
         """
-        raise NotImplementedError
+        seen = set()
+        for repo_dir, repo in self.repositories.iteritems():
+            for layer_id, layer in repo.layers_by_id.iteritems():
+                if layer_id in seen:
+                    continue
+                seen.add(layer_id)
+                yield repo_dir, layer
+
+    def unique_images(self):
+        """
+        Yield a tuple of (repo_dir, image object) for every unique images in this registry.
+        """
+        seen = set()
+        for repo_dir, repo in self.repositories.iteritems():
+
+            for image_id, image in repo.images_by_id.iteritems():
+                if image_id in seen:
+                    continue
+                seen.add(image_id)
+                yield repo_dir, image
 
     def clustered_layers(self):
         """
@@ -86,74 +113,69 @@ class Registry(AsDictMixin):
 
     def layer_images(self):
         """
-        Return a mapping of layer_id-> [list of image ids where this layer is used]
+        Return a mapping of unique layer_id-> [list of image ids where this layer is used]
         """
         raise NotImplementedError
+
+    def populate(self, base_dir):
+        """
+        Collect the `base_dir` for image repositories.
+        """
+        for fil in fileutils.file_iter(base_dir):
+            # FIXME: we are only looking at V11 repos for now.
+            fn = fileutils.file_name(fil)
+            if not fn == MANIFEST_JSON_FILE:
+                continue
+            rd = parent_directory(fil)
+            repo = Repository()
+            repo.load_manifest(rd)
+            logger.debug('populate: path: %(fn)r' % locals())
+            self.repositories[rd] = repo
+
+    def repos(self):
+        return self.repositories
 
 
 @attr.attributes
 class Repository(AsDictMixin):
     """
-    A collection of several related images stored in a common "repository" directory.
+    A collection of several related images stored in a common directory, sharing
+    layers.
     """
     format_versions = ('1.1', '1.2',)
-
-    repo_dir = attr.attrib(
-        metadata=dict(doc='the repository dir where the repo metadata exists (repositories, manifest.json)')
-    )
 
     layers_by_id = attr.attrib(
         default=attr.Factory(dict),
         metadata=dict(doc='a mapping of (layer_id-> layer object) from bottom to top')
     )
 
-    layers_by_hash = attr.attrib(
-        default=attr.Factory(dict),
-        metadata=dict(doc='a mapping of (sha256(layer.tar)-> layer object) from bottom to top')
-    )
-
-    layers_by_containerid = attr.attrib(
-        default=attr.Factory(dict),
-        metadata=dict(doc='a mapping of (container_id-> layer object) from bottom to top')
-    )
-
-    images = attr.attrib(
+    images_by_id = attr.attrib(
         default=attr.Factory(dict),
         metadata=dict(doc='a mapping of image_id-> image object')
     )
 
-    repository_data = attr.attrib(
-        default=attr.Factory(OrderedDict),
-        metadata=dict(doc='Mapping of original repository data')
-    )
-
-    tags = attr.attrib(
-        default=attr.Factory(OrderedDict),
+    image_id_by_tags = attr.attrib(
+        default=attr.Factory(defaultdict_list),
         metadata=dict(doc='mapping of name:tag -> image id for images in this repository')
     )
-#     tags = attr.attrib(
-#         default=attr.Factory(list),
-#         metadata=dict(doc='List of tags for this image as strings of user/name:version')
-#     )
 
-    @classmethod
-    def load_manifest(cls, manifest_file):
+    def load_manifest(self, repo_dir):
         """
-        Yield images loaded from a "manifest.json" JSON file for format v1.1/1.2.
+        Load this repository from a "manifest.json" JSON file for format v1.1/1.2.
 
         This file is a mapping with this shape:
 
-            - The `Config` field references another JSON file in the tar or repo which
-              includes the image data for this image.
+        - The `Config` field references another JSON file in the tar or repo which
+          includes the image data for this image.
 
-            - The `RepoTags` field lists references pointing to this image.
+        - The `RepoTags` field lists references pointing to this image.
 
-            - The `Layers` field points to the filesystem changeset tars, e.g. the path
-             to the layer.tar files as a list ordered from bottom to top layer.
+        - The `Layers` field points to the filesystem changeset tars, e.g. the path
+         to the layer.tar files as a list ordered from bottom to top layer.
 
-            - An optional `Parent` field references the imageID (as a sha256-prefixed
-             digest?) of the parent image. This parent must be part of the same
-             `manifest.json` file.
+        - An optional `Parent` field references the imageID (as a sha256-prefixed
+         digest?) of the parent image. This parent must be part of the same
+         `manifest.json` file.
 
         For example:
 
@@ -176,37 +198,50 @@ class Repository(AsDictMixin):
              },
         ]
         """
-
+        manifest_file = join(repo_dir, MANIFEST_JSON_FILE)
         manifest = load_json(manifest_file)
-        base_dir = fileutils.parent_directory(manifest_file)
+
         for image_config in manifest:
             config_file = image_config.get('Config')
-            image_id = fileutils.file_base_name(config_file)
-            config_digest = sha256_digest(config_file)
-            parent_digest = image_config.get('Parent')
+
+            config_file = join(repo_dir, config_file)
+            if not exists(config_file):
+                # FIXME: orphaned manifest entry
+                image_id = file_base_name(config_file)
+                image = Image(image_id=image_id)
+                assert image.image_id not in self.images_by_id
+                self.images_by_id[image.image_id] = image
+                continue
+
+            image = Image.load_image_config(config_file)
+            assert image.image_id not in self.images_by_id
+            self.images_by_id[image.image_id] = image
+
+            image.parent_digest = image_config.get('Parent')
+
+            image.tags = image_config.get('RepoTags', [])
+            for tag in image.tags:
+                self.image_id_by_tags[tag] = image.image_id
+
             layer_paths = image_config.get('Layers', [])
             layers = OrderedDict()
             for lp in layer_paths:
-                layer_id = fileutils.parent_directory(lp),
-                layer_digest = sha256_digest(join(base_dir, lp)),
-                layer = dict(
-                    layer_id=layer_id,
-                    layer_digest=layer_digest,
-                    layer_base_dir=join(base_dir, layer_id),
-                )
+                layer_dir = fileutils.parent_directory(lp).strip('/')
+                layer_id = layer_dir
+                layer_dir = join(repo_dir, layer_dir)
+                layer = Layer.load_layer(layer_dir)
+                layer_digest = sha256_digest(join(repo_dir, lp))
+                if layer.layer_digest:
+                    assert layer.layer_digest == layer_digest
                 layers[layer_id] = layer
-            top_layer_id = layer_id
-            top_layer_digest = layer_digest
+                self.layers_by_id[layer_id] = layer
 
-            tags = image_config.get('RepoTags', [])
-            image = Image(
-                image_dir=base_dir,
-                image_id=image_id,
-                tags=tags,
-            )
+            # the last one is the top one
+            image.top_layer_id = layer_id
+            image.top_layer_digest = layer_digest
 
     @classmethod
-    def load_repositories(cls, repositories_files):
+    def load_repositories(cls, repositories_file):
         """
         Yield images loaded from a legacy "repositories" JSON file for format v1.0.
 
@@ -215,13 +250,21 @@ class Repository(AsDictMixin):
             "username/imagename": { "version1": "top layer id", "version2" : "top layer id", }
         }
 
-        The layer id is the name of the layer.tar parent dir and not a digest in the
-        lagacy format.
+        For example:
+        {
+         "me/test_image_tar":      {"1.0":"de331f94dc3592a39e495432d39ca14ed0cf04a6861c1e7714ff410e8a0225b4"},
+         "she/image_from_scratch": {"1.0":"a699c18e2119e668e5f1264e97559af65d2111ac0790b6832efeb450fc5193fc"},
+         "you/secondimage":        {"1.2":"1466996a39f8d2af81b92fad37ef15c04fb2ca64b43945a00f6f5943913f6b96"}
+        }
+
+        The top layer id is the name of the layer.tar parent dir and not a digest in
+        this legacy format.
         """
-        repositories = load_json(repositories_files)
+        repositories = load_json(repositories_file)
         for image_name, versions in repositories.items():
             for version, top_layer_id in versions:
-                pass
+                tag = ':'.join([image_name, version])
+                yield tag, top_layer_id
 
 
 """
@@ -286,9 +329,10 @@ class Image(AsDictMixin, ConfigMixin):
     image_id = attr.attrib(
         default=None,
         metadata=dict(doc='The id for this image. '
-                      'This is the base name of the config.json file '
+                      'This is the base name of the config json file '
                       'and is the same as non-prefixed digest for the config JSON file.'
-                      'For legacy v1.0 images, this is the ID available in a repositories JSON.')
+                      'For legacy v1.0 images, this is the ID available in a '
+                      'repositories JSON which is the top layer_id.')
     )
 
     parent_digest = attr.attrib(
@@ -299,7 +343,8 @@ class Image(AsDictMixin, ConfigMixin):
     config_digest = attr.attrib(
         default=None,
         metadata=dict(doc='The digest of the config JSON file for this image. '
-                      'This is supposed to be the same as the id. Not available for legacy V1.0 images')
+                          'This is supposed to be the same as the id. '
+                          'Not available for legacy V1.0 images')
     )
 
     top_layer_id = attr.attrib(
@@ -312,9 +357,19 @@ class Image(AsDictMixin, ConfigMixin):
         metadata=dict(doc='The top layer digest for this image.')
     )
 
+    layer_digests = attr.attrib(
+        default=attr.Factory(list),
+        metadata=dict(doc='A list of layer digests from bottom to top.')
+    )
+
     layers = attr.attrib(
-        default=attr.Factory(OrderedDict),
-        metadata=dict(doc='an Ordered mapping of (layer_id-> layer object or) from bottom to top')
+        default=attr.Factory(list),
+        metadata=dict(doc='A list of layer objects from bottom to top.')
+    )
+
+    tags = attr.attrib(
+        default=attr.Factory(list),
+        metadata=dict(doc='List of tags for this image as strings of "user/name:version".')
     )
 
     @classmethod
@@ -367,7 +422,9 @@ class Image(AsDictMixin, ConfigMixin):
 
         image_id = fileutils.file_base_name(config_file)
         config_digest = sha256_digest(config_file)
-        assert image_id == as_bare_id(config_digest)
+        if image_id != as_bare_id(config_digest):
+            print('WARNING: image config digest is not consistent.')
+            config_digest = 'sha256' + image_id
 
         image_config = load_json(config_file)
 
@@ -401,11 +458,12 @@ class Image(AsDictMixin, ConfigMixin):
         assert not remaining
 
         layers = [Layer(**l) for l in layers]
-
         image_data = dict (
+            image_id=image_id,
             layers=layers,
             config_digest=config_digest,
             top_layer_digest=layers[-1].layer_digest,
+            top_layer_id=layers[-1].layer_id,
             config=config,
         )
         image_data.update(image_config)
@@ -442,11 +500,6 @@ class LayerConfigMixin(ConfigMixin):
     empty_layer = attr.attrib(
         default=False,
         metadata=dict(doc='True if this is an empty layer. New in V11 format.')
-    )
-
-    id = attr.attrib(
-        default=None,
-        metadata=dict(doc='layer id. LEGACY V10 format.')
     )
 
     parent = attr.attrib(
@@ -495,7 +548,12 @@ class Layer(AsDictMixin, LayerConfigMixin):
         """
         if not layer_dir:
             return
-        assert isdir(layer_dir)
+        # infer from the directory
+        layer_id = fileutils.file_name(layer_dir)
+
+        if not isdir(layer_dir):
+            print('NOT A layer dir:', layer_dir)
+            return Layer(layer_id=layer_id)
         files = listdir(layer_dir)
 
         assert files
@@ -503,11 +561,21 @@ class Layer(AsDictMixin, LayerConfigMixin):
 
         # check that all the files we expect to be in the layer dir are present note:
         # we ignore any other files (such as extracted tars, etc)
-        assert LAYER_VERSION_FILE in files
-        assert LAYER_JSON_FILE in files
+        if LAYER_VERSION_FILE in files:
+            layer_format_version_file = join(layer_dir, LAYER_VERSION_FILE)
+            supported_format_version = cls.format_version
+            with open(layer_format_version_file) as lv:
+                layer_format_version = lv.read().strip()
+                assert supported_format_version == layer_format_version, (
+                    'Unknown layer format version: %(layer_format_version)r '
+                    'in: %(layer_format_version_file)r. '
+                    'Supported version: %(supported_format_version)r') % locals()
+        else:
+            print('Missing layer VERSION for:', layer_dir)
 
-        # infer from the directory
-        layer_id = fileutils.file_name(layer_dir)
+        if not LAYER_JSON_FILE in files:
+            print('Missing layer json for:', layer_dir)
+            return Layer(layer_id=layer_id)
 
         # load data
         with open(join(layer_dir, LAYER_JSON_FILE)) as layer_json:
@@ -527,17 +595,12 @@ class Layer(AsDictMixin, LayerConfigMixin):
         if 'Size' in layer_data:
             del layer_data['Size']
 
-        # make some basic checks
-        assert layer_id == layer_data['id']
+        # do not rely on this
+        if 'id' in layer_data:
+            lid = layer_data.pop('id')
+            # make some basic checks
+            assert layer_id == lid
 
-        layer_format_version_file = join(layer_dir, LAYER_VERSION_FILE)
-        supported_format_version = cls.format_version
-        with open(layer_format_version_file) as lv:
-            layer_format_version = lv.read().strip()
-            assert supported_format_version == layer_format_version, (
-                'Unknown layer format version: %(layer_format_version)r '
-                'in: %(layer_format_version_file)r. '
-                'Supported version: %(supported_format_version)r') % locals()
 
         ccnf = layer_data.pop('container_config', {})
         cnf = layer_data.pop('config', {})
@@ -592,69 +655,3 @@ class Layer(AsDictMixin, LayerConfigMixin):
             merged.append(merged_layer)
 
         return merged, warnings
-
-'''
-
-class ImageV11(object):
-    """
-    Represent an image repository in Docker format V1.1/1.2.
-    """
-
-    def __init__(self, location, layerid_len=DEFAULT_ID_LEN):
-        """
-        Create an image repository based on a directory location.
-        Raise an exception if this is not a valid image repository.
-        """
-        super(ImageV11, self).__init__(location, layerid_len)
-
-        dir_contents = listdir(self.repo_dir)
-        assert dir_contents
-
-        # load the 'manifest.json' data if present
-        self.repositories = OrderedDict()
-        if MANIFEST_JSON_FILE in dir_contents:
-            with open(join(self.repo_dir, REPOSITORIES_FILE)) as json_file:
-                self.repositories = json.load(json_file, object_pairs_hook=OrderedDict)
-            logger.debug('ImageV11: Location is a candidate image repository: '
-                         '%(location)r with a "manifest.json" JSON file' % locals())
-        else:
-            logger.debug('ImageV11: Location: %(location)r has no "manifest.json" JSON file' % locals())
-
-        # collect the layers if we have real layer ids as directories
-        layer_ids = [layer_id for layer_id in dir_contents
-                     if is_image_or_layer_id(layer_id, layerid_len) and isdir(join(location, layer_id))]
-        assert layer_ids
-        logger.debug('ImageV10: Location is a candidate image repository: '
-                     '%(location)r with valid layer dirs' % locals())
-        # build layer objects proper and keep a track of layers by id
-        layers = [LayerOld(layer_id, join(location, layer_id)) for layer_id in layer_ids]
-        logger.debug('ImageV10: Created %d new layers' % len(layers))
-        # sort layers, from bottom (root) [0] to top layer [-1]
-        layers = LayerOld.sort(layers)
-        self.layers = OrderedDict((layer.layer_id, layer) for layer in layers)
-
-        self.tags = self.image_tags()
-
-        # fix missing authors reusing the previous layer author
-        last_author = None
-        for l in self.layers.values():
-            if not last_author:
-                last_author = l.author and l.author.strip() or None
-            if not l.author:
-                l.author = last_author
-
-    def image_tags(self, add_latest=False):
-        layer_id_by_tag = OrderedDict()
-        for image_name, tags in self.repositories.items():
-            has_latest = False
-            for tag, layer_id in tags.items():
-                if tag == 'latest':
-                    has_latest = True
-                image_tag = ':'.join([image_name, tag])
-                layer_id_by_tag[image_tag] = layer_id
-            if not has_latest and add_latest:
-                latest_layer_id = self.layers.keys()[-1]
-                image_tag = ':'.join([image_name, 'latest'])
-                layer_id_by_tag[image_tag] = latest_layer_id
-        return layer_id_by_tag
-'''

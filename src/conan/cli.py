@@ -27,9 +27,10 @@ import unicodecsv
 from commoncode import fileutils
 
 from conan import DEFAULT_ID_LEN
-from conan.image_v10 import ImageV10
 from conan.dockerfile import flatten_dockerfiles
 from conan.dockerfile import collect_dockerfiles
+from conan.image_v10 import ImageV10
+from conan.image_v11 import Registry
 from conan.rootfs import rebuild_rootfs
 
 
@@ -39,7 +40,7 @@ logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
 
 
-def get_image(location, echo=print, layerid_len=DEFAULT_ID_LEN):
+def get_image_v10(location, echo=print, layerid_len=DEFAULT_ID_LEN):
     """
     Return a dictionary location -> image object if the location is an ImageV10
     directory. Return an empty dictionary otherwise.
@@ -49,31 +50,31 @@ def get_image(location, echo=print, layerid_len=DEFAULT_ID_LEN):
         echo('Found Docker image at: %(location)r' % locals())
         return {location: image}
     except Exception, e:
-        logger.debug('get_image: Not an image directory: %(location)r' % locals())
+        logger.debug('get_image_v10: Not an image directory: %(location)r' % locals())
         # not an image
         return {}
 
 
-def collect_images(location, echo=print, layerid_len=DEFAULT_ID_LEN):
+def collect_images_v10(location, echo=print, layerid_len=DEFAULT_ID_LEN):
     """
     Collect all images in a directory tree. Return a map of location ->
     Image
     """
     images = {}
     for top, dirs, files in fileutils.walk(location):
-        image = get_image(top, echo, layerid_len=layerid_len)
-        logger.debug('collect_images: image: %(image)r' % locals())
+        image = get_image_v10(top, echo, layerid_len=layerid_len)
+        logger.debug('collect_images_v10: image: %(image)r' % locals())
         images.update(image)
 
         for d in dirs:
-            image = get_image(join(top, d), echo, layerid_len=layerid_len)
-            logger.debug('collect_images: image: %(image)r' % locals())
+            image = get_image_v10(join(top, d), echo, layerid_len=layerid_len)
+            logger.debug('collect_images_v10: image: %(image)r' % locals())
             images.update(image)
-    logger.debug('collect_images: images: %(images)r' % locals())
+    logger.debug('collect_images_v10: images: %(images)r' % locals())
     return images
 
 
-def collect_and_rebuild_rootfs(location, echo=print, layerid_len=DEFAULT_ID_LEN):
+def collect_and_rebuild_rootfs_v10(location, echo=print, layerid_len=DEFAULT_ID_LEN):
     """
     Collect all images in a directory tree. Extract/merges the layers side-by-
     side with the image directory with an extract suffix.
@@ -82,7 +83,7 @@ def collect_and_rebuild_rootfs(location, echo=print, layerid_len=DEFAULT_ID_LEN)
     all_wh = {}
     # FIXME: we should instead receive a list of images....
 
-    for loc, image in collect_images(location, echo, layerid_len=layerid_len).items():
+    for loc, image in collect_images_v10(location, echo, layerid_len=layerid_len).items():
         extract_target = loc.rstrip('\\/') + extractcode.EXTRACT_SUFFIX
         fileutils.create_dir(extract_target)
         echo('Extracting/merging and building rootfs from layers for Docker image %(loc)r \n  to: %(extract_target)r' % locals())
@@ -145,10 +146,10 @@ def conan(directory, extract=False,
     """
     loc = os.path.abspath(os.path.expanduser(directory))
     if extract:
-        collect_and_rebuild_rootfs(loc, echo=click.echo)
+        collect_and_rebuild_rootfs_v10(loc, echo=click.echo)
 
     elif image_json or image_csv:
-        images = collect_images(loc, echo=no_print, layerid_len=layerid_len)
+        images = collect_images_v10(loc, echo=no_print, layerid_len=layerid_len)
         if image_json:
             click.echo(json.dumps([image.as_dict() for _loc, image in images.items()], indent=2))
         else:
@@ -173,3 +174,22 @@ def conan(directory, extract=False,
                 w.writeheader()
                 for df in dockerfiles:
                     w.writerow(df)
+
+
+
+@click.command()
+@click.argument('directory', type=click.Path(exists=True, readable=True))
+@click.option('-r', '--repos', is_flag=True, is_eager=True, default=True,
+              help='Find Docker repos, their images and their layers. Print information as JSON.')
+@click.help_option('-h', '--help')
+def conanv11(directory, repos=True):
+    """
+    Search and collect Docker repos and images data in DIRECTORY.
+
+    Output is printed to stdout. Use a ">" redirect to save in a file.
+    """
+    loc = os.path.abspath(os.path.expanduser(directory))
+    if repos:
+        registry = Registry()
+        registry.populate(loc)
+        click.echo(json.dumps(registry, indent=2))

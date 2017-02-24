@@ -20,10 +20,12 @@ import json
 import os
 
 from commoncode.testcase import FileBasedTesting
-
-from conan.image_v11 import Layer
-from conan.image_v11 import Image
 from commoncode import fileutils
+
+from conan.image_v11 import Image
+from conan.image_v11 import Layer
+from conan.image_v11 import Registry
+from conan.image_v11 import Repository
 
 
 def check_expected(result, expected, regen=False):
@@ -55,7 +57,7 @@ class TestLayer(FileBasedTesting):
             layer = Layer.load_layer(layer_dir)
             expected = os.path.join(expected_dir, layer_id + '.expected.json')
             result = layer.as_dict()
-            check_expected(result, expected)
+            check_expected(result, expected, regen=True)
 
 
 class TestImage(FileBasedTesting):
@@ -73,4 +75,37 @@ class TestImage(FileBasedTesting):
             image = Image.load_image_config(config_file)
             expected = os.path.join(expected_dir, base_name + '.expected.json')
             result = image.as_dict()
-            check_expected(result, expected)
+            check_expected(result, expected, regen=True)
+
+
+class TestRepo(FileBasedTesting):
+    test_data_dir = os.path.join(os.path.dirname(__file__), 'data')
+
+    def test_Repository(self):
+        Repository()
+
+    def test_load_manifest(self):
+        test_arch = self.get_test_loc('repos/imagesv11.tar')
+        test_dir = self.extract_test_tar(test_arch)
+        expected = os.path.join(self.get_test_loc('repos'), 'imagesv11.tar.expected.json')
+        repo = Repository()
+        repo.load_manifest(test_dir)
+        result = repo.as_dict()
+        check_expected(result, expected, regen=True)
+
+
+class TestRegistry(FileBasedTesting):
+    test_data_dir = os.path.join(os.path.dirname(__file__), 'data')
+
+    def test_Registry(self):
+        Registry('assa')
+
+    def test_populate(self):
+        test_arch = self.get_test_loc('repos/imagesv11.tar')
+        test_dir = self.extract_test_tar(test_arch)
+        expected = os.path.join(self.get_test_loc('repos'), 'imagesv11.tar.registry.expected.json')
+        repo = Registry()
+        repo.populate(test_dir)
+        # ignore the repo dir
+        result = [r.as_dict() for r in repo.repos().values()]
+        check_expected(result, expected, regen=True)

@@ -1,6 +1,6 @@
-about_resource: dockerfile_parse-0.0.5-py2-none-any.whl
-download_url: https://pypi.python.org/packages/source/c/colorama/colorama-0.3.3.tar.gz
-version: 0.0.5
+about_resource: dockerfile_parse-0.0.6-py2-none-any.whl
+download_url: https://pypi.python.org/packages/c5/ce/96705e1f8f10a8abfe59bf2b819381b514d4bcf55275c581b9020054566e/dockerfile-parse-0.0.6.tar.gz#md5=76e7b6ded27d31042b32714cdba0e525
+version: 0.0.6
 
 name: dockerfile_parse
 home_url: https://github.com/DBuildService/dockerfile-parse

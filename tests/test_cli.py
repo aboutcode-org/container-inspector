@@ -19,8 +19,8 @@ import os
 
 from commoncode.testcase import FileBasedTesting
 
-from conan.cli import collect_images
-from conan.cli import collect_and_rebuild_rootfs
+from conan.cli import collect_images_v10
+from conan.cli import collect_and_rebuild_rootfs_v10
 
 
 class TestDockerCli(FileBasedTesting):
@@ -28,18 +28,18 @@ class TestDockerCli(FileBasedTesting):
 
     def test_collect_images(self):
         test_dir = self.extract_test_tar('docker/v10_format/images.tgz')
-        result = collect_images(test_dir)
+        result = collect_images_v10(test_dir)
         assert len(result) == 3
 
     def test_collect_images_single(self):
         test_dir = self.extract_test_tar('docker/v10_format/busybox2.tgz')
-        result = collect_images(test_dir)
+        result = collect_images_v10(test_dir)
         assert len(result) == 1
 
     def test_collect_images_many(self):
         test_dir = self.extract_test_tar('docker/v10_format/merge.tgz')
         base = os.path.dirname(test_dir).strip('\\/')
-        result = collect_images(test_dir)
+        result = collect_images_v10(test_dir)
         result = [f.replace(base, '').lstrip('\\/') for f in result]
         expected = ['merge.tgz/merge/busybox', 'merge.tgz/merge/busybox2']
         assert sorted(expected) == sorted(result)
@@ -47,7 +47,7 @@ class TestDockerCli(FileBasedTesting):
     def test_collect_and_rebuild_rootfs(self):
         test_dir = self.extract_test_tar('docker/v10_format/merge.tgz')
         print(test_dir)
-        result = collect_and_rebuild_rootfs(test_dir, echo=print)
+        result = collect_and_rebuild_rootfs_v10(test_dir, echo=print)
         base = os.path.dirname(test_dir).strip('\\/')
         result = [(f.replace(base, '').lstrip('\\/'), set([w.replace(base, '').lstrip('\\/') for w in wo]),)
                     for f, wo in result.items()]

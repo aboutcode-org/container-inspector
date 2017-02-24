@@ -17,7 +17,7 @@ from __future__ import unicode_literals
 
 import re
 
-__version__ = '1.0.0'
+__version__ = '2.0.0'
 
 DEFAULT_ID_LEN = 64
 
@@ -31,7 +31,7 @@ LAYER_TAR_FILE = 'layer.tar'
 docker_version = re.compile('docker/([^\s]+)')
 
 EMPTY_SHA256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
-EMPTY_DIGEST = 'sha256:'+ EMPTY_SHA256
+EMPTY_DIGEST = 'sha256:' + EMPTY_SHA256
 
 
 def is_image_or_layer_id(s, layerid_len=DEFAULT_ID_LEN):
