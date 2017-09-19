@@ -192,4 +192,4 @@ def conanv11(directory, repos=True):
     if repos:
         registry = Registry()
         registry.populate(loc)
-        click.echo(json.dumps(registry, indent=2))
+        click.echo(json.dumps(registry.as_dict(), indent=2))
