@@ -23,6 +23,7 @@ import logging
 from os.path import exists
 from os.path import isdir
 from os.path import join
+import sys
 
 import attr
 
@@ -48,6 +49,10 @@ logger = logging.getLogger(__name__)
 # un-comment these lines to enable logging
 # logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 # logger.setLevel(logging.DEBUG)
+
+
+def logger_debug(*args):
+    return logger.debug(' '.join(isinstance(a, basestring) and a or repr(a) for a in args))
 
 
 """
@@ -129,7 +134,7 @@ class Registry(AsDictMixin):
             rd = parent_directory(fil)
             repo = Repository()
             repo.load_manifest(rd)
-            logger.debug('populate: path: %(fn)r' % locals())
+            logger_debug('populate: path: %(fn)r' % locals())
             self.repositories[rd] = repo
 
     def repos(self):
@@ -219,11 +224,11 @@ class Repository(AsDictMixin):
 
             image.parent_digest = image_config.get('Parent')
 
-            image.tags = image_config.get('RepoTags', [])
+            image.tags = image_config.get('RepoTags') or []
             for tag in image.tags:
                 self.image_id_by_tags[tag] = image.image_id
 
-            layer_paths = image_config.get('Layers', [])
+            layer_paths = image_config.get('Layers') or []
             layers = OrderedDict()
             for lp in layer_paths:
                 layer_dir = fileutils.parent_directory(lp).strip('/')
@@ -557,7 +562,7 @@ class Layer(AsDictMixin, LayerConfigMixin):
         files = listdir(layer_dir)
 
         assert files
-        logger.debug('load_layer: Layer files: ', files, 'layer_dir: ', layer_dir)
+        logger_debug('load_layer: Layer files: ', files, 'layer_dir: ', layer_dir)
 
         # check that all the files we expect to be in the layer dir are present note:
         # we ignore any other files (such as extracted tars, etc)
