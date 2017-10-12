@@ -31,13 +31,17 @@ logger = logging.getLogger(__name__)
 # logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 # logger.setLevel(logging.DEBUG)
 
+"""
+Utilities to handle image and layer archives and recreate proper rootfs
+from these archives.
+"""
+
 
 WHITEOUT_PREFIX = '.wh.'
 WHITEOUT_SPECIAL_DIR_PREFIX = '.wh..wh.'
-# TODO: we do not haneld these yet (see the OCI spec)
+# TODO: we do not handle these yet (see the OCI spec)
 # https://github.com/opencontainers/image-spec/blob/master/layer.md#whiteouts
 WHITEOUT_OPAQUE_PREFIX = '.wh..wh.opq'
-
 
 
 class InconsistentLayersError(Exception):
@@ -70,11 +74,11 @@ def rebuild_rootfs(image, target_dir, layerid_len=DEFAULT_ID_LEN):
         layer_tarball = join(image.repo_dir, layer_id[:layerid_len], LAYER_TAR_FILE)
         logger.debug('Extracting layer tarball: %(layer_tarball)r' % locals())
         temp_target = fileutils.get_temp_dir('conan-docker')
+        # FIXME: we are not preserving links (hard and sym) nor any special file.
         xevents = list(extract_file(layer_tarball, temp_target))
         for x in xevents:
             if x.warnings or  x.errors:
                 extract_errors.extend(xevents)
-
 
         # FIXME: the order of ops is WRONG: we are getting whiteouts incorrectly
         # it should be:
