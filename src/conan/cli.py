@@ -179,17 +179,33 @@ def conan(directory, extract=False,
 
 @click.command()
 @click.argument('directory', type=click.Path(exists=True, readable=True))
-@click.option('-r', '--repos', is_flag=True, is_eager=True, default=True,
+@click.option('-r', '--repos', is_flag=True, default=True,
               help='Find Docker repos, their images and their layers. Print information as JSON.')
+@click.option('--csv', is_flag=True, default=False, 
+              help='Print information as csv instead of JSON.') 
 @click.help_option('-h', '--help')
-def conanv11(directory, repos=True):
+def conanv11(directory, repos=True, csv=False):
     """
     Search and collect Docker repos and images data in DIRECTORY.
 
     Output is printed to stdout. Use a ">" redirect to save in a file.
     """
     loc = os.path.abspath(os.path.expanduser(directory))
-    if repos:
-        registry = Registry()
-        registry.populate(loc)
+    if not repos:
+        return 
+
+    registry = Registry()
+    registry.populate(loc)
+
+    if csv:
+        #click.echo(json.dumps(list(registry.flatten()), indent=2))
+        flat_reg = list(registry.flatten())
+        if not flat_reg:
+            return
+        keys = flat_reg[0].keys()
+        w = unicodecsv.DictWriter(sys.stdout, keys, encoding='utf-8')
+        w.writeheader()
+        for f in flat_reg:
+            w.writerow(f)
+    else:
         click.echo(json.dumps(registry.as_dict(), indent=2))

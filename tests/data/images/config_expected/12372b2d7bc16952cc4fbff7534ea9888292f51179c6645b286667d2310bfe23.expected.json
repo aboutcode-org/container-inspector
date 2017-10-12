@@ -6,34 +6,7 @@
   "author": "Me Myself and I.", 
   "container": "721d16a40a4c25355aba3b71b90b5b7a4efd81309784ad2fe35e56cdb158555c", 
   "comment": null, 
-  "config": {
-    "Hostname": "6272bde354c2", 
-    "Domainname": "", 
-    "User": "", 
-    "AttachStdin": false, 
-    "AttachStdout": false, 
-    "AttachStderr": false, 
-    "Tty": false, 
-    "OpenStdin": false, 
-    "StdinOnce": false, 
-    "Env": [
-      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-    ], 
-    "Cmd": [
-      "/bin/sh", 
-      "-c", 
-      "#(nop) ", 
-      "LABEL Some label="
-    ], 
-    "Image": "sha256:4a2081571b18ad5225b3d7ec14bf4833ff369b8c1350604ed73d1745955a3854", 
-    "Volumes": null, 
-    "WorkingDir": "", 
-    "Entrypoint": null, 
-    "OnBuild": [], 
-    "Labels": {
-      "Some label": ""
-    }
-  }, 
+  "config": {}, 
   "image_id": "12372b2d7bc16952cc4fbff7534ea9888292f51179c6645b286667d2310bfe23", 
   "parent_digest": null, 
   "config_digest": "sha256:12372b2d7bc16952cc4fbff7534ea9888292f51179c6645b286667d2310bfe23", 

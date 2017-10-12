@@ -140,6 +140,32 @@ class Registry(AsDictMixin):
     def repos(self):
         return self.repositories
 
+    def flatten(self):
+        """
+        Yeild records for each layer of each image of each repository of this registry.
+        This is a flat data structure for csv output.
+        """
+        for repo_dir, repo in self.repositories.items():
+            for image in repo.images_by_id.values():
+                base_data = OrderedDict([
+                    ('repo_dir', repo_dir),
+                    ('image_id', image.image_id),
+                    ('image_tags', ','.join(image.tags)),
+                ])
+                for layer in image.layers:
+                    layer_data = OrderedDict(base_data)
+                    layer_data['author'] = layer.author
+                    layer_data['created_by'] = layer.created_by
+                    layer_data['layer_id'] = layer.layer_id
+                    layer_data['layer_digest'] = layer.layer_digest
+                    layer_data['empty_layer'] = layer.empty_layer
+                    if layer.layer_id:
+                        ld = join(repo_dir, layer.layer_id)
+                    else:
+                        ld = None
+                    layer_data['layer_dir'] = ld
+                    yield layer_data
+
 
 @attr.attributes
 class Repository(AsDictMixin):
@@ -228,6 +254,8 @@ class Repository(AsDictMixin):
             for tag in image.tags:
                 self.image_id_by_tags[tag] = image.image_id
 
+            image_layers_by_digest = {l.layer_digest: l for l in image.layers}
+
             layer_paths = image_config.get('Layers') or []
             layers = OrderedDict()
             for lp in layer_paths:
@@ -240,6 +268,11 @@ class Repository(AsDictMixin):
                     assert layer.layer_digest == layer_digest
                 layers[layer_id] = layer
                 self.layers_by_id[layer_id] = layer
+                image_layer = image_layers_by_digest.get(layer_digest)
+                if image_layer:
+                    image_layer.layer_id = layer_id
+            
+
 
             # the last one is the top one
             image.top_layer_id = layer_id
@@ -377,6 +410,7 @@ class Image(AsDictMixin, ConfigMixin):
         metadata=dict(doc='List of tags for this image as strings of "user/name:version".')
     )
 
+
     @classmethod
     def load_image_config(cls, config_file, verbose=True):
         """
@@ -440,6 +474,7 @@ class Image(AsDictMixin, ConfigMixin):
 
         if warns and verbose:
             print('Warning when loading: %(config_file)r' % locals())
+
             for w in warns:
                 print(w)
 
@@ -462,6 +497,7 @@ class Image(AsDictMixin, ConfigMixin):
         remaining = list(digests_it)
         assert not remaining
 
+        
         layers = [Layer(**l) for l in layers]
         image_data = dict (
             image_id=image_id,
@@ -469,7 +505,7 @@ class Image(AsDictMixin, ConfigMixin):
             config_digest=config_digest,
             top_layer_digest=layers[-1].layer_digest,
             top_layer_id=layers[-1].layer_id,
-            config=config,
+            #config=config,
         )
         image_data.update(image_config)
 
@@ -615,7 +651,9 @@ class Layer(AsDictMixin, LayerConfigMixin):
             for w in warns:
                 print(w)
 
-        layer = Layer(layer_id=layer_id, layer_digest=layer_digest, layer_size=layer_size, config=config, **layer_data)
+        layer = Layer(layer_id=layer_id, layer_digest=layer_digest, layer_size=layer_size, 
+                #config=config,
+                **layer_data)
         layer.command = get_command(config.get('Cmd'))
         layer.labels = config.get('Labels')
         if not layer.author:
