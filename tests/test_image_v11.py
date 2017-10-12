@@ -42,7 +42,6 @@ def check_expected(result, expected, regen=False):
 
     assert expected == result
 
-
 class TestLayer(FileBasedTesting):
     test_data_dir = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -57,7 +56,7 @@ class TestLayer(FileBasedTesting):
             layer = Layer.load_layer(layer_dir)
             expected = os.path.join(expected_dir, layer_id + '.expected.json')
             result = layer.as_dict()
-            check_expected(result, expected, regen=True)
+            check_expected(result, expected, regen=False)
 
 
 class TestImage(FileBasedTesting):
@@ -75,7 +74,7 @@ class TestImage(FileBasedTesting):
             image = Image.load_image_config(config_file)
             expected = os.path.join(expected_dir, base_name + '.expected.json')
             result = image.as_dict()
-            check_expected(result, expected, regen=True)
+            check_expected(result, expected, regen=False)
 
 
 class TestRepo(FileBasedTesting):
@@ -91,7 +90,7 @@ class TestRepo(FileBasedTesting):
         repo = Repository()
         repo.load_manifest(test_dir)
         result = repo.as_dict()
-        check_expected(result, expected, regen=True)
+        check_expected(result, expected, regen=False)
 
 
 class TestRegistry(FileBasedTesting):
@@ -106,6 +105,27 @@ class TestRegistry(FileBasedTesting):
         expected = os.path.join(self.get_test_loc('repos'), 'imagesv11.tar.registry.expected.json')
         repo = Registry()
         repo.populate(test_dir)
-        # ignore the repo dir
+        # ignore the repo dir by only keeping the values
         result = [r.as_dict() for r in repo.repos().values()]
-        check_expected(result, expected, regen=True)
+        check_expected(result, expected, regen=False)
+    
+    def test_populate_hello_world(self):
+        test_arch = self.get_test_loc('repos/hello-world.tar')
+        test_dir = self.extract_test_tar(test_arch)
+        expected = os.path.join(self.get_test_loc('repos'), 'hello-world.tar.registry.expected.json')
+        repo = Registry()
+        repo.populate(test_dir)
+        # ignore the repo dir by only keeping the values
+        result = [r.as_dict() for r in repo.repos().values()]
+        check_expected(result, expected, regen=False)
+
+    def test_flatten(self):
+        test_arch = self.get_test_loc('repos/hello-world.tar')
+        test_dir = self.extract_test_tar(test_arch)
+        expected = os.path.join(self.get_test_loc('repos'), 'hello-world.tar.flatten.expected.json')
+        reg = Registry()
+        reg.populate(test_dir)
+        # ignore the repo_dir and layer_dir that are absolute directories
+        result = [{name: value for name, value in layer.items() if not name.endswith('dir')} 
+                   for layer in reg.flatten()]
+        check_expected(result, expected, regen=False)
