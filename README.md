@@ -61,4 +61,4 @@ Plans
    of the relationships between all these elements.
  - future: collect inventories of packages and files installed in an image or layer
 
-And if you wonder about the name, conan stands for CONtainer ANalyis.
+And if you wonder about the name, conan stands for CONtainer ANalysis.
