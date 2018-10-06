@@ -5,7 +5,7 @@ their layers and how these relate to each other as well as Dockerfiles.
 conan provides utilities to:
  - identify Docker images in a file system, its layers and the related metadata.
  - given a Docker image, collect and report its metadata.
- - given Docker image, extract the layers using to rebuild what would a runtime
+ - given a Docker image, extract the layers using to rebuild what would a runtime
    rootfs would look like
  - find and parse Dockerfiles
  - find how Dockerfiles relate to actual images and their layers.
@@ -20,8 +20,8 @@ Quick start
 Container image formats
 -------------------
 
-conan handles the formats of images as created by the `docker save` command.
-There are three versions for this image format. 
+conan handles the formats of Docker images as created by the `docker save` command.
+There are three versions for this Docker image format. 
 The latest v1.2 is a minor update to v1.1.
 
 - v1.1 provides improved and richer metadata over v1.0 with a top level manifest.json
