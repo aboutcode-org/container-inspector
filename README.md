@@ -49,10 +49,10 @@ See the imaged specifications saved in docs/references/
 
 Internal data model
 -------------------
-Registry: this is a collection of Image Repositories (related or not).
-  Repository: this is a collection of related Images, stored in the same base directory.
-    Image: this is a runnable image composed of metadata and a sequence of layers.
-    Layer: this is a slice of an image root filesystem with a payload and metadata
+- Registry: this is a collection of Image Repositories (related or not).
+- Repository: this is a collection of related Images, stored in the same base directory.
+- Image: this is a runnable image composed of metadata and a sequence of layers.
+- Layer: this is a slice of an image root filesystem with a payload and metadata
 
 
 Plans
