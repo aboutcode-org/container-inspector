@@ -23,7 +23,6 @@ import logging
 from os.path import exists
 from os.path import isdir
 from os.path import join
-import sys
 
 import attr
 
@@ -259,11 +258,22 @@ class Repository(AsDictMixin):
             layer_paths = image_config.get('Layers') or []
             layers = OrderedDict()
             for lp in layer_paths:
-                layer_dir = fileutils.parent_directory(lp).strip('/')
-                layer_id = layer_dir
-                layer_dir = join(repo_dir, layer_dir)
+                is_layer_dot_tar = lp.endswith('/layer.tar')
+                is_layerid_tar = lp.endswith('.tar') and '/layer.tar' not in lp
+                if is_layer_dot_tar:
+                    layer_dir = fileutils.parent_directory(lp).strip('/')
+                    layer_id = layer_dir
+                    layer_dir = join(repo_dir, layer_dir)
+                    layer_digest = sha256_digest(join(repo_dir, lp))
+                elif is_layerid_tar:
+                    layer_id = lp.replace('.tar', '')
+                    layer_dir = join(repo_dir, lp)
+                    layer_digest = sha256_digest(layer_dir)
+                else:
+                    raise Exception('Unknown layer layout')
+
                 layer = Layer.load_layer(layer_dir)
-                layer_digest = sha256_digest(join(repo_dir, lp))
+
                 if layer.layer_digest:
                     assert layer.layer_digest == layer_digest
                 layers[layer_id] = layer
@@ -271,7 +281,7 @@ class Repository(AsDictMixin):
                 image_layer = image_layers_by_digest.get(layer_digest)
                 if image_layer:
                     image_layer.layer_id = layer_id
-            
+
 
 
             # the last one is the top one
@@ -497,7 +507,7 @@ class Image(AsDictMixin, ConfigMixin):
         remaining = list(digests_it)
         assert not remaining
 
-        
+
         layers = [Layer(**l) for l in layers]
         image_data = dict (
             image_id=image_id,
@@ -505,7 +515,7 @@ class Image(AsDictMixin, ConfigMixin):
             config_digest=config_digest,
             top_layer_digest=layers[-1].layer_digest,
             top_layer_id=layers[-1].layer_id,
-            #config=config,
+            # config=config,
         )
         image_data.update(image_config)
 
@@ -591,10 +601,16 @@ class Layer(AsDictMixin, LayerConfigMixin):
             return
         # infer from the directory
         layer_id = fileutils.file_name(layer_dir)
+        is_tar = layer_dir.endswith('.tar') and not layer_dir.endswith('/layer.tar')
+        if is_tar:
+            layer_id = layer_id.replace('.tar', '')
+            layer_digest = sha256_digest(layer_dir)
+            layer_size = filetype.get_size(layer_dir)
+            return Layer(layer_id=layer_id, layer_digest=layer_digest, layer_size=layer_size)
 
         if not isdir(layer_dir):
-            print('NOT A layer dir:', layer_dir)
             return Layer(layer_id=layer_id)
+
         files = listdir(layer_dir)
 
         assert files
@@ -651,8 +667,8 @@ class Layer(AsDictMixin, LayerConfigMixin):
             for w in warns:
                 print(w)
 
-        layer = Layer(layer_id=layer_id, layer_digest=layer_digest, layer_size=layer_size, 
-                #config=config,
+        layer = Layer(layer_id=layer_id, layer_digest=layer_digest, layer_size=layer_size,
+                # config=config,
                 **layer_data)
         layer.command = get_command(config.get('Cmd'))
         layer.labels = config.get('Labels')
