@@ -195,6 +195,8 @@ def merge_update_mappings(map1, map2, mapping=dict):
             new_map[key] = value2
 
         elif isinstance(value1, Mapping):
+            if not value2:
+                value2 = {}
             assert isinstance(value2, Mapping)
             # recurse to merge v1 and v2
             new_value, vwarns = merge_update_mappings(value1, value2, mapping)
