@@ -18,7 +18,9 @@ from __future__ import unicode_literals
 import json as json_module
 import logging
 import os
+from os import path
 import sys
+import tempfile
 
 import click
 import unicodecsv
@@ -26,7 +28,6 @@ import unicodecsv
 from conan import image
 from conan import dockerfile
 from conan import rootfs
-import tempfile
 
 
 logger = logging.getLogger(__name__)
@@ -36,31 +37,27 @@ logger = logging.getLogger(__name__)
 
 
 @click.command()
-@click.argument('image_directory', metavar='IMAGE_DIR',
-    type=click.Path(exists=True, readable=True))
-@click.argument('extract_directory', metavar='TARGET_DIR',
-    type=click.Path(exists=True, writable=True))
+@click.argument('image_path', metavar='IMAGE_path', type=click.Path(exists=True, readable=True))
+@click.argument('extract_directory', metavar='TARGET_DIR', type=click.Path(exists=True, writable=True))
 @click.help_option('-h', '--help')
-def conan_squash(image_directory, extract_directory):
+def conan_squash(image_path, extract_directory):
     """
-    Given a Docker image in IMAGE_DIR, extract and squash that image in TARGET_DIR
+    Given a Docker image at IMAGE_PATH, extract and squash that image in TARGET_DIR
     merging all layers in a single rootfs-like structure.'))
     """
-    _conan_squash(image_directory, extract_directory)
+    _conan_squash(image_path, extract_directory)
 
 
-def _conan_squash(image_directory, extract_directory):
-    image_loc = os.path.abspath(os.path.expanduser(image_directory))
-    images = list(image.Image.get_images_from_dir(image_loc))
-    assert len(images) == 1, 'Can only process one image at a time'
+def _conan_squash(image_path, extract_directory):
+    images = get_images_from_dir_or_tarball(image_path)
+    assert len(images) == 1, 'Can only squash one image at a time'
     img = images[0]
     target_loc = os.path.abspath(os.path.expanduser(extract_directory))
     rootfs.rebuild_rootfs(img, target_loc)
 
 
 @click.command()
-@click.argument('directory', metavar='DIR',
-    type=click.Path(exists=True, readable=True))
+@click.argument('directory', metavar='DIR', type=click.Path(exists=True, readable=True))
 @click.option('--json', is_flag=True, help='Print information as JSON.')
 @click.option('--csv', is_flag=True, help='Print information  as CSV.')
 @click.help_option('-h', '--help')
@@ -92,31 +89,20 @@ def _conan_dockerfile(directory, json=False, csv=False):
 
 
 @click.command()
-@click.argument('image_directory', metavar='IMAGE_DIR',
-    type=click.Path(exists=True, readable=True))
-@click.option('--tarball', is_flag=True, default=False,
-              help='Treat image_directory as a tarball and not a directory.')
-@click.option('--csv', is_flag=True, default=False,
-              help='Print information as csv instead of JSON.')
+@click.argument('image_path', metavar='IMAGE_path', type=click.Path(exists=True, readable=True))
+@click.option('--csv', is_flag=True, default=False, help='Print information as csv instead of JSON.')
 @click.help_option('-h', '--help')
-def conan(image_directory, tarball=False, csv=False):
+def conan(image_directory, csv=False):
     """
-    Find Docker images and their layers in IMAGE_DIRECTORY.
+    Find Docker images and their layers in IMAGE_PATH.
     Print information as JSON by default or as CSV with --csv.
     Output is printed to stdout. Use a ">" redirect to save in a file.
     """
-    _conan(image_directory, tarball, csv)
+    _conan(image_directory, csv)
 
 
 def _conan(image_directory, tarball=False, csv=False):
-    image_loc = os.path.abspath(os.path.expanduser(image_directory))
-    if tarball:
-        extract_dir = tempfile.mkdtemp()
-        images = list(image.Image.get_images_from_tarball(image_loc, extract_dir))
-        click.echo('Extracting image tarball to: {}'.format(extract_dir))
-    else:
-        images = list(image.Image.get_images_from_dir(image_loc))
-
+    images = get_images_from_dir_or_tarball(image_directory)
     as_json = not csv
 
     if as_json:
@@ -131,3 +117,15 @@ def _conan(image_directory, tarball=False, csv=False):
         w.writeheader()
         for f in flat:
             w.writerow(f)
+
+
+def get_images_from_dir_or_tarball(image_directory):
+    image_loc = os.path.abspath(os.path.expanduser(image_directory))
+    if path.isdir(image_directory):
+        images = list(image.Image.get_images_from_dir(image_loc))
+    else:
+    # assume tarball
+        extract_dir = tempfile.mkdtemp()
+        images = list(image.Image.get_images_from_tarball(image_loc, extract_dir))
+        click.echo('Extracting image tarball to: {}'.format(extract_dir))
+    return images
