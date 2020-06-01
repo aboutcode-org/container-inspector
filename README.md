@@ -2,6 +2,8 @@
 conan is a suite of analysis utilities and command line tools for Docker images,
 their layers and how these relate to each other as well as Dockerfiles.
 
+Note: this is a work in progress
+ 
 conan provides utilities to:
  - identify Docker images in a file system, its layers and the related metadata.
  - given a Docker image, collect and report its metadata.
@@ -10,12 +12,19 @@ conan provides utilities to:
  - find and parse Dockerfiles
  - find how Dockerfiles relate to actual images and their layers.
  
+ 
 Quick start
 -----------
 
-- Get Python 2.7.
+- Get Python 2.7. or 3.6
 - Check out a clone or download of conan, then run: `./configure`.
 - Then run `bin/conan -h` for help.
+- Other commands to try:
+
+    -`bin/conan_rpms -h`
+    -`bin/conan_squash -h`
+    -`bin/conan_dockerfile -h`
+
  
 Container image formats
 -------------------
@@ -54,11 +63,15 @@ Internal data model
 - Image: this is a runnable image composed of metadata and a sequence of layers.
 - Layer: this is a slice of an image root filesystem with a payload and metadata
 
+We skip entirely Registry and Repository and only expose Image and Layer
+
 
 Plans
 -------------------
+ - future: support OCI image layout
+ - fetch Image from remote registry
+ - future: collect inventories of packages and files installed in an image or layer
  - future: given collected Dockerfiles and Images, build a graphic 
    of the relationships between all these elements.
- - future: collect inventories of packages and files installed in an image or layer
 
 And if you wonder about the name, conan stands for CONtainer ANalysis.
