@@ -449,6 +449,24 @@ class Image(ToDictMixin, ConfigMixin):
 
 
 @attr.attributes
+class Resource(ToDictMixin):
+    path = attr.attrib(
+        default=None,
+        metadata=dict(doc='The root-relative path for this Resource.')
+    )
+
+    location = attr.attrib(
+        default=None,
+        metadata=dict(doc='The absolute location for this Resource.')
+    )
+
+    is_file = attr.ib(
+        default=True,
+        metadata=dict(doc='True for file, False for directory')
+    )
+
+
+@attr.attributes
 class Layer(ToDictMixin, ConfigMixin):
     """
     A layer object represents a slice of a root filesyetem.
@@ -511,6 +529,24 @@ class Layer(ToDictMixin, ConfigMixin):
         if use_layer_id:
             self.extracted_to_location = path.join(target_dir, self.layer_id)
         utils.extract_tar(self.layer_location, self.extracted_to_location)
+
+    def get_resources(self, with_dir=False):
+        """
+        Yield a Resource for each file in that layer.
+        """
+        if not self.extracted_to_location:
+            raise Exception('The layer has not been extracted.')
+        extracted_to_location = self.extracted_to_location
+        for top, dirs, files in os.walk(self.extracted_to_location):
+            for f in files:
+                location = path.join(top, f)
+                path = location.replace(extracted_to_location, '')
+                yield Resource(location=location, path=path, is_file=True)
+            if with_dir:
+                for d in dirs:
+                    location = path.join(top, d)
+                    path = location.replace(extracted_to_location, '')
+                    yield Resource(location=location, path=path, is_file=False)
 
     @staticmethod
     def from_layer_tarball(location, layer_sha256):
