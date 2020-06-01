@@ -101,8 +101,8 @@ def extract_tar(location, target_dir):
         for tinfo in to_extract:
             tinfo.mode = 0o700
             # no absolute nor relative paths:
-            if tinfo.name != path.normpath(tinfo.name).lstrip('./\\'):
-                raise Exception('Illegal tar member file path: {}'.format(tinfo.name))
+            # if tinfo.name != path.normpath(tinfo.name).lstrip('./\\'):
+            #     raise Exception('Illegal tar member file path: {}'.format(tinfo.name))
 
             # if tinfo.linkname != path.normpath(tinfo.linkname).lstrip('./\\'):
             #     raise Exception('Illegal tar member file path link from: {} to: {}'.format(tinfo.name, tinfo.linkname))
