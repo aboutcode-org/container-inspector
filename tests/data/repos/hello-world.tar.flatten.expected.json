@@ -1,20 +1,13 @@
 [
   {
-    "layer_digest": "sha256:45761469c965421a92a69cc50e92c01e0cfa94fe026cdd1233445ea00e96289a", 
-    "author": null, 
-    "layer_id": "3e0554cb0efadb678332292bb7835495fbb0c71af7e01bd4f7d11e64fe3d54df", 
-    "created_by": "/bin/sh -c #(nop) COPY file:b65349dad8105cbef74456e9c0c9da5d001e9eb2ade4b3c21e107909aee5b25a in / ", 
-    "image_tags": "hello-world:latest", 
-    "image_id": "1815c82652c03bfd8644afda26fb184f2ed891d921b20a0703b46768f9755c57", 
-    "empty_layer": false
-  }, 
-  {
-    "layer_digest": null, 
-    "author": null, 
-    "layer_id": null, 
-    "created_by": "/bin/sh -c #(nop)  CMD [\"/hello\"]", 
-    "image_tags": "hello-world:latest", 
-    "image_id": "1815c82652c03bfd8644afda26fb184f2ed891d921b20a0703b46768f9755c57", 
-    "empty_layer": true
+    "image_dir": "",
+    "image_id": "1815c82652c03bfd8644afda26fb184f2ed891d921b20a0703b46768f9755c57.json",
+    "image_tags": "hello-world:latest",
+    "author": null,
+    "created_by": null,
+    "layer_id": "3e0554cb0efadb678332292bb7835495fbb0c71af7e01bd4f7d11e64fe3d54df",
+    "layer_sha256": "45761469c965421a92a69cc50e92c01e0cfa94fe026cdd1233445ea00e96289a",
+    "is_empty_layer": false,
+    "layer_location": "3e0554cb0efadb678332292bb7835495fbb0c71af7e01bd4f7d11e64fe3d54df"
   }
 ]
