@@ -18,11 +18,11 @@ from __future__ import unicode_literals
 import logging
 import os
 from os import path
+import tarfile
 import tempfile
 
 from conan import LAYER_TAR_FILE
 from conan import utils
-import shutil
 
 
 logger = logging.getLogger(__name__)
