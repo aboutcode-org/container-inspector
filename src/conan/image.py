@@ -221,6 +221,11 @@ class Image(ToDictMixin, ConfigMixin):
         metadata=dict(doc='List of mapping for the layers history. All layers are included including empty layers.')
     )
 
+    extracted_to_location = attr.attrib(
+        default=None,
+        metadata=dict(doc='The directory where this image has been extracted to.')
+    )
+
     @property
     def top_layer(self):
         """
@@ -234,6 +239,24 @@ class Image(ToDictMixin, ConfigMixin):
         The bottom layer for this image.
         """
         return self.layers[0]
+
+    def extract(self, target_dir):
+        """
+        Extract each layer tarball to `target_dir` directory where each layer is extracted to
+        its own directory named after the layer_id
+        """
+        self.extracted_to_location = target_dir
+        for layer in self.layers:
+            layer.extract(target_dir, use_layer_id=True)
+
+    def squash(self, target_dir):
+        """
+        Extract and squash all the layers of this image as a single rootfs rooted in the `target_dir` directory.
+        If `use_layer_id` is True, extract in a dir named ``target_dir/layer_id/`
+        Cache the location where this layer was last extracted in the
+        self.extracted_to_location attribute
+        """
+        utils.extract_tar(self.layer_location, self.extracted_to_location)
 
     @staticmethod
     def get_images_from_tarball(location, extract_dir):
@@ -467,16 +490,27 @@ class Layer(ToDictMixin, ConfigMixin):
         metadata=dict(doc='parent layer id. LEGACY V10 format.')
     )
 
+    extracted_to_location = attr.attrib(
+        default=None,
+        metadata=dict(doc='The directory where this layer has been extracted to '
+            'as a plain rootfs.')
+    )
+
     def __attrs_post_init__(self, *args, **kwargs):
         if self.layer_location and not self.layer_id:
             # reconstruct that id from the path
             self.layer_id = path.basename(path.dirname(self.layer_location))
 
-    def extract(self, target_dir):
+    def extract(self, target_dir, use_layer_id=True):
         """
-        Extract layer tarball to target_directory.
+        Extract layer tarball to `target_dir` directory.
+        If `use_layer_id` is True, extract in a dir named ``target_dir/layer_id/`
+        Cache the location where this layer was last extracted in the
+        self.extracted_to_location attribute
         """
-        utils.extract_tar(self.layer_location, target_dir)
+        if use_layer_id:
+            self.extracted_to_location = path.join(target_dir, self.layer_id)
+        utils.extract_tar(self.layer_location, self.extracted_to_location)
 
     @staticmethod
     def from_layer_tarball(location, layer_sha256):
