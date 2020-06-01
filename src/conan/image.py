@@ -228,6 +228,13 @@ class Image(ToDictMixin, ConfigMixin):
         """
         return self.layers[-1]
 
+    @property
+    def bottom_layer(self):
+        """
+        The bottom layer for this image.
+        """
+        return self.layers[0]
+
     @staticmethod
     def get_images_from_tarball(location, extract_dir):
         """
