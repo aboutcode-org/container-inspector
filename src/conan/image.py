@@ -31,6 +31,7 @@ from conan.utils import as_bare_id
 from conan.utils import load_json
 from conan.utils import sha256_digest
 from conan import utils
+from __builtin__ import None
 
 
 logger = logging.getLogger(__name__)
@@ -245,9 +246,21 @@ class Image(ToDictMixin, ConfigMixin):
         Extract each layer tarball to `target_dir` directory where each layer is extracted to
         its own directory named after the layer_id
         """
-        self.extracted_to_location = target_dir
         for layer in self.layers:
-            layer.extract(target_dir, use_layer_id=True)
+            layer.extract(target_dir=self.extracted_to_location, use_layer_id=True)
+
+    def cleanup(self):
+        """
+        Removed extracted layer files from self.extracted_to_location.
+        """
+        if self.extracted_to_location:
+            utils.delete(self.extracted_to_location)
+
+        for layer in self.layers:
+            layer.extracted_to_location = None
+
+        self.extracted_to_location = None
+
 
     def squash(self, target_dir):
         """
