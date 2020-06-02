@@ -12,5 +12,6 @@
   "layer_id": "6ce2e90b0bc7224de3db1f0d646fe8e2c4dd37f1793928287f6074bc451a57ea",
   "created_by": null,
   "is_empty_layer": null,
-  "parent_id": null
+  "parent_id": null,
+  "extracted_to_location": null
 }

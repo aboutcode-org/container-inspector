@@ -26,7 +26,8 @@
         "layer_id": "3e0554cb0efadb678332292bb7835495fbb0c71af7e01bd4f7d11e64fe3d54df",
         "created_by": null,
         "is_empty_layer": false,
-        "parent_id": null
+        "parent_id": null,
+        "extracted_to_location": null
       }
     ],
     "tags": [
@@ -42,6 +43,7 @@
         "created_by": "/bin/sh -c #(nop)  CMD [\"/hello\"]",
         "empty_layer": true
       }
-    ]
+    ],
+    "extracted_to_location": null
   }
 ]
