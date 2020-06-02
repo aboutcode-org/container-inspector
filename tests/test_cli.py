@@ -17,68 +17,83 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import os
+import json
 
 from commoncode.testcase import FileBasedTesting
 
 from conan import cli
-from unittest.case import expectedFailure
 from commoncode import fileutils
 
+from utilities import check_expected
 
-@expectedFailure
-class TestDockerCliV10(FileBasedTesting):
+
+def clean_images_data(images):
+    """
+    Clean an Image.to_dict() for testing
+    """
+    for i in images:
+        i['base_location'] = None
+        i['extracted_to_location'] = None
+        for l in i['layers']:
+            l['layer_location'] = None
+            l['extracted_to_location'] = None
+    return images
+
+
+class TestConanCli(FileBasedTesting):
     test_data_dir = os.path.join(os.path.dirname(__file__), 'data')
 
-    def test_collect_images_v10(self):
-        test_dir = self.extract_test_tar('docker/v10_format/images.tgz')
-        result = cli.conan(test_dir)
-        assert len(result) == 3
+    def test_conan_single_layer_from_dir(self):
+        test_dir = self.extract_test_tar('cli/hello-world.tar')
+        expected = self.get_test_loc('cli/hello-world.tar-inventory-from-dir-expected.json')
+        out = cli._conan(image_path=test_dir)
+        result = clean_images_data(json.loads(out))
+        check_expected(result, expected, regen=False)
 
-    def test_collect_images_single_v10(self):
-        test_dir = self.extract_test_tar('docker/v10_format/busybox2.tgz')
-        result = cli.conan(test_dir)
-        assert len(result) == 1
+    def test_conan_single_layer_from_tarball(self):
+        test_dir = self.get_test_loc('cli/hello-world.tar')
+        expected = self.get_test_loc('cli/hello-world.tar-inventory-from-tarball-expected.json')
+        out = cli._conan(image_path=test_dir)
+        result = clean_images_data(json.loads(out))
+        check_expected(result, expected, regen=False)
 
-    def test_collect_images_many_v10(self):
-        test_dir = self.extract_test_tar('docker/v10_format/merge.tgz')
-        base = os.path.dirname(test_dir).strip('\\/')
-        result = cli.conan(test_dir)
-        result = [f.replace(base, '').lstrip('\\/') for f in result]
-        expected = ['merge.tgz/merge/busybox', 'merge.tgz/merge/busybox2']
-        assert sorted(expected) == sorted(result)
+    def test_conan_multiple_layers_from_tarball(self):
+        test_dir = self.get_test_loc('cli/she-image_from_scratch-1.0.tar')
+        expected = self.get_test_loc('cli/she-image_from_scratch-1.0.tar-inventory-from-tarball-expected.json')
+        out = cli._conan(image_path=test_dir)
+        result = clean_images_data(json.loads(out))
+        check_expected(result, expected, regen=False)
 
-
-class TestSquashCliV10(FileBasedTesting):
-    test_data_dir = os.path.join(os.path.dirname(__file__), 'data')
-
-    @expectedFailure
-    def test_collect_and_rebuild_rootfs_single_layer(self):
-        test_dir = self.extract_test_tar('repos/hello-world.tar')
+    def test_squash_single_layer(self):
+        test_dir = self.extract_test_tar('cli/hello-world.tar')
         target_dir = self.get_temp_dir()
 
         cli._conan_squash(
-            image_directory=test_dir, 
+            image_path=test_dir,
             extract_directory=target_dir)
-        
-        results = sorted(f.replace(target_dir, '') for f in
-            fileutils.resource_iter(location=target_dir, with_dirs=False))
+
+        results = sorted([p.replace(target_dir, '') 
+            for p in fileutils.resource_iter(target_dir)])
+        expected = ['/hello']
+        assert expected == results
+
+    def test_squash_multiple_layers(self):
+        test_dir = self.extract_test_tar('cli/she-image_from_scratch-1.0.tar')
+        target_dir = self.get_temp_dir()
+
+        cli._conan_squash(
+            image_path=test_dir,
+            extract_directory=target_dir)
+
+        results = sorted([p.replace(target_dir, '') 
+            for p in fileutils.resource_iter(target_dir)])
         expected = [
-            '/proc',
-            '/opt',
-            '/usr',
-            '/root',
-            '/mnt',
-            '/sbin',
-            '/sys',
-            '/etc',
-            '/var',
-            '/dev',
-            '/tmp',
-            '/media',
-            '/home',
-            '/bin',
-            '/lib/libcrypt-0.9.33.2.so',
-            '/lib/ld64-uClibc-0.9.33.2.so',
-            '/lib/libdl-0.9.33.2.so',
+            '/additions',
+            '/additions/bar',
+            '/additions/baz',
+            '/additions/baz/this',
+            '/additions/foo',
+            '/additions/hello',
+            '/hello',
         ]
         assert expected == results

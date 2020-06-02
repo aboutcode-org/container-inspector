@@ -8,7 +8,7 @@
     "comment": "initial import",
     "labels": {},
     "base_location": "",
-    "image_id": "4d955704d3bfe618753e3f969db87e2b60dd4206132a701f23de1dfe0325664e.json",
+    "image_id": "4d955704d3bfe618753e3f969db87e2b60dd4206132a701f23de1dfe0325664e",
     "parent_digest": null,
     "config_digest": "4d955704d3bfe618753e3f969db87e2b60dd4206132a701f23de1dfe0325664e",
     "layers": [
@@ -52,7 +52,7 @@
       "Some other label": ""
     },
     "base_location": "",
-    "image_id": "c1edec6e1f0ad79e45f68e963b9e74c0ab77915845ab7743b053c248f1ad64b1.json",
+    "image_id": "c1edec6e1f0ad79e45f68e963b9e74c0ab77915845ab7743b053c248f1ad64b1",
     "parent_digest": null,
     "config_digest": "c1edec6e1f0ad79e45f68e963b9e74c0ab77915845ab7743b053c248f1ad64b1",
     "layers": [
@@ -109,7 +109,7 @@
       "Some label": ""
     },
     "base_location": "",
-    "image_id": "12372b2d7bc16952cc4fbff7534ea9888292f51179c6645b286667d2310bfe23.json",
+    "image_id": "12372b2d7bc16952cc4fbff7534ea9888292f51179c6645b286667d2310bfe23",
     "parent_digest": null,
     "config_digest": "12372b2d7bc16952cc4fbff7534ea9888292f51179c6645b286667d2310bfe23",
     "layers": [

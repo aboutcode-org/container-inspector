@@ -15,51 +15,19 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import json
 from os import path
 from os import listdir
 from unittest.case import expectedFailure
 
 from commoncode.testcase import FileBasedTesting
-from commoncode import fileutils
 
 from conan.image import Image
 from conan.image import Layer
 from conan.image import flatten_images
 
-
-def check_expected(result, expected, regen=False):
-    """
-    Check euquality between a result collection and an expected JSON file.
-    Regen the expected file if regen is True.
-    """
-    if regen:
-        with open(expected, 'w') as ex:
-            ex.write(json.dumps(result, indent=2))
-
-    with open(expected) as ex:
-        expected = json.loads(ex.read())
-
-    assert expected == result
-
-
-def clean_image(image):
-    """
-    Clean image data for test purpose
-    """
-    image.base_location = ''
-    for layer in image.layers:
-        clean_layer(layer)
-
-    return image
-
-
-def clean_layer(layer):
-    """
-    Clean layerdata for test purpose
-    """
-    layer.layer_location = path.basename(layer.layer_location)
-    return layer
+from utilities import check_expected
+from utilities import clean_image
+from utilities import clean_layer
 
 
 class TestLegacyLayer(FileBasedTesting):
@@ -76,23 +44,6 @@ class TestLegacyLayer(FileBasedTesting):
             layer = Layer.from_layer_dir(layer_dir)
             expected = path.join(expected_dir, layer_id + '.expected.json')
             result = clean_layer(layer).to_dict()
-            check_expected(result, expected, regen=False)
-
-
-# no longer a possibility
-@expectedFailure
-class TestImage(FileBasedTesting):
-    test_data_dir = path.join(path.dirname(__file__), 'data')
-
-    def test_from_image_config(self):
-        test_dir = self.get_test_loc('images/config')
-        expected_dir = self.get_test_loc('images/config_expected')
-        for config_file in listdir(test_dir):
-            base_name = fileutils.file_base_name(config_file)
-            config_file = path.join(test_dir, config_file)
-            image = Image.from_config(config_file)
-            expected = path.join(expected_dir, base_name + '.expected.json')
-            result = clean_image(image).to_dict()
             check_expected(result, expected, regen=False)
 
 
