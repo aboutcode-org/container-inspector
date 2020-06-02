@@ -92,40 +92,46 @@ def _conan_dockerfile(directory, json=False, csv=False):
 @click.argument('image_path', metavar='IMAGE_path', type=click.Path(exists=True, readable=True))
 @click.option('--csv', is_flag=True, default=False, help='Print information as csv instead of JSON.')
 @click.help_option('-h', '--help')
-def conan(image_directory, csv=False):
+def conan(image_path, csv=False):
     """
     Find Docker images and their layers in IMAGE_PATH.
     Print information as JSON by default or as CSV with --csv.
     Output is printed to stdout. Use a ">" redirect to save in a file.
     """
-    _conan(image_directory, csv)
+    results = _conan(image_path, csv)
+    click.echo(results)
 
 
-def _conan(image_directory, tarball=False, csv=False):
-    images = get_images_from_dir_or_tarball(image_directory)
+def _conan(image_path, csv=False):
+    images = list(get_images_from_dir_or_tarball(image_path))
     as_json = not csv
 
     if as_json:
         images = [i.to_dict() for i in images]
-        click.echo(json_module.dumps(images, indent=2))
+        return json_module.dumps(images, indent=2)
     else:
+        from io import StringIO
+        output = StringIO()
         flat = list(image.flatten_images(images))
         if not flat:
             return
         keys = flat[0].keys()
-        w = unicodecsv.DictWriter(sys.stdout, keys, encoding='utf-8')
+        w = unicodecsv.DictWriter(output, keys, encoding='utf-8')
         w.writeheader()
         for f in flat:
             w.writerow(f)
+        output.close()
+        return output
 
 
-def get_images_from_dir_or_tarball(image_directory):
-    image_loc = os.path.abspath(os.path.expanduser(image_directory))
-    if path.isdir(image_directory):
+def get_images_from_dir_or_tarball(image_path, quiet=False):
+    image_loc = os.path.abspath(os.path.expanduser(image_path))
+    if path.isdir(image_path):
         images = list(image.Image.get_images_from_dir(image_loc))
     else:
     # assume tarball
         extract_dir = tempfile.mkdtemp()
         images = list(image.Image.get_images_from_tarball(image_loc, extract_dir))
-        click.echo('Extracting image tarball to: {}'.format(extract_dir))
+        if not quiet:
+            click.echo('Extracting image tarball to: {}'.format(extract_dir))
     return images
