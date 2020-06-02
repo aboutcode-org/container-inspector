@@ -399,7 +399,7 @@ class Image(ToDictMixin, ConfigMixin):
         if not path.exists(config_file_loc):
             raise Exception('Invalid configuration. Missing Config file: {}'.format(config_file_loc))
 
-        image_id = path.basename(config_file_loc)
+        image_id, _ = path.splitext(path.basename(config_file_loc))
         config_digest = sha256_digest(config_file_loc)
         if verify_config:
             if image_id != as_bare_id(config_digest):
@@ -421,30 +421,20 @@ class Image(ToDictMixin, ConfigMixin):
         assert rootfs['type'] == 'layers', (
             'Unknown type for img rootfs: expecting "layers": {}'.format(config_file_loc))
 
-        layer_sha256s = [as_bare_id(layer_sha256) for layer_sha256 in rootfs['diff_ids']]
-
         # TODO: add support for empty tarball as this may not work if there is a
         # diff for an empty layer with a digest for some EMPTY content e.g.
         # e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 
+        layer_sha256s = [as_bare_id(layer_sha256) for layer_sha256 in rootfs['diff_ids']]
+
         layers = []
         for layer_sha256 in layer_sha256s:
-            try:
-                layer_location = layers_by_sha256[layer_sha256]
-            except KeyError:
-                print()
-                from pprint import pprint
-                pprint(layers_by_sha256)
-                print()
-                raise
-
-            layers.append(
-                Layer(
-                        layer_sha256=layer_sha256,
-                        layer_location=layer_location,
-                        layer_size=path.getsize(layer_location),
-                    )
-                )
+            layer_location = layers_by_sha256[layer_sha256]
+            lay = Layer(
+                layer_sha256=layer_sha256,
+                layer_location=layer_location,
+                layer_size=path.getsize(layer_location))
+            layers.append(lay)
 
         img = Image(
             base_location=base_location,
