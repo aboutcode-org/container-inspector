@@ -31,7 +31,6 @@ from conan.utils import as_bare_id
 from conan.utils import load_json
 from conan.utils import sha256_digest
 from conan import utils
-from __builtin__ import None
 
 
 logger = logging.getLogger(__name__)
