@@ -22,7 +22,6 @@ import tempfile
 
 from conan import LAYER_TAR_FILE
 from conan import utils
-from commoncode import fileutils
 
 
 logger = logging.getLogger(__name__)
@@ -84,7 +83,7 @@ def rebuild_rootfs(img, target_dir):
         # 1. extract a layer to temp.
         # Note that we are not preserving any special file and any file permission
         utils.extract_tar(location=layer_tarball, target_dir=temp_target)
-        logger.debug('  Extracted layer to:\n'+ '       \n'.join(fileutils.resource_iter(temp_target)))
+        logger.debug('  Extracted layer to: {}'.format(temp_target))
 
         # 2. find whiteouts in that layer.
         layer_whiteouts = list(find_whiteouts(temp_target))
@@ -103,7 +102,7 @@ def rebuild_rootfs(img, target_dir):
         # 4. finall copy/overwrite the extracted layer over the WIP rootfs
         logger.debug('  Moving extracted layer from: {temp_target} to: {target_dir}'.format(**locals()))
         utils.copytree(temp_target, target_dir)
-        logger.debug('  Moved layer to:\n'+ '       \n'.join(fileutils.resource_iter(target_dir)))
+        logger.debug('  Moved layer to: {}'.format(target_dir))
         utils.delete(temp_target)
 
     return deletions
