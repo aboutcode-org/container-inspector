@@ -18,15 +18,16 @@ from __future__ import unicode_literals
 import logging
 import os
 from os import path
-import tarfile
 import tempfile
 
 from conan import LAYER_TAR_FILE
 from conan import utils
+from commoncode import fileutils
 
 
 logger = logging.getLogger(__name__)
 # un-comment these lines to enable logging
+# import sys
 # logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 # logger.setLevel(logging.DEBUG)
 
@@ -83,11 +84,16 @@ def rebuild_rootfs(img, target_dir):
         # 1. extract a layer to temp.
         # Note that we are not preserving any special file and any file permission
         utils.extract_tar(location=layer_tarball, target_dir=temp_target)
+        logger.debug('  Extracted layer to:\n'+ '       \n'.join(fileutils.resource_iter(temp_target)))
+
         # 2. find whiteouts in that layer.
-        # 3. remove whiteouts in the previous layer stack (e.g. the WIP rootfs)
         layer_whiteouts = list(find_whiteouts(temp_target))
+        logger.debug('  Merging extracted layers and applying AUFS whiteouts/deletes')
+        logger.debug('  Whiteouts:\n' + '     \n'.join(map(repr, layer_whiteouts)))
+
+        # 3. remove whiteouts in the previous layer stack (e.g. the WIP rootfs)
         for layer_whiteout_marker, target_whiteable_path in layer_whiteouts:
-            logger.debug('  Deleting whiteout dir or file: {target_whiteable_path}'.format(**locals()))
+            logger.debug('    Deleting whiteout dir or file: {target_whiteable_path}'.format(**locals()))
             whiteable = path.join(target_dir, target_whiteable_path)
             utils.delete(whiteable)
             # also delete the whiteout marker file
@@ -96,8 +102,8 @@ def rebuild_rootfs(img, target_dir):
 
         # 4. finall copy/overwrite the extracted layer over the WIP rootfs
         logger.debug('  Moving extracted layer from: {temp_target} to: {target_dir}'.format(**locals()))
-        logger.debug('  Merging extracted layers and applying AUFS whiteouts/deletes')
         utils.copytree(temp_target, target_dir)
+        logger.debug('  Moved layer to:\n'+ '       \n'.join(fileutils.resource_iter(target_dir)))
         utils.delete(temp_target)
 
     return deletions
