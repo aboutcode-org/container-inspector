@@ -260,7 +260,6 @@ class Image(ToDictMixin, ConfigMixin):
 
         self.extracted_to_location = None
 
-
     def squash(self, target_dir):
         """
         Extract and squash all the layers of this image as a single rootfs rooted in the `target_dir` directory.
@@ -268,7 +267,8 @@ class Image(ToDictMixin, ConfigMixin):
         Cache the location where this layer was last extracted in the
         self.extracted_to_location attribute
         """
-        utils.extract_tar(self.layer_location, self.extracted_to_location)
+        from conan import rootfs
+        rootfs.rebuild_rootfs(self, target_dir)
 
     @staticmethod
     def get_images_from_tarball(location, extract_dir):

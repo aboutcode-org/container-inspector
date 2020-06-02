@@ -37,6 +37,16 @@ class TestRootfs(testcase.FileBasedTesting):
         expected = ['/hello']
         assert expected == results
 
+    def test_image_squash_simple(self):
+        test_dir = self.extract_test_tar('rootfs/hello-world.tar')
+        img = list(image.Image.get_images_from_dir(test_dir))[0]
+        target_dir = self.get_temp_dir()
+        img.squash(target_dir)
+        results = sorted([p.replace(target_dir, '')
+            for p in fileutils.resource_iter(target_dir)])
+        expected = ['/hello']
+        assert expected == results
+
     def test_rebuild_rootfs_with_delete(self):
         test_dir = self.extract_test_tar('rootfs/she-image_from_scratch-1.0.tar')
         img = list(image.Image.get_images_from_dir(test_dir))[0]
