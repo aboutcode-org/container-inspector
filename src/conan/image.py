@@ -240,13 +240,22 @@ class Image(ToDictMixin, ConfigMixin):
         """
         return self.layers[0]
 
-    def extract(self, target_dir):
+    def extract_layers(self, target_dir):
         """
-        Extract each layer tarball to `target_dir` directory where each layer is extracted to
-        its own directory named after the layer_id
+        Extract each layer tarball to `target_dir` directory where each layer
+        is extracted to its own directory named after the layer_id.
         """
+        self.extracted_to_location = target_dir
         for layer in self.layers:
             layer.extract(target_dir=self.extracted_to_location, use_layer_id=True)
+
+    def get_layers_resources(self, with_dir=False):
+        """
+        Yield a Resource for each file in each layer.
+        """
+        for layer in self.layers:
+            for resource in layer.get_resources(with_dir):
+                yield resource
 
     def cleanup(self):
         """
@@ -457,6 +466,11 @@ class Resource(ToDictMixin):
         metadata=dict(doc='The root-relative path for this Resource.')
     )
 
+    layer_path = attr.attrib(
+        default=None,
+        metadata=dict(doc='The relative path including the layer prefix.')
+    )
+
     location = attr.attrib(
         default=None,
         metadata=dict(doc='The absolute location for this Resource.')
@@ -464,7 +478,12 @@ class Resource(ToDictMixin):
 
     is_file = attr.ib(
         default=True,
-        metadata=dict(doc='True for file, False for directory')
+        metadata=dict(doc='True for file, False for directory.')
+    )
+
+    is_symlink = attr.ib(
+        default=False,
+        metadata=dict(doc='True for symlink.')
     )
 
 
@@ -538,17 +557,31 @@ class Layer(ToDictMixin, ConfigMixin):
         """
         if not self.extracted_to_location:
             raise Exception('The layer has not been extracted.')
-        extracted_to_location = self.extracted_to_location
+
         for top, dirs, files in os.walk(self.extracted_to_location):
             for f in files:
-                location = path.join(top, f)
-                path = location.replace(extracted_to_location, '')
-                yield Resource(location=location, path=path, is_file=True)
+                location = os.path.join(top, f)
+                path = location.replace(self.extracted_to_location, '')
+                layer_path = os.path.join(self.layer_id, path.lstrip('/'))
+                yield Resource(
+                    location=location,
+                    path=path,
+                    layer_path=layer_path,
+                    is_file=True,
+                    is_symlink=os.path.islink(location),
+                )
             if with_dir:
                 for d in dirs:
-                    location = path.join(top, d)
-                    path = location.replace(extracted_to_location, '')
-                    yield Resource(location=location, path=path, is_file=False)
+                    location = os.path.join(top, d)
+                    path = location.replace(self.extracted_to_location, '')
+                    layer_path = os.path.join(self.layer_id, path.lstrip('/'))
+                    yield Resource(
+                        location=location,
+                        path=path,
+                        layer_path=layer_path,
+                        is_file=False,
+                        is_symlink=os.path.islink(location),
+                    )
 
     @staticmethod
     def from_layer_tarball(location, layer_sha256):
