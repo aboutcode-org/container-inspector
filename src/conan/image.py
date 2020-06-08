@@ -32,7 +32,6 @@ from conan.utils import load_json
 from conan.utils import sha256_digest
 from conan import utils
 
-
 logger = logging.getLogger(__name__)
 # un-comment these lines to enable logging
 # logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
@@ -41,7 +40,6 @@ logger = logging.getLogger(__name__)
 
 def logger_debug(*args):
     return logger.debug(' '.join(isinstance(a, str) and a or repr(a) for a in args))
-
 
 """
 Objects to handle Docker repositories, images and layers data in v1.1 and v1.2 format.
@@ -83,6 +81,7 @@ class ToDictMixin(object):
     """
     A mixin to add an to_dict() method to an attr-based class.
     """
+
     def to_dict(self):
         return attr.asdict(self)
 
@@ -279,15 +278,45 @@ class Image(ToDictMixin, ConfigMixin):
         from conan import rootfs
         rootfs.rebuild_rootfs(self, target_dir)
 
+    def get_installed_packages(self, packages_getter):
+        """
+        Yield tuples of unique (package_url, package, layer) for installed
+        packages found in that image's layers using the `packages_getter`
+        function or callable. A package is reported in the layer its package_url
+        is first seen.
+
+        The `packages_getter()` function should:
+
+        - accept a first argument string that is the root directory of
+          filesystem of this the layer
+
+        - yield tuples of (package_url, package) where package_url is a
+          package_url string that uniquely identifies the package  and `package`
+          is some object that represents the package (typically a scancode-
+          toolkit packagedcode.models.Package class or some nested mapping with
+          the same structure).
+
+        An `packages_getter` function would typically query the
+        system packages database (such as an RPM database or similar) to collect
+        the list of installed system packages.
+        """
+        seen_packages = set()
+        for layer in self.layers():
+            for purl, package in layer.get_installed_packages(packages_getter):
+                if purl in seen_packages:
+                    continue
+                seen_packages.add(purl)
+                yield purl, package, layer
+
     @staticmethod
-    def get_images_from_tarball(location, extract_dir):
+    def get_images_from_tarball(location, target_dir):
         """
         Yield Image objects found in the tarball at `location` that will be
-        extracted to `extract_dir`. The tarball must be in the format of a "docker
+        extracted to `target_dir`. The tarball must be in the format of a "docker
         save" command tarball.
         """
-        utils.extract_tar(location, extract_dir)
-        return Image.get_images_from_dir(extract_dir)
+        utils.extract_tar(location, target_dir)
+        return Image.get_images_from_dir(target_dir)
 
     @staticmethod
     def get_images_from_dir(location):
@@ -582,6 +611,24 @@ class Layer(ToDictMixin, ConfigMixin):
                         is_file=False,
                         is_symlink=os.path.islink(location),
                     )
+
+    def get_installed_packages(self, packages_getter):
+        """
+        Yield tuples of (package_url, package) for installed packages found in
+        that layer using the `packages_getter` function or callable.
+
+        The `packages_getter()` function should:
+
+        - accept a first argument string that is the root directory of
+          filesystem of this the layer
+
+        - yield tuples of (package_url, package) where package_url is a
+          package_url string that uniquely identifies the package  and `package`
+          is some object that represents the package (typically a scancode-
+          toolkit packagedcode.models.Package class or some nested mapping with
+          the same structure).
+        """
+        return packages_getter(self.extracted_to_location)
 
     @staticmethod
     def from_layer_tarball(location, layer_sha256):
