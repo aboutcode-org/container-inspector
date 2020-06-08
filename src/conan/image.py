@@ -31,6 +31,7 @@ from conan.utils import as_bare_id
 from conan.utils import load_json
 from conan.utils import sha256_digest
 from conan import utils
+from conan.distro import Distro
 
 logger = logging.getLogger(__name__)
 # un-comment these lines to enable logging
@@ -255,6 +256,16 @@ class Image(ToDictMixin, ConfigMixin):
         for layer in self.layers:
             for resource in layer.get_resources(with_dir):
                 yield resource
+
+    def get_distro(self):
+        """
+        Return a Distro object for this image. Raise exceptions if it cannot be built.
+        """
+        bottom_layer = self.bottom_layer
+        if not bottom_layer.extracted_to_location:
+            raise Exception('The image has not been extracted.')
+
+        return Distro.from_rootfs(bottom_layer.extracted_to_location)
 
     def cleanup(self):
         """
