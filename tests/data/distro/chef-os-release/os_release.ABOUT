@@ -1,0 +1,22 @@
+about_resource: os_release-64342eac15c8cc800e3747ede584fda9a2c44781.zip
+download_url: https://github.com/chef/os_release/archive/64342eac15c8cc800e3747ede584fda9a2c44781.zip
+license_expression: apache-2.0
+copyright: Copyright (c)  Chef Software, Inc.
+attribute: yes
+track_changes: yes
+checksum_md5: 3856c63154e9a5202f44f1596af08863
+checksum_sha1: 967c2c35c88f61aaccd75eed69a6c5771142f408
+licenses:
+  - key: apache-2.0
+    name: Apache License 2.0
+    file: apache-2.0.LICENSE
+notes: os_release contains the /etc/os-release file from many Linux distros.
+    /etc/os-release is a standard Linux file used to identify the OS, os 
+    release, and similar distros. It's now a standard file in systemd distros, 
+    and in just about every Linux distro nowadays.
+    Why collect them?
+    The fields in /etc/os-release are standardized, but the values are not.
+    The only way to know that Redhat Enterprise Linux is 'rhel' or that openSUSE 15
+    is 'opensuse-leap' is to install the distros and check the file. This repo is a
+    large collection of os-release files so you don't need to install each and every
+    distro that are used here as test files.
