@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Antergos Linux",
+  "version": "18.11-ISO-Rolling",
+  "identifier": "antergos",
+  "id_like": "arch",
+  "version_codename": null,
+  "version_id": null,
+  "pretty_name": "Antergos Linux",
+  "cpe_name": "cpe:/o:antergosproject:antergos:18.11",
+  "home_url": "https://antergos.com/",
+  "documentation_url": null,
+  "support_url": "https://forum.antergos.com/",
+  "bug_report_url": "https://github.com/antergos",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

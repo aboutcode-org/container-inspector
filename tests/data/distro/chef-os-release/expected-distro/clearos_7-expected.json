@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "ClearOS",
+  "version": "7 (Final)",
+  "identifier": "clearos",
+  "id_like": "rhel fedora",
+  "version_codename": null,
+  "version_id": "7",
+  "pretty_name": "ClearOS 7 (Final)",
+  "cpe_name": "cpe:/o:clearos:clearos:7",
+  "home_url": "https://www.clearos.com/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": "https://tracker.clearos.com/",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

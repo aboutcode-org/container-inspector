@@ -20,6 +20,7 @@ from os import listdir
 
 from commoncode.testcase import FileBasedTesting
 
+from conan.distro import Distro
 from conan.distro import parse_os_release
 
 from utilities import check_expected
@@ -36,4 +37,14 @@ class TestDistro(FileBasedTesting):
             test_file = path.join(test_dir, os_release)
             expected = path.join(expected_dir, os_release + '-expected.json')
             result = parse_os_release(test_file)
+            check_expected(result, expected, regen=False)
+
+    def test_distro_from_file(self):
+        test_dir = self.get_test_loc('distro/chef-os-release/os-release')
+        expected_dir = self.get_test_loc('distro/chef-os-release/expected-distro')
+
+        for os_release in listdir(test_dir):
+            test_file = path.join(test_dir, os_release)
+            expected = path.join(expected_dir, os_release + '-expected.json')
+            result = Distro.from_file(test_file).to_dict()
             check_expected(result, expected, regen=False)

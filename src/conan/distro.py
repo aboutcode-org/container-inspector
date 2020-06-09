@@ -58,7 +58,7 @@ class Distro(object):
     )
 
     name = attr.attrib(
-        default='Linux',
+        default='linux',
         metadata=dict(doc='''Based on os-release: https://www.freedesktop.org/software/systemd/man/os-release.html
             NAME= A string identifying the operating system, without a version component,
             and suitable for presentation to the user. If not set, defaults to "NAME=Linux".
@@ -77,7 +77,7 @@ class Distro(object):
     )
 
     identifier = attr.attrib(
-        default='Linux',
+        default='linux',
         metadata=dict(doc='''Based on os-release: https://www.freedesktop.org/software/systemd/man/os-release.html
             ID= A lower-case string (no spaces or other characters outside of 0–9, a–z, ".",
             "_" and "-") identifying the operating system, excluding any version information
@@ -241,7 +241,7 @@ class Distro(object):
     )
 
     extra_data = attr.attrib(
-        default=attr.Factory(list),
+        default=attr.Factory(dict),
         metadata=dict(doc='''A mapping of extra data key/value pairs''')
     )
 
@@ -256,11 +256,14 @@ class Distro(object):
 
         data = parse_os_release(location) or {}
         kwargs = dict(
-            os=data.pop('OS', None),
+            # This idiom looks a tad wierd but we want to always get a linux as
+            # default even if the poped value is an empty string or None
+            os=data.pop('OS', 'linux') or 'linux',
+            name=data.pop('NAME', 'linux') or 'linux',
+            identifier=data.pop('ID', 'linux') or 'linux',
+
             architecture=data.pop('ARCHITECTURE', None),
-            name=data.pop('NAME', None),
             version=data.pop('VERSION', None),
-            identifier=data.pop('ID', None),
             id_like=data.pop('ID_LIKE', None),
             version_codename=data.pop('VERSION_CODENAME', None),
             version_id=data.pop('VERSION_ID', None),
@@ -277,8 +280,14 @@ class Distro(object):
             logo=data.pop('LOGO', None),
         )
 
+        # ignored this
+        data.pop('ANSI_COLOR', None)
+
+        # note: we poped all known key/value pairs above.
+        # therefore the remainder are unknown, extra data.
         if data:
-            kwargs.extra_data = data
+            kwargs['extra_data'] = data
+        
         return cls(**kwargs)
 
     @classmethod

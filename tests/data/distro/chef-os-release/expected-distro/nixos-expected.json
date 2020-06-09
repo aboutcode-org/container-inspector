@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "NixOS",
+  "version": "18.09.1436.a7fd4310c0c (Jellyfish)",
+  "identifier": "nixos",
+  "id_like": null,
+  "version_codename": "jellyfish",
+  "version_id": "18.09.1436.a7fd4310c0c",
+  "pretty_name": "NixOS 18.09.1436.a7fd4310c0c (Jellyfish)",
+  "cpe_name": null,
+  "home_url": "https://nixos.org/",
+  "documentation_url": null,
+  "support_url": "https://nixos.org/nixos/support.html",
+  "bug_report_url": "https://github.com/NixOS/nixpkgs/issues",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

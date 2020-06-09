@@ -1,0 +1,24 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Ubuntu",
+  "version": "18.04.1 LTS (Bionic Beaver)",
+  "identifier": "ubuntu",
+  "id_like": "debian",
+  "version_codename": "bionic",
+  "version_id": "18.04",
+  "pretty_name": "Ubuntu 18.04.1 LTS",
+  "cpe_name": null,
+  "home_url": "https://www.ubuntu.com/",
+  "documentation_url": null,
+  "support_url": "https://help.ubuntu.com/",
+  "bug_report_url": "https://bugs.launchpad.net/ubuntu/",
+  "privacy_policy_url": "https://www.ubuntu.com/legal/terms-and-policies/privacy-policy",
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {
+    "UBUNTU_CODENAME": "bionic"
+  }
+}

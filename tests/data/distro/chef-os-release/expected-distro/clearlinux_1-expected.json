@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Clear Linux OS",
+  "version": "1",
+  "identifier": "clear-linux-os",
+  "id_like": "clear-linux-os",
+  "version_codename": null,
+  "version_id": "26290",
+  "pretty_name": "Clear Linux OS",
+  "cpe_name": null,
+  "home_url": "https://clearlinux.org",
+  "documentation_url": null,
+  "support_url": "https://clearlinux.org",
+  "bug_report_url": "mailto:dev@lists.clearlinux.org",
+  "privacy_policy_url": "http://www.intel.com/privacy",
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

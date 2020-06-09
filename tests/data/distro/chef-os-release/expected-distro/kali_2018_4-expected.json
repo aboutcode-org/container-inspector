@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Kali GNU/Linux",
+  "version": "2018.4",
+  "identifier": "kali",
+  "id_like": "debian",
+  "version_codename": null,
+  "version_id": "2018.4",
+  "pretty_name": "Kali GNU/Linux Rolling",
+  "cpe_name": null,
+  "home_url": "https://www.kali.org/",
+  "documentation_url": null,
+  "support_url": "https://forums.kali.org/",
+  "bug_report_url": "https://bugs.kali.org/",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

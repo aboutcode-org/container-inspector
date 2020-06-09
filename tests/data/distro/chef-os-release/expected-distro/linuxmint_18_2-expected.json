@@ -1,0 +1,24 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Linux Mint",
+  "version": "18.2 (Sonya)",
+  "identifier": "linuxmint",
+  "id_like": "ubuntu",
+  "version_codename": "sonya",
+  "version_id": "18.2",
+  "pretty_name": "Linux Mint 18.2",
+  "cpe_name": null,
+  "home_url": "http://www.linuxmint.com/",
+  "documentation_url": null,
+  "support_url": "http://forums.linuxmint.com/",
+  "bug_report_url": "http://bugs.launchpad.net/linuxmint/",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {
+    "UBUNTU_CODENAME": "xenial"
+  }
+}

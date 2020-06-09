@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "XCP-ng",
+  "version": "7.5.0",
+  "identifier": "xenenterprise",
+  "id_like": "centos rhel fedora",
+  "version_codename": null,
+  "version_id": "7.5.0",
+  "pretty_name": "XCP-ng 7.5.0",
+  "cpe_name": null,
+  "home_url": "http://xcp-ng.org/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": "https://github.com/xcp-ng/xcp",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

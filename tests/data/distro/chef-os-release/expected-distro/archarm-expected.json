@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Arch Linux ARM",
+  "version": null,
+  "identifier": "archarm",
+  "id_like": "arch",
+  "version_codename": null,
+  "version_id": null,
+  "pretty_name": "Arch Linux ARM",
+  "cpe_name": null,
+  "home_url": "https://archlinuxarm.org/",
+  "documentation_url": "https://archlinuxarm.org/wiki",
+  "support_url": "https://archlinuxarm.org/forum",
+  "bug_report_url": "https://github.com/archlinuxarm/PKGBUILDs/issues",
+  "privacy_policy_url": null,
+  "build_id": "rolling",
+  "variant": null,
+  "variant_id": null,
+  "logo": "archlinux",
+  "extra_data": {}
+}

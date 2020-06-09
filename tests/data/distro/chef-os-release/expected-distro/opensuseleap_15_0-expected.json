@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "openSUSE Leap",
+  "version": "15.0",
+  "identifier": "opensuse-leap",
+  "id_like": "suse opensuse",
+  "version_codename": null,
+  "version_id": "15.0",
+  "pretty_name": "openSUSE Leap 15.0",
+  "cpe_name": "cpe:/o:opensuse:leap:15.0",
+  "home_url": "https://www.opensuse.org/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": "https://bugs.opensuse.org",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

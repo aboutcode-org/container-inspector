@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Manjaro Linux",
+  "version": null,
+  "identifier": "manjaro",
+  "id_like": "arch",
+  "version_codename": null,
+  "version_id": null,
+  "pretty_name": "Manjaro Linux",
+  "cpe_name": null,
+  "home_url": "https://www.manjaro.org/",
+  "documentation_url": null,
+  "support_url": "https://www.manjaro.org/",
+  "bug_report_url": "https://bugs.manjaro.org/",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}
