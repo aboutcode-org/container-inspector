@@ -139,16 +139,6 @@ class Distro(object):
             "PRETTY_NAME="Fedora 17 (Beefy Miracle)"".
         ''')
     )
-    version = attr.attrib(
-        default=None,
-        metadata=dict(doc='''Based on os-release: https://www.freedesktop.org/software/systemd/man/os-release.html
-            ANSI_COLOR=A suggested presentation color when showing the OS name on the
-            console. This should be specified as string suitable for inclusion in the ESC [
-            m ANSI/ECMA-48 escape code for setting graphical rendition. This field is
-            optional. Example: "ANSI_COLOR="0;31"" for red, or "ANSI_COLOR="1;34"" for light
-            blue.
-        ''')
-    )
 
     cpe_name = attr.attrib(
         default=None,
