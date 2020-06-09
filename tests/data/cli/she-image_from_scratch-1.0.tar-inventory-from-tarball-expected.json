@@ -132,6 +132,7 @@
         "empty_layer": true
       }
     ],
+    "distro": null,
     "extracted_to_location": null
   }
 ]

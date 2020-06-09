@@ -221,6 +221,11 @@ class Image(ToDictMixin, ConfigMixin):
         metadata=dict(doc='List of mapping for the layers history. All layers are included including empty layers.')
     )
 
+    distro = attr.attrib(
+        default=None,
+        metadata=dict(doc='The Distro object for this image.')
+    )
+
     extracted_to_location = attr.attrib(
         default=None,
         metadata=dict(doc='The directory where this image has been extracted to.')
@@ -257,7 +262,7 @@ class Image(ToDictMixin, ConfigMixin):
             for resource in layer.get_resources(with_dir):
                 yield resource
 
-    def get_distro(self):
+    def get_and_set_distro(self):
         """
         Return a Distro object for this image. Raise exceptions if it cannot be built.
         """
@@ -265,7 +270,8 @@ class Image(ToDictMixin, ConfigMixin):
         if not bottom_layer.extracted_to_location:
             raise Exception('The image has not been extracted.')
 
-        return Distro.from_rootfs(bottom_layer.extracted_to_location)
+        self.distro = Distro.from_rootfs(bottom_layer.extracted_to_location)
+        return self.distro
 
     def cleanup(self):
         """
@@ -312,7 +318,7 @@ class Image(ToDictMixin, ConfigMixin):
         the list of installed system packages.
         """
         seen_packages = set()
-        for layer in self.layers():
+        for layer in self.layers:
             for purl, package in layer.get_installed_packages(packages_getter):
                 if purl in seen_packages:
                     continue
