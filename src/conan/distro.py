@@ -245,6 +245,12 @@ class Distro(object):
         metadata=dict(doc='''A mapping of extra data key/value pairs''')
     )
 
+    def is_debian_based(self):
+        return (
+            self.identifier == 'debian'
+            or 'debian' in self.id_like
+        )
+
     def to_dict(self):
         return attr.asdict(self)
 
@@ -287,7 +293,7 @@ class Distro(object):
         # therefore the remainder are unknown, extra data.
         if data:
             kwargs['extra_data'] = data
-        
+
         return cls(**kwargs)
 
     @classmethod
