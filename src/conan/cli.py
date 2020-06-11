@@ -29,7 +29,6 @@ from conan import image
 from conan import dockerfile
 from conan import rootfs
 
-
 logger = logging.getLogger(__name__)
 # un-comment these lines to enable logging
 # logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
@@ -89,21 +88,23 @@ def _conan_dockerfile(directory, json=False, csv=False):
 
 
 @click.command()
-@click.argument('image_path', metavar='IMAGE_path', type=click.Path(exists=True, readable=True))
+@click.argument('image_path', metavar='IMAGE_PATH', type=click.Path(exists=True, readable=True))
+@click.option('--extract-to', default=None, metavar='PATH', type=click.Path(exists=True, readable=True))
 @click.option('--csv', is_flag=True, default=False, help='Print information as csv instead of JSON.')
 @click.help_option('-h', '--help')
-def conan(image_path, csv=False):
+def conan(image_path, extract_to=None, csv=False):
     """
     Find Docker images and their layers in IMAGE_PATH.
     Print information as JSON by default or as CSV with --csv.
+    Optionally extract images with extract-to.
     Output is printed to stdout. Use a ">" redirect to save in a file.
     """
-    results = _conan(image_path, csv)
+    results = _conan(image_path, extract_to=extract_to, csv=csv)
     click.echo(results)
 
 
-def _conan(image_path, csv=False):
-    images = list(get_images_from_dir_or_tarball(image_path))
+def _conan(image_path, extract_to=None, csv=False):
+    images = list(get_images_from_dir_or_tarball(image_path, extract_to=extract_to))
     as_json = not csv
 
     if as_json:
@@ -124,14 +125,16 @@ def _conan(image_path, csv=False):
         return output
 
 
-def get_images_from_dir_or_tarball(image_path, quiet=False):
+def get_images_from_dir_or_tarball(image_path, extract_to=None, quiet=False):
     image_loc = os.path.abspath(os.path.expanduser(image_path))
     if path.isdir(image_path):
         images = list(image.Image.get_images_from_dir(image_loc))
     else:
     # assume tarball
-        extract_dir = tempfile.mkdtemp()
-        images = list(image.Image.get_images_from_tarball(image_loc, extract_dir))
+        extract_to = extract_to or tempfile.mkdtemp()
+        images = list(image.Image.get_images_from_tarball(image_loc, target_dir=extract_to))
+        for img in images:
+            img.extract_layers(target_dir=extract_to)
         if not quiet:
-            click.echo('Extracting image tarball to: {}'.format(extract_dir))
+            click.echo('Extracting image tarball to: {}'.format(extract_to))
     return images
