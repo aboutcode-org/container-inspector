@@ -1,11 +1,12 @@
 about_resource: docker_image.py
-download_url: https://raw.githubusercontent.com/fishilico/shared/aaa9647ff4872d6f9a7ae20c368bec78651b4893/python/network/docker_image.py
+download_url: https://raw.githubusercontent.com/fishilico/shared/54adb42a34381b6fb8710ba59488c7e5e6e9c3c7/python/network/docker_image.py
+homepage_url: https://github.com/fishilico/shared
 license_expression: mit
 copyright: Copyright (c) Nicolas Iooss
 attribute: yes
-checksum_md5: e55fbf50b724f074a523e1e889982240
-checksum_sha1: 7652d3d77c524098fbe071c00e4021df86f9709e
-package_url: pkg:generic/docker_image.py@aaa9647ff4872d6f9a7ae20c368bec78651b4893
+checksum_md5: 93ac137e7bf41d97f831d52f960def0f
+checksum_sha1: 922ced125cf229cfc101d2eb8f138fa77b151ff6
+package_url: pkg:github/fishilico/shared@54adb42a34381b6fb8710ba59488c7e5e6e9c3c7#python/network/docker_image.py
 licenses:
   - key: mit
     name: MIT License
