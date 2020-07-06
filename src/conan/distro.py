@@ -248,7 +248,8 @@ class Distro(object):
     def is_debian_based(self):
         return (
             self.identifier == 'debian'
-            or 'debian' in self.id_like
+            or self.identifier == 'ubuntu'
+            or (self.id_like and 'debian' in (self.id_like or '')) 
         )
 
     def to_dict(self):
@@ -439,7 +440,7 @@ def get_distroless_details():
 def get_busybox_details():
     """
     A bare byusybox-based image has a base layer with only busybox
-    So we can find about the /bin/[' exe nad the '/bin/busybox' ... one of them
+    So we can find about the /bin/[' exe and the '/bin/busybox' ... one of them
     should contain these strings
     "Usage: busybox"
     "Licensed under GPLv2"
