@@ -24,7 +24,7 @@ def read(*names, **kwargs):
 
 setup(
     name='conan',
-    version='3.1.0',
+    version='3.1.1',
     license='Apache-2.0',
     description='Docker-related utilities.',
     long_description='Docker-related utilities.',
