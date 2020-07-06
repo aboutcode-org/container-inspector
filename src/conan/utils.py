@@ -93,7 +93,7 @@ def extract_tar(location, target_dir):
     Raise exceptions on possible problematic relative paths.
     """
     import tarfile
-    with tarfile.TarFile(location) as tarball:
+    with tarfile.open(location) as tarball:
         # never extract character device, block and fifo files:
         # we extract dirs, files and links
         to_extract = [tinfo for tinfo in tarball.getmembers() if not tinfo.isdev()]
@@ -103,7 +103,6 @@ def extract_tar(location, target_dir):
             # no absolute nor relative paths:
             # if tinfo.name != path.normpath(tinfo.name).lstrip('./\\'):
             #     raise Exception('Illegal tar member file path: {}'.format(tinfo.name))
-
             # if tinfo.linkname != path.normpath(tinfo.linkname).lstrip('./\\'):
             #     raise Exception('Illegal tar member file path link from: {} to: {}'.format(tinfo.name, tinfo.linkname))
         tarball.extractall(target_dir, members=to_extract)
