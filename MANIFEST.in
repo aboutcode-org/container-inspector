@@ -4,11 +4,10 @@ graft tests
 
 include .bumpversion.cfg
 
+include README.rst
 include CHANGELOG.rst
 include NOTICE
 include conan.ABOUT
-
-include README.rst
 
 include tox.ini .travis.yml appveyor.yml
 

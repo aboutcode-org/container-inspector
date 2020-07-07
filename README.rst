@@ -19,15 +19,10 @@ Quick start
 - Get Python 2.7. or 3.6
 - Check out a clone or download of conan, then run: `./configure`.
 - Then run `bin/conan -h` for help.
-- Other commands to try:
-
-    -`bin/conan_rpms -h`
-    -`bin/conan_squash -h`
-    -`bin/conan_dockerfile -h`
 
  
 Container image formats
--------------------
+-----------------------
 
 conan handles the formats of Docker images as created by the `docker save` command.
 There are three versions for this Docker image format. 
@@ -38,7 +33,8 @@ The latest v1.2 is a minor update to v1.1.
   use checksum for enhanced security and traceability of images and layers.
 
 - v1.0 uses a simple `repositories` meta file and requires infering the ordering of
-  the layers in an image based on each individual layer `json` meta file.
+  the layers in an image based on each individual layer `json` meta file. This
+  format is no longer support in the latest version of Conan.
 
 - All V1.x formats use the same storage format for layers e.g the layer format V1.0
   where each layer is stored in a sub-directories named after the layer id. 
@@ -67,11 +63,12 @@ We skip entirely Registry and Repository and only expose Image and Layer
 
 
 Plans
--------------------
- - future: support OCI image layout
- - fetch Image from remote registry
- - future: collect inventories of packages and files installed in an image or layer
- - future: given collected Dockerfiles and Images, build a graphic 
+-----
+ - in progress: support OCI image layout
+ - in progress: fetch Image from remote registry (already available, but not integrated)
+ - in progress: collect inventories of packages and files installed in an image or layer 
+   (implemented using a provided callable)
+ - future: given collected Dockerfiles and Images, build a graph
    of the relationships between all these elements.
 
 And if you wonder about the name, conan stands for CONtainer ANalysis.
