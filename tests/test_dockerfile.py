@@ -1,5 +1,5 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
-# http://nexb.com and https://github.com/nexB/conan/
+# http://nexb.com and https://github.com/nexB/container-inspector/
 #
 # This software is licensed under the Apache License version 2.0.#
 #
@@ -19,7 +19,7 @@ import os
 
 from commoncode.testcase import FileBasedTesting
 
-from conan.dockerfile import normalized_layer_command
+from container_inspector.dockerfile import normalized_layer_command
 
 
 class TestDockerfile(FileBasedTesting):

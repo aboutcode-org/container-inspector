@@ -1,5 +1,5 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
-# http://nexb.com and https://github.com/nexB/conan/
+# http://nexb.com and https://github.com/nexB/container-inspector/
 #
 # This software is licensed under the Apache License version 2.0.#
 #
@@ -20,8 +20,8 @@ from os import listdir
 
 from commoncode.testcase import FileBasedTesting
 
-from conan.distro import Distro
-from conan.distro import parse_os_release
+from container_inspector.distro import Distro
+from container_inspector.distro import parse_os_release
 
 from utilities import check_expected
 

@@ -1,5 +1,5 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
-# http://nexb.com and https://github.com/nexB/conan/
+# http://nexb.com and https://github.com/nexB/container-inspector/
 #
 # This software is licensed under the Apache License version 2.0.#
 #
@@ -17,7 +17,7 @@ from __future__ import unicode_literals
 
 import re
 
-__version__ = '3.1.1'
+__version__ = '3.1.2'
 
 REPOSITORIES_FILE = 'repositories'  # legacy v1
 

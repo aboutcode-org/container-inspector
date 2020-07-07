@@ -1,5 +1,5 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
-# http://nexb.com and https://github.com/nexB/conan/
+# http://nexb.com and https://github.com/nexB/container-inspector/
 #
 # This software is licensed under the Apache License version 2.0.#
 #
@@ -20,8 +20,8 @@ import os
 from commoncode import fileutils
 from commoncode import testcase
 
-from conan import image
-from conan.rootfs import rebuild_rootfs
+from container_inspector import image
+from container_inspector.rootfs import rebuild_rootfs
 
 
 class TestRootfs(testcase.FileBasedTesting):

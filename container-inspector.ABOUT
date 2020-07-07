@@ -1,6 +1,6 @@
 about_resource: .
 
-name: Conan
+name: container-inspector
 version: 3.1.1
 
 owner: nexB Inc.
@@ -8,7 +8,7 @@ owner: nexB Inc.
 home_url: http://nexb.com
 
 vcs_tool: git
-vcs_repository: https://github.com/pombredanne/conan.git
+vcs_repository: https://github.com/nexB/container_inspector.git
 
 description: Docker utilities
 

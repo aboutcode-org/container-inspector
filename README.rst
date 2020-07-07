@@ -1,10 +1,10 @@
 
-conan is a suite of analysis utilities and command line tools for Docker images,
+container-inspector is a suite of analysis utilities and command line tools for Docker images,
 their layers and how these relate to each other as well as Dockerfiles.
 
 Note: this is a work in progress
  
-conan provides utilities to:
+container-inspector provides utilities to:
  - identify Docker images in a file system, its layers and the related metadata.
  - given a Docker image, collect and report its metadata.
  - given a Docker image, extract the layers using to rebuild what would a runtime
@@ -17,14 +17,14 @@ Quick start
 -----------
 
 - Get Python 2.7. or 3.6
-- Check out a clone or download of conan, then run: `./configure`.
-- Then run `bin/conan -h` for help.
+- Check out a clone or download of container-inspector, then run: `./configure`.
+- Then run `bin/container-nspector -h` for help.
 
  
 Container image formats
 -----------------------
 
-conan handles the formats of Docker images as created by the `docker save` command.
+container-inspector handles the formats of Docker images as created by the `docker save` command.
 There are three versions for this Docker image format. 
 The latest v1.2 is a minor update to v1.1.
 
@@ -34,7 +34,7 @@ The latest v1.2 is a minor update to v1.1.
 
 - v1.0 uses a simple `repositories` meta file and requires infering the ordering of
   the layers in an image based on each individual layer `json` meta file. This
-  format is no longer support in the latest version of Conan.
+  format is no longer support in the latest version of container-inspector.
 
 - All V1.x formats use the same storage format for layers e.g the layer format V1.0
   where each layer is stored in a sub-directories named after the layer id. 
@@ -70,5 +70,3 @@ Plans
    (implemented using a provided callable)
  - future: given collected Dockerfiles and Images, build a graph
    of the relationships between all these elements.
-
-And if you wonder about the name, conan stands for CONtainer ANalysis.

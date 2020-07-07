@@ -1,5 +1,5 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
-# http://nexb.com and https://github.com/nexB/conan/
+# http://nexb.com and https://github.com/nexB/container-inspector/
 #
 # This software is licensed under the Apache License version 2.0.#
 #
@@ -21,9 +21,9 @@ from unittest.case import expectedFailure
 
 from commoncode.testcase import FileBasedTesting
 
-from conan.image import Image
-from conan.image import Layer
-from conan.image import flatten_images
+from container_inspector.image import Image
+from container_inspector.image import Layer
+from container_inspector.image import flatten_images
 
 from utilities import check_expected
 from utilities import clean_image
