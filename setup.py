@@ -50,7 +50,7 @@ setup(
     ],
     keywords=[],
     install_requires=[
-        'click >= 6.0.0, < 7.0.0',
+        'click',
         'attrs',
         'dockerfile_parse',
         'unicodecsv',
@@ -60,7 +60,6 @@ setup(
         'console_scripts': [
             'conan=conan.cli:conan',
             'conan_squash=conan.cli:conan_squash',
-            'conan_rpms=conan.installed_rpms:conan_rpms',
             'conan_dockerfile=conan.cli:conan_dockerfile',
         ],
     },
