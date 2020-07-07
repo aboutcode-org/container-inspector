@@ -245,14 +245,21 @@ class Image(ToDictMixin, ConfigMixin):
         """
         return self.layers[0]
 
-    def extract_layers(self, target_dir):
+    def extract_layers(self, target_dir, force_extract=False):
         """
-        Extract each layer tarball to `target_dir` directory where each layer
-        is extracted to its own directory named after the layer_id.
+        Extract each layer tarball to the `target_dir` directory. A layer is
+        extracted to its own directory named after its `layer_id`.
+
+        If `force_extract` is False, do not extract a layer if its extraction
+        directory already exists.
         """
         self.extracted_to_location = target_dir
         for layer in self.layers:
-            layer.extract(target_dir=self.extracted_to_location, use_layer_id=True)
+            layer.extract(
+                target_dir=self.extracted_to_location,
+                use_layer_id=True,
+                force_extract=force_extract
+            )
 
     def get_layers_resources(self, with_dir=False):
         """
@@ -326,21 +333,24 @@ class Image(ToDictMixin, ConfigMixin):
                 yield purl, package, layer
 
     @staticmethod
-    def get_images_from_tarball(location, target_dir):
+    def get_images_from_tarball(location, target_dir, force_extract=False):
         """
         Yield Image objects found in the tarball at `location` that will be
         extracted to `target_dir`. The tarball must be in the format of a "docker
         save" command tarball.
+        If `force_extract` is False, do not extract to target_dir if target_dir
+        already exists
         """
-        utils.extract_tar(location, target_dir)
+        if force_extract or not os.path.exists(target_dir):
+            utils.extract_tar(location, target_dir)
         return Image.get_images_from_dir(target_dir)
 
     @staticmethod
     def get_images_from_dir(location):
         """
-        Yield Image objects found in a base directory at `location`. The directory
-        must contain a manifest.json and must be in the same format as a
-        "docker save" extracted to `location`.
+        Yield Image objects found in a base directory at `location`. The
+        directory must contain a manifest.json and must be in the same format as
+        a "docker save" extracted to `location`.
 
 
         The "manifest.json" JSON file for format v1.1/1.2. of saved Docker
@@ -586,16 +596,21 @@ class Layer(ToDictMixin, ConfigMixin):
             # reconstruct that id from the path
             self.layer_id = path.basename(path.dirname(self.layer_location))
 
-    def extract(self, target_dir, use_layer_id=True):
+    def extract(self, target_dir, use_layer_id=True, force_extract=False):
         """
         Extract layer tarball to `target_dir` directory.
-        If `use_layer_id` is True, extract in a dir named ``target_dir/layer_id/`
+        If `use_layer_id` is True, extract in a dir named ``target_dir/layer_id/``
         Cache the location where this layer was last extracted in the
-        self.extracted_to_location attribute
+        ``self.extracted_to_location`` attribute.
+
+        If `force_extract` is False, do not extract if self.extracted_to_location
+        already exists
         """
         if use_layer_id:
             self.extracted_to_location = path.join(target_dir, self.layer_id)
-        utils.extract_tar(self.layer_location, self.extracted_to_location)
+
+        if force_extract or not os.path.exists(self.extracted_to_location):
+            utils.extract_tar(self.layer_location, self.extracted_to_location)
 
     def get_resources(self, with_dir=False):
         """
