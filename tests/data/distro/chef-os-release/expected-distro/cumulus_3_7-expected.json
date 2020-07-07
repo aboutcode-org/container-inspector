@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Cumulus Linux",
+  "version": "Cumulus Linux 3.7.2",
+  "identifier": "cumulus-linux",
+  "id_like": "debian",
+  "version_codename": null,
+  "version_id": "3.7.2",
+  "pretty_name": "Cumulus Linux",
+  "cpe_name": "cpe:/o:cumulusnetworks:cumulus_linux:3.7.2",
+  "home_url": "http://www.cumulusnetworks.com/",
+  "documentation_url": null,
+  "support_url": "http://support.cumulusnetworks.com/",
+  "bug_report_url": null,
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

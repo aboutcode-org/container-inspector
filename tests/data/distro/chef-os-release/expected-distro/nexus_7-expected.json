@@ -1,0 +1,24 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Nexus",
+  "version": "7.0(BUILDER)",
+  "identifier": "nexus",
+  "id_like": "wrlinux",
+  "version_codename": null,
+  "version_id": "7.0(BUILDER)",
+  "pretty_name": null,
+  "cpe_name": null,
+  "home_url": "http://www.cisco.com",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": null,
+  "privacy_policy_url": null,
+  "build_id": "TBD",
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {
+    "CISCO_RELEASE_INFO": "/etc/os-release"
+  }
+}

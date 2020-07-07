@@ -1,11 +1,11 @@
-# Copyright (c) 2017 nexB Inc. and others. All rights reserved.
-# http://nexb.com and https://github.com/pombredanne/conan/
-# The Conan software is licensed under the Apache License version 2.0.
-# Data generated with Conan require an acknowledgment.
-# Conan is a trademark of nexB Inc.
+# Copyright (c) nexB Inc. and others. All rights reserved.
+# http://nexb.com and https://github.com/nexB/conan/
+#
+# This software is licensed under the Apache License version 2.0.#
 #
 # You may not use this software except in compliance with the License.
-# You may obtain a copy of the License at: http://apache.org/licenses/LICENSE-2.0
+# You may obtain a copy of the License at:
+#     http://apache.org/licenses/LICENSE-2.0
 # Unless required by applicable law or agreed to in writing, software distributed
 # under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
@@ -15,15 +15,14 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from collections import OrderedDict
-from collections import Mapping
-from copy import deepcopy
 import json
 import logging
+import hashlib
+from os import path
+from os import remove as os_remove
+from os import rmdir as os_rmdir
+import shutil
 import os
-from os.path import isdir
-
-from commoncode.hash import sha256
 
 
 logger = logging.getLogger(__name__)
@@ -32,63 +31,32 @@ logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
 
 
-
 def load_json(location):
     """
     Return the data loaded from a JSON file at `location`.
     Ensure that the mapping are ordered.
     """
     with open(location) as loc:
-        data = json.loads(loc.read(), object_pairs_hook=OrderedDict)
+        data = json.load(loc)
     return data
-
-
-def listdir(location):
-    """
-    Return a list of files and directories in the location directory or an empty
-    list. Ignore extracted directed directories.
-    """
-    if not isdir(location):
-        return []
-    import extractcode
-    return [f for f in os.listdir(location) if not f.endswith(extractcode.EXTRACT_SUFFIX)]
-
-
-def find_shortest_prefix_length(strings):
-    """
-    Given a list of strings (typically a list of image or layer ids), return the
-    smallest length that could be used to truncate these strings such that they still
-    would be uniquely identified by this truncated prefix. Used to shorten long hash-
-    like Layer Ids when analyzed together to make things more human friendly.
-    """
-    uniques = set(strings)
-    shortest_len = max(len(s) for s in uniques)
-    unique_count = len(uniques)
-    # iterate the range of possible length backwards
-    # start=shortest_len - 1, stop=0, step=-1
-    for length in range(shortest_len - 1, 0, -1):
-        truncated = set(s[:length] for s in uniques)
-        if len(truncated) == unique_count:
-            shortest_len = length
-            continue
-        else:
-            break
-    return shortest_len
 
 
 def get_command(cmd):
     """
-    Clean the command for this layer.
+    Clean the `cmd` list of command elements as found in the layer history.
     """
     # FIXME: this need to be cleaned further
-    return cmd and ' '.join([c for c in cmd if not c.startswith(('/bin/sh', '-c',))]) or ''
+    return cmd and ' '.join(
+        [c for c in cmd if not c.startswith(('/bin/sh', '-c',))]) or ''
 
 
 def sha256_digest(location):
     """
-    Return an algorithm-prefixed checksum for the file content at location.
+    Return a SHA256 checksum for the file content at location.
     """
-    return location and ('sha256:' + unicode(sha256(location)))
+    with open(location, 'rb') as loc:
+        sha256 = hashlib.sha256(loc.read())
+    return location and str(sha256.hexdigest())
 
 
 def as_bare_id(string):
@@ -102,117 +70,108 @@ def as_bare_id(string):
     return string
 
 
-# Common empty elements (used to distinguish these from a boolean)
-EMPTIES = (None, {}, [], set(), tuple(), '', OrderedDict(), 0,)
-
-
-def merge_update_mappings(map1, map2, mapping=dict):
+def get_labels(config, container_config):
     """
-    Return a new mapping and a list of warnings merging two mappings such that:
-     - identical values are left unchanged
-     - when values differ:
-      - if one of the two values is None or empty or an empty stripped string, keep
-        the non-empty value.
-      - otherwise the map1 value is kept and a warning message is added to the warnings
-        that the values differ
-    This procedure is applied recursively.
-
-    `mapping` is the mapping class to retrun either a dict or OrderedDict.
-
-    For example:
-    >>> map1 = {
-    ...   '1': {
-    ...     'first': {1:2, 2:3},
-    ...     'second': 'third',
-    ...     'third': 'one',
-    ...     'fourth': None,
-    ...     'sixth': False,
-    ...     'seventh': False,
-    ...   },
-    ...   '2': [1, 2, 3]
-    ... }
-    >>> map2 = {
-    ...   '1': {
-    ...     'first': {1:3, 3:4},
-    ...     'second': 'third',
-    ...     'third': 'two',
-    ...     'fourth': 'some',
-    ...     'fifth': None,
-    ...     'seventh': True,
-    ...   },
-    ...   '2': [1, 2, 3, 4]
-    ... }
-    >>> res, warn = merge_update_mappings(map1, map2)
-    >>> expected = {
-    ...   '1': {
-    ...     'first': {1: 2, 2: 3, 3: 4},
-    ...     'second': 'third',
-    ...     'third': 'one',
-    ...     'fourth': 'some',
-    ...     'fifth': None,
-    ...     'sixth': False,
-    ...     'seventh': True,
-    ...   },
-    ...   '2': [1, 2, 3, 4]}
-    >>> assert expected == dict(res)
-    >>> ex_warn = [
-    ...   'WARNING: Values differ for "third": keeping first value: "one" != "two".',
-    ...   'WARNING: Values differ for "1": keeping first value: "2" != "3".'
-    ... ]
-    >>> assert ex_warn == warn
+    Return a mapping of unique labels from the merged config and container_config
+    mappings
     """
-    warnings = []
+    labels = set()
 
-    if map1 and not map2:
-        return mapping(map1), warnings
+    config_labels = config.get('Labels', {}) or {}
+    labels.update(config_labels.items())
 
-    if map2 and not map1:
-        return mapping(map2), warnings
+    container_labels = (container_config.get('Labels', {}) or {})
+    labels.update(container_labels.items())
+    return dict(sorted(labels))
 
-    keys = map1.keys()
-    keys.extend(k2 for k2 in map2.keys() if k2 not in keys)
-    new_map = mapping()
-    for key in keys:
-        value1 = deepcopy(map1.get(key))
-        value2 = deepcopy(map2.get(key))
 
-        # strip strings
-        if isinstance(value1, str):
-            value1 = value1.strip()
-        if isinstance(value2, str):
-            value2 = value2.strip()
+def extract_tar(location, target_dir):
+    """
+    Extract a tar archive at `location` in the `target_dir` directory.
+    Ignore special device files.
+    Do not preserve the permissions and owners.
+    Raise exceptions on possible problematic relative paths.
+    """
+    import tarfile
+    with tarfile.open(location) as tarball:
+        # never extract character device, block and fifo files:
+        # we extract dirs, files and links
+        to_extract = [tinfo for tinfo in tarball.getmembers() if not tinfo.isdev()]
+        # force a u+rwx on all files
+        for tinfo in to_extract:
+            tinfo.mode = 0o700
+            # no absolute nor relative paths:
+            # if tinfo.name != path.normpath(tinfo.name).lstrip('./\\'):
+            #     raise Exception('Illegal tar member file path: {}'.format(tinfo.name))
+            # if tinfo.linkname != path.normpath(tinfo.linkname).lstrip('./\\'):
+            #     raise Exception('Illegal tar member file path link from: {} to: {}'.format(tinfo.name, tinfo.linkname))
+        tarball.extractall(target_dir, members=to_extract)
 
-        if value1 == value2:
-            new_map[key] = value1
 
-        elif isinstance(value1, bool) or isinstance(value2, bool):
-            new_map[key] = bool(value1 or value2)
+def _rm_handler(function, path, excinfo):  # @UnusedVariable
+    """
+    shutil.rmtree handler invoked on error when deleting a directory tree.
+    This retries deleting once before giving up.
+    """
+    if function == os_rmdir:
+        try:
+            shutil.rmtree(path, True)
+        except Exception:
+            pass
 
-        elif value1 and value2 in EMPTIES:
-            new_map[key] = value1
+        if path.exists(path):
+            logger.warning('Failed to delete directory %s', path)
 
-        elif value2 and value1 in EMPTIES:
-            new_map[key] = value2
+    elif function == os_remove:
+        try:
+            delete(path, _err_handler=None)
+        except:
+            pass
 
-        elif isinstance(value1, Mapping):
-            if not value2:
-                value2 = {}
-            assert isinstance(value2, Mapping)
-            # recurse to merge v1 and v2
-            new_value, vwarns = merge_update_mappings(value1, value2, mapping)
-            warnings.extend(vwarns)
-            new_map[key] = new_value
+        if path.exists(path):
+            logger.warning('Failed to delete file %s', path)
 
-        elif isinstance(value1, (list, tuple, set)):
-            assert isinstance(value2, (list, tuple, set))
-            # append new v2 items to v1
-            new_value = value1 + [v for v in value2 if v not in value1]
-            new_map[key] = new_value
 
-        elif value1 != value2:
-            new_map[key] = value1
-            wmessage = 'WARNING: Values differ for "%(key)s": keeping first value: "%(value1)s" != "%(value2)s".' % locals()
-            warnings.append(wmessage)
+def delete(location, _err_handler=_rm_handler):
+    """
+    Delete a directory or file at `location` recursively. Similar to "rm -rf"
+    in a shell or a combo of os.remove and shutil.rmtree.
+    """
+    if not location:
+        return
 
-    return new_map, warnings
+    if path.exists(location) or path.islink(location):
+        if path.isdir(location):
+            shutil.rmtree(location, False, _rm_handler)
+        else:
+            os_remove(location)
 
+
+def copytree(src, dst):
+    """
+    Copy recursively the `src` directory to the `dst` directory. If `dst` is an
+    existing directory, files in `dst` may be overwritten during the copy.
+    """
+    names = os.listdir(src)
+
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+
+    for name in names:
+        srcname = os.path.join(src, name)
+        dstname = os.path.join(dst, name)
+
+        if path.isdir(srcname):
+            copytree(srcname, dstname)
+        elif path.isfile(srcname):
+            copyfile(srcname, dstname)
+
+
+def copyfile(src, dst):
+    """
+    Copy src file to dst file
+    """
+    assert path.isfile(src)
+    if path.isdir(dst):
+        dst = path.join(dst, path.basename(src))
+    shutil.copyfile(src, dst)

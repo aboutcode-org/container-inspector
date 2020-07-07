@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Debian GNU/Linux",
+  "version": "7 (wheezy)",
+  "identifier": "debian",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": "7",
+  "pretty_name": "Debian GNU/Linux 7 (wheezy)",
+  "cpe_name": null,
+  "home_url": "http://www.debian.org/",
+  "documentation_url": null,
+  "support_url": "http://www.debian.org/support/",
+  "bug_report_url": "http://bugs.debian.org/",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

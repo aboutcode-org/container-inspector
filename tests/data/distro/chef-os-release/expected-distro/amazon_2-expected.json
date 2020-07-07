@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Amazon Linux",
+  "version": "2",
+  "identifier": "amzn",
+  "id_like": "centos rhel fedora",
+  "version_codename": null,
+  "version_id": "2",
+  "pretty_name": "Amazon Linux 2",
+  "cpe_name": "cpe:2.3:o:amazon:amazon_linux:2",
+  "home_url": "https://amazonlinux.com/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": null,
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

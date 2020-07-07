@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "RancherOS",
+  "version": "v1.4.2",
+  "identifier": "rancheros",
+  "id_like": "",
+  "version_codename": null,
+  "version_id": "v1.4.2",
+  "pretty_name": "RancherOS v1.4.2",
+  "cpe_name": null,
+  "home_url": "http://rancher.com/rancher-os/",
+  "documentation_url": null,
+  "support_url": "https://forums.rancher.com/c/rancher-os",
+  "bug_report_url": "https://github.com/rancher/os/issues",
+  "privacy_policy_url": null,
+  "build_id": "",
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

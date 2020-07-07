@@ -1,0 +1,27 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "CentOS Linux",
+  "version": "7 (Core)",
+  "identifier": "centos",
+  "id_like": "rhel fedora",
+  "version_codename": null,
+  "version_id": "7",
+  "pretty_name": "CentOS Linux 7 (Core)",
+  "cpe_name": "cpe:/o:centos:centos:7",
+  "home_url": "https://www.centos.org/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": "https://bugs.centos.org/",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {
+    "CENTOS_MANTISBT_PROJECT": "CentOS-7",
+    "CENTOS_MANTISBT_PROJECT_VERSION": "7",
+    "REDHAT_SUPPORT_PRODUCT": "centos",
+    "REDHAT_SUPPORT_PRODUCT_VERSION": "7"
+  }
+}

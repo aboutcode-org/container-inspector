@@ -1,83 +1,50 @@
 [
   {
-    "layers_by_id": {
-      "3e0554cb0efadb678332292bb7835495fbb0c71af7e01bd4f7d11e64fe3d54df": {
-        "docker_version": "17.03.1-ce", 
-        "os": "linux", 
-        "architecture": "amd64", 
-        "created": "2017-06-14T19:29:01.037740325Z", 
-        "author": null, 
-        "container": "daea997c17c2861b425edaa87aa7556b4b2d1d4913d2b66014696f2ce340306b", 
-        "comment": null, 
-        "config": {}, 
-        "created_by": null, 
-        "empty_layer": false, 
-        "parent": null, 
-        "layer_id": "3e0554cb0efadb678332292bb7835495fbb0c71af7e01bd4f7d11e64fe3d54df", 
-        "layer_digest": "sha256:45761469c965421a92a69cc50e92c01e0cfa94fe026cdd1233445ea00e96289a", 
-        "layer_size": 3584, 
-        "command": "#(nop)  CMD [\"/hello\"] /hello"
+    "docker_version": "17.03.1-ce",
+    "os": "linux",
+    "architecture": "amd64",
+    "created": "2017-06-14T19:29:01.037740325Z",
+    "author": null,
+    "comment": null,
+    "labels": {},
+    "base_location": "",
+    "image_id": "1815c82652c03bfd8644afda26fb184f2ed891d921b20a0703b46768f9755c57",
+    "parent_digest": null,
+    "config_digest": "1815c82652c03bfd8644afda26fb184f2ed891d921b20a0703b46768f9755c57",
+    "layers": [
+      {
+        "docker_version": null,
+        "os": null,
+        "architecture": null,
+        "created": null,
+        "author": null,
+        "comment": null,
+        "labels": [],
+        "layer_location": "layer.tar",
+        "layer_sha256": "45761469c965421a92a69cc50e92c01e0cfa94fe026cdd1233445ea00e96289a",
+        "layer_size": 3584,
+        "layer_id": "3e0554cb0efadb678332292bb7835495fbb0c71af7e01bd4f7d11e64fe3d54df",
+        "created_by": null,
+        "is_empty_layer": false,
+        "parent_id": null,
+        "extracted_to_location": null
       }
-    }, 
-    "images_by_id": {
-      "1815c82652c03bfd8644afda26fb184f2ed891d921b20a0703b46768f9755c57": {
-        "docker_version": "17.03.1-ce", 
-        "os": "linux", 
-        "architecture": "amd64", 
-        "created": "2017-06-14T19:29:01.037740325Z", 
-        "author": null, 
-        "container": "daea997c17c2861b425edaa87aa7556b4b2d1d4913d2b66014696f2ce340306b", 
-        "comment": null, 
-        "config": {}, 
-        "image_id": "1815c82652c03bfd8644afda26fb184f2ed891d921b20a0703b46768f9755c57", 
-        "parent_digest": null, 
-        "config_digest": "sha256:1815c82652c03bfd8644afda26fb184f2ed891d921b20a0703b46768f9755c57", 
-        "top_layer_id": "3e0554cb0efadb678332292bb7835495fbb0c71af7e01bd4f7d11e64fe3d54df", 
-        "top_layer_digest": "sha256:45761469c965421a92a69cc50e92c01e0cfa94fe026cdd1233445ea00e96289a", 
-        "layer_digests": [], 
-        "layers": [
-          {
-            "docker_version": null, 
-            "os": null, 
-            "architecture": null, 
-            "created": "2017-06-14T19:28:14.683824199Z", 
-            "author": null, 
-            "container": null, 
-            "comment": null, 
-            "config": {}, 
-            "created_by": "/bin/sh -c #(nop) COPY file:b65349dad8105cbef74456e9c0c9da5d001e9eb2ade4b3c21e107909aee5b25a in / ", 
-            "empty_layer": false, 
-            "parent": null, 
-            "layer_id": "3e0554cb0efadb678332292bb7835495fbb0c71af7e01bd4f7d11e64fe3d54df", 
-            "layer_digest": "sha256:45761469c965421a92a69cc50e92c01e0cfa94fe026cdd1233445ea00e96289a", 
-            "layer_size": 0, 
-            "command": null
-          }, 
-          {
-            "docker_version": null, 
-            "os": null, 
-            "architecture": null, 
-            "created": "2017-06-14T19:29:01.037740325Z", 
-            "author": null, 
-            "container": null, 
-            "comment": null, 
-            "config": {}, 
-            "created_by": "/bin/sh -c #(nop)  CMD [\"/hello\"]", 
-            "empty_layer": true, 
-            "parent": null, 
-            "layer_id": null, 
-            "layer_digest": null, 
-            "layer_size": 0, 
-            "command": null
-          }
-        ], 
-        "tags": [
-          "hello-world:latest"
-        ]
+    ],
+    "tags": [
+      "hello-world:latest"
+    ],
+    "history": [
+      {
+        "created": "2017-06-14T19:28:14.683824199Z",
+        "created_by": "/bin/sh -c #(nop) COPY file:b65349dad8105cbef74456e9c0c9da5d001e9eb2ade4b3c21e107909aee5b25a in / "
+      },
+      {
+        "created": "2017-06-14T19:29:01.037740325Z",
+        "created_by": "/bin/sh -c #(nop)  CMD [\"/hello\"]",
+        "empty_layer": true
       }
-    }, 
-    "image_id_by_tags": {
-      "hello-world:latest": "1815c82652c03bfd8644afda26fb184f2ed891d921b20a0703b46768f9755c57"
-    }
+    ],
+    "distro": null,
+    "extracted_to_location": null
   }
 ]

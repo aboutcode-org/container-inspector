@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
-from __future__ import absolute_import, print_function
 
 import io
 import os
@@ -25,13 +24,13 @@ def read(*names, **kwargs):
 
 setup(
     name='conan',
-    version='2.0.0',
+    version='3.1.1',
     license='Apache-2.0',
     description='Docker-related utilities.',
     long_description='Docker-related utilities.',
     author='nexB Inc.',
     author_email='info@nexb.com',
-    url='https://github.com/pombredanne/conan',
+    url='https://github.com/nexB/conan',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
@@ -45,27 +44,23 @@ setup(
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Utilities',
     ],
     keywords=[],
     install_requires=[
-        'scancode-toolkit',
         'click',
-        'unicodecsv',
-        'dockerfile_parse',
         'attrs',
+        'dockerfile_parse',
+        'unicodecsv',
     ],
 
     entry_points={
         'console_scripts': [
             'conan=conan.cli:conan',
-            'repos=conan.cli:conanv11',
-            'conan-inv=conan.packages:conan_packages',
+            'conan_squash=conan.cli:conan_squash',
+            'conan_dockerfile=conan.cli:conan_dockerfile',
         ],
     },
-
-    extras_require={
-        # eg: 'rst': ['docutils>=0.11'],
-    }
 )

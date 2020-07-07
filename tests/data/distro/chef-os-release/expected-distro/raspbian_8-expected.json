@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Raspbian GNU/Linux",
+  "version": "8 (jessie)",
+  "identifier": "raspbian",
+  "id_like": "debian",
+  "version_codename": null,
+  "version_id": "8",
+  "pretty_name": "Raspbian GNU/Linux 8 (jessie)",
+  "cpe_name": null,
+  "home_url": "http://www.raspbian.org/",
+  "documentation_url": null,
+  "support_url": "http://www.raspbian.org/RaspbianForums",
+  "bug_report_url": "http://www.raspbian.org/RaspbianBugs",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

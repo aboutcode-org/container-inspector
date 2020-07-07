@@ -1,11 +1,11 @@
-# Copyright (c) 2017 nexB Inc. and others. All rights reserved.
-# http://nexb.com and https://github.com/pombredanne/conan/
-# The Conan software is licensed under the Apache License version 2.0.
-# Data generated with Conan require an acknowledgment.
-# Conan is a trademark of nexB Inc.
+# Copyright (c) nexB Inc. and others. All rights reserved.
+# http://nexb.com and https://github.com/nexB/conan/
+#
+# This software is licensed under the Apache License version 2.0.#
 #
 # You may not use this software except in compliance with the License.
-# You may obtain a copy of the License at: http://apache.org/licenses/LICENSE-2.0
+# You may obtain a copy of the License at:
+#     http://apache.org/licenses/LICENSE-2.0
 # Unless required by applicable law or agreed to in writing, software distributed
 # under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
@@ -15,14 +15,12 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from collections import OrderedDict
 import logging
 import operator
-from os.path import join
+from os import path
 
 import dockerfile_parse
-
-from commoncode import fileutils
+import os
 
 
 logger = logging.getLogger(__name__)
@@ -36,30 +34,16 @@ Analysis helper for Docker Dockerfiles.
 """
 
 
-"""
-Model:
-And we can have multiple repositories in a DB.
-
-[Registry]
-  [Repository]
-    [Layer]
-    [Image]
-      [Layer pointers]
-        installed packages
-        inventory
-"""
-
-
-def get_dockerfile(location, echo=print):
+def get_dockerfile(location):
     """
     Return a Dockerfile data dictionary if the location is a Dockerfile,
     otherwise return None.
     """
-    fn = fileutils.file_base_name(location)
+    fn = path.basename(location)
     if not 'Dockerfile' in fn:
         return {}
 
-    echo('Found Dockerfile at: %(location)r' % locals())
+    logger.debug('Found Dockerfile at: %(location)r' % locals())
 
     try:
         # TODO: keep comments instead of ignoring them:
@@ -68,18 +52,18 @@ def get_dockerfile(location, echo=print):
         # assign top of file and  end of file comments to file level comment attribute
         df = dockerfile_parse.DockerfileParser(location)
 
-        df_data = OrderedDict()
+        df_data = dict()
         df_data['location'] = location
         df_data['base_image'] = df.baseimage
         df_data['instructions'] = []
 
         for entry in df.structure:
-            entry = OrderedDict([(k, v) for k, v in sorted(entry.items())
+            entry = dict([(k, v) for k, v in sorted(entry.items())
                                  if k in ('instruction', 'startline', 'value',)])
             df_data['instructions'].append(entry)
         return {location: df_data}
     except:
-        echo('Error parsing Dockerfile at: %(location)r' % locals())
+        logger.debug('Error parsing Dockerfile at: %(location)r' % locals())
         return {}
 
 
@@ -98,15 +82,15 @@ def flatten_dockerfiles(dockerfiles):
             yield ndf
 
 
-def collect_dockerfiles(location, echo=print):
+def collect_dockerfiles(location):
     """
     Collect all Dockerfiles in a directory tree. Return a map of location ->
     Dockerfile data
     """
     dfiles = {}
-    for top, dirs, files in fileutils.walk(location):
+    for top, dirs, files in os.walk(location):
         for f in files:
-            dfiles.update(get_dockerfile(join(top, f), echo))
+            dfiles.update(get_dockerfile(path.join(top, f)))
     logger.debug('collect_dockerfiles: %(dfiles)r' % locals())
     return dfiles
 
@@ -120,6 +104,7 @@ def add_equals_or_unknown(d, l):
         return True
     else:
         return d == l
+
 
 # map of a Docker instruction to the comparison callable used when matching a
 # Layer command to a Docker file command
@@ -248,7 +233,7 @@ def map_image_to_dockerfile(image, dockerfile):
 
     # TODO: keep track of original image for these layers
     base_image_layers = []
-    aligned_layers = OrderedDict()
+    aligned_layers = dict()
 
     for order, aln in enumerate(aligned):
         layer, dockerfile_instruct = aln

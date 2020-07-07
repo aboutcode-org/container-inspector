@@ -1,0 +1,24 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Linux Mint",
+  "version": "19 (Tara)",
+  "identifier": "linuxmint",
+  "id_like": "ubuntu",
+  "version_codename": "tara",
+  "version_id": "19",
+  "pretty_name": "Linux Mint 19",
+  "cpe_name": null,
+  "home_url": "https://www.linuxmint.com/",
+  "documentation_url": null,
+  "support_url": "https://forums.ubuntu.com/",
+  "bug_report_url": "http://linuxmint-troubleshooting-guide.readthedocs.io/en/latest/",
+  "privacy_policy_url": "https://www.linuxmint.com/",
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {
+    "UBUNTU_CODENAME": "bionic"
+  }
+}

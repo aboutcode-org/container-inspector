@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Mageia",
+  "version": "6",
+  "identifier": "mageia",
+  "id_like": "mandriva fedora",
+  "version_codename": null,
+  "version_id": "6",
+  "pretty_name": "Mageia 6",
+  "cpe_name": null,
+  "home_url": "http://www.mageia.org/",
+  "documentation_url": null,
+  "support_url": "http://www.mageia.org/support/",
+  "bug_report_url": "https://bugs.mageia.org/",
+  "privacy_policy_url": "https://wiki.mageia.org/en/Privacy_policy",
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

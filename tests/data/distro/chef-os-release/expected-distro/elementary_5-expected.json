@@ -1,0 +1,24 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "elementary OS",
+  "version": "5.0 Juno",
+  "identifier": "elementary",
+  "id_like": "ubuntu",
+  "version_codename": "juno",
+  "version_id": "5.0",
+  "pretty_name": "elementary OS 5.0 Juno",
+  "cpe_name": null,
+  "home_url": "https://elementary.io/",
+  "documentation_url": null,
+  "support_url": "https://elementary.io/support",
+  "bug_report_url": "https://github.com/elementary/appcenter/issues/new",
+  "privacy_policy_url": "https://elementary.io/privacy-policy",
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {
+    "UBUNTU_CODENAME": "juno"
+  }
+}

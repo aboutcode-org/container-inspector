@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "SLED",
+  "version": "15",
+  "identifier": "sled",
+  "id_like": "suse",
+  "version_codename": null,
+  "version_id": "15",
+  "pretty_name": "SUSE Linux Enterprise Desktop 15",
+  "cpe_name": "cpe:/o:suse:sled:15",
+  "home_url": null,
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": null,
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

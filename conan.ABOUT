@@ -1,7 +1,7 @@
 about_resource: .
 
 name: Conan
-version: 0.1.0
+version: 3.1.1
 
 owner: nexB Inc.
 
@@ -16,4 +16,4 @@ license: apache-2.0
 license_text_file: apache-2.0.LICENSE
 notice_file: NOTICE
 
-copyright: Copyright (c) 2016 nexB Inc. and others
+copyright: Copyright (c) nexB Inc. and others

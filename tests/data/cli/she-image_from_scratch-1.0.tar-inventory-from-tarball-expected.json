@@ -1,0 +1,138 @@
+[
+  {
+    "docker_version": "18.09.7",
+    "os": "linux",
+    "architecture": "amd64",
+    "created": "2020-06-02T07:19:55.133752465Z",
+    "author": null,
+    "comment": null,
+    "labels": {
+      "Some other label": ""
+    },
+    "base_location": null,
+    "image_id": "6d190579c3d7ccc07188cd204310927f553f2ebe1faf868169365f3eccf9c8ab",
+    "parent_digest": null,
+    "config_digest": "6d190579c3d7ccc07188cd204310927f553f2ebe1faf868169365f3eccf9c8ab",
+    "layers": [
+      {
+        "docker_version": null,
+        "os": null,
+        "architecture": null,
+        "created": null,
+        "author": null,
+        "comment": null,
+        "labels": [],
+        "layer_location": null,
+        "layer_sha256": "1f9928556cf4d8e357642820b93a68343ae4bf8eeba76a041b2ea3a4257c5a5a",
+        "layer_size": 2048,
+        "layer_id": "390f462bd3d4a0f900a4c431a53dc8830461b9e703ba348a2700dcc46f720c02",
+        "created_by": null,
+        "is_empty_layer": false,
+        "parent_id": null,
+        "extracted_to_location": null
+      },
+      {
+        "docker_version": null,
+        "os": null,
+        "architecture": null,
+        "created": null,
+        "author": null,
+        "comment": null,
+        "labels": [],
+        "layer_location": null,
+        "layer_sha256": "57a9ef5e4048962620a6311018be2010c179c9853e878a20080aeaed97f42826",
+        "layer_size": 5632,
+        "layer_id": "24ff9e455c2811b9f3ba124276b5f2bb0111555057fdcc5b528c471597186fc3",
+        "created_by": null,
+        "is_empty_layer": false,
+        "parent_id": null,
+        "extracted_to_location": null
+      },
+      {
+        "docker_version": null,
+        "os": null,
+        "architecture": null,
+        "created": null,
+        "author": null,
+        "comment": null,
+        "labels": [],
+        "layer_location": null,
+        "layer_sha256": "0676ff439070aa2108b9bc3904f04265f83a639b4e6fe3e45c9549fd7bbe3369",
+        "layer_size": 5120,
+        "layer_id": "7295cea29559ce1e63515273dbd67ac770ef613b9b697473c1f95a0c494cfd80",
+        "created_by": null,
+        "is_empty_layer": false,
+        "parent_id": null,
+        "extracted_to_location": null
+      },
+      {
+        "docker_version": null,
+        "os": null,
+        "architecture": null,
+        "created": null,
+        "author": null,
+        "comment": null,
+        "labels": [],
+        "layer_location": null,
+        "layer_sha256": "85dc439f0d28eceba0cfc2b883f3e99a37e60961e2686acf8b85c09e67facb01",
+        "layer_size": 2560,
+        "layer_id": "649ef32010e339b304136b22154e13f984f88f528c8120a17291396b9264ccc0",
+        "created_by": null,
+        "is_empty_layer": false,
+        "parent_id": null,
+        "extracted_to_location": null
+      }
+    ],
+    "tags": [
+      "she/image_from_scratch:1.0"
+    ],
+    "history": [
+      {
+        "created": "2020-06-02T07:19:52.945579677Z",
+        "author": "You Myself and I.",
+        "created_by": "/bin/sh -c #(nop)  MAINTAINER You Myself and I.",
+        "empty_layer": true
+      },
+      {
+        "created": "2020-06-02T07:19:53.24191627Z",
+        "author": "You Myself and I.",
+        "created_by": "/bin/sh -c #(nop) ADD file:bc85f38b0c798897406a4c35fe08d06599df3831fca6db0cbd279e5d71bf9514 in / "
+      },
+      {
+        "created": "2020-06-02T07:19:53.514748579Z",
+        "author": "You Myself and I.",
+        "created_by": "/bin/sh -c #(nop) COPY dir:dce95f07b795ec49ef6ddbcc12f24aaad9af237726904837c77b5ed2967e349e in /additions "
+      },
+      {
+        "created": "2020-06-02T07:19:53.83371266Z",
+        "author": "You Myself and I.",
+        "created_by": "/bin/sh -c #(nop)  CMD [\"/bin/sh\" \"-c\" \"rm /additions/foo\"]",
+        "empty_layer": true
+      },
+      {
+        "created": "2020-06-02T07:19:54.191141634Z",
+        "author": "You Myself and I.",
+        "created_by": "/bin/sh -c #(nop) COPY dir:dce95f07b795ec49ef6ddbcc12f24aaad9af237726904837c77b5ed2967e349e in /additions "
+      },
+      {
+        "created": "2020-06-02T07:19:54.506439427Z",
+        "author": "You Myself and I.",
+        "created_by": "/bin/sh -c #(nop)  CMD [\"/bin/sh\" \"-c\" \"rm -rf /additions/baz\"]",
+        "empty_layer": true
+      },
+      {
+        "created": "2020-06-02T07:19:54.826380355Z",
+        "author": "You Myself and I.",
+        "created_by": "/bin/sh -c #(nop) ADD file:bc85f38b0c798897406a4c35fe08d06599df3831fca6db0cbd279e5d71bf9514 in /additions/hello "
+      },
+      {
+        "created": "2020-06-02T07:19:55.133752465Z",
+        "author": "You Myself and I.",
+        "created_by": "/bin/sh -c #(nop)  LABEL Some other label=",
+        "empty_layer": true
+      }
+    ],
+    "distro": null,
+    "extracted_to_location": null
+  }
+]

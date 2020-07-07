@@ -1,0 +1,4 @@
+bumpversion
+pytest
+scancode-toolkit # used for its tests classes
+-e .
