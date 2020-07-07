@@ -17,7 +17,7 @@ from __future__ import unicode_literals
 
 import re
 
-__version__ = '3.1.1'
+__version__ = '3.1.2'
 
 REPOSITORIES_FILE = 'repositories'  # legacy v1
 
