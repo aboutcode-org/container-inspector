@@ -132,7 +132,8 @@ def get_images_from_dir_or_tarball(image_path, extract_to=None, quiet=False):
     else:
     # assume tarball
         extract_to = extract_to or tempfile.mkdtemp()
-        images = list(image.Image.get_images_from_tarball(image_loc, target_dir=extract_to))
+        images = list(image.Image.get_images_from_tarball(
+            image_loc, target_dir=extract_to, force_extract=True))
         for img in images:
             img.extract_layers(target_dir=extract_to)
         if not quiet:

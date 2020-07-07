@@ -58,7 +58,7 @@ class TestImages(FileBasedTesting):
         extract_dir = self.get_temp_dir()
         expected = path.join(self.get_test_loc('repos'), 'imagesv11.tar.expected.json')
         result = [clean_image(i).to_dict()
-            for i in Image.get_images_from_tarball(test_tarball, extract_dir)]
+            for i in Image.get_images_from_tarball(test_tarball, extract_dir, force_extract=True)]
         check_expected(result, expected, regen=False)
 
     def test_from_dir(self):
