@@ -1,5 +1,5 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
-# http://nexb.com and https://github.com/nexB/conan/
+# http://nexb.com and https://github.com/nexB/container-inspector/
 #
 # This software is licensed under the Apache License version 2.0.#
 #
@@ -21,7 +21,7 @@ import json
 
 from commoncode.testcase import FileBasedTesting
 
-from conan import cli
+from container_inspector import cli
 from commoncode import fileutils
 
 from utilities import check_expected
@@ -40,27 +40,27 @@ def clean_images_data(images):
     return images
 
 
-class TestConanCli(FileBasedTesting):
+class TestContainerInspectorCli(FileBasedTesting):
     test_data_dir = os.path.join(os.path.dirname(__file__), 'data')
 
-    def test_conan_single_layer_from_dir(self):
+    def test_container_inspector_single_layer_from_dir(self):
         test_dir = self.extract_test_tar('cli/hello-world.tar')
         expected = self.get_test_loc('cli/hello-world.tar-inventory-from-dir-expected.json')
-        out = cli._conan(image_path=test_dir)
+        out = cli._container_inspector(image_path=test_dir)
         result = clean_images_data(json.loads(out))
         check_expected(result, expected, regen=False)
 
-    def test_conan_single_layer_from_tarball(self):
+    def test_container_inspector_single_layer_from_tarball(self):
         test_dir = self.get_test_loc('cli/hello-world.tar')
         expected = self.get_test_loc('cli/hello-world.tar-inventory-from-tarball-expected.json')
-        out = cli._conan(image_path=test_dir)
+        out = cli._container_inspector(image_path=test_dir)
         result = clean_images_data(json.loads(out))
         check_expected(result, expected, regen=False)
 
-    def test_conan_multiple_layers_from_tarball(self):
+    def test_container_inspector_multiple_layers_from_tarball(self):
         test_dir = self.get_test_loc('cli/she-image_from_scratch-1.0.tar')
         expected = self.get_test_loc('cli/she-image_from_scratch-1.0.tar-inventory-from-tarball-expected.json')
-        out = cli._conan(image_path=test_dir)
+        out = cli._container_inspector(image_path=test_dir)
         result = clean_images_data(json.loads(out))
         check_expected(result, expected, regen=False)
 
@@ -68,7 +68,7 @@ class TestConanCli(FileBasedTesting):
         test_dir = self.extract_test_tar('cli/hello-world.tar')
         target_dir = self.get_temp_dir()
 
-        cli._conan_squash(
+        cli._container_inspector_squash(
             image_path=test_dir,
             extract_directory=target_dir)
 
@@ -81,7 +81,7 @@ class TestConanCli(FileBasedTesting):
         test_dir = self.extract_test_tar('cli/she-image_from_scratch-1.0.tar')
         target_dir = self.get_temp_dir()
 
-        cli._conan_squash(
+        cli._container_inspector_squash(
             image_path=test_dir,
             extract_directory=target_dir)
 

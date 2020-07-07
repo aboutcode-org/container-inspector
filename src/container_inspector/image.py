@@ -1,5 +1,5 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
-# http://nexb.com and https://github.com/nexB/conan/
+# http://nexb.com and https://github.com/nexB/container-inspector/
 #
 # This software is licensed under the Apache License version 2.0.#
 #
@@ -22,16 +22,16 @@ from os import path
 
 import attr
 
-from conan import LAYER_JSON_FILE
-from conan import LAYER_TAR_FILE
-from conan import LAYER_VERSION_FILE
-from conan import MANIFEST_JSON_FILE
+from container_inspector import LAYER_JSON_FILE
+from container_inspector import LAYER_TAR_FILE
+from container_inspector import LAYER_VERSION_FILE
+from container_inspector import MANIFEST_JSON_FILE
 
-from conan.utils import as_bare_id
-from conan.utils import load_json
-from conan.utils import sha256_digest
-from conan import utils
-from conan.distro import Distro
+from container_inspector.utils import as_bare_id
+from container_inspector.utils import load_json
+from container_inspector.utils import sha256_digest
+from container_inspector import utils
+from container_inspector.distro import Distro
 
 logger = logging.getLogger(__name__)
 # un-comment these lines to enable logging
@@ -299,7 +299,7 @@ class Image(ToDictMixin, ConfigMixin):
         Cache the location where this layer was last extracted in the
         self.extracted_to_location attribute
         """
-        from conan import rootfs
+        from container_inspector import rootfs
         rootfs.rebuild_rootfs(self, target_dir)
 
     def get_installed_packages(self, packages_getter):

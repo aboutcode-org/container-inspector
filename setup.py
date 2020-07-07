@@ -23,14 +23,14 @@ def read(*names, **kwargs):
 
 
 setup(
-    name='conan',
+    name='container-inspector',
     version='3.1.1',
     license='Apache-2.0',
     description='Docker-related utilities.',
     long_description='Docker-related utilities.',
     author='nexB Inc.',
     author_email='info@nexb.com',
-    url='https://github.com/nexB/conan',
+    url='https://github.com/nexB/container-inspector',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
@@ -58,9 +58,9 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'conan=conan.cli:conan',
-            'conan_squash=conan.cli:conan_squash',
-            'conan_dockerfile=conan.cli:conan_dockerfile',
+            'container_inspector=container_inspector.cli:container_inspector',
+            'container_inspector_squash=container_inspector.cli:container_inspector_squash',
+            'container_inspector_dockerfile=container_inspector.cli:container_inspector_dockerfile',
         ],
     },
 )

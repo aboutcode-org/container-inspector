@@ -1,5 +1,5 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
-# http://nexb.com and https://github.com/nexB/conan/
+# http://nexb.com and https://github.com/nexB/container-inspector/
 #
 # This software is licensed under the Apache License version 2.0.#
 #
@@ -25,9 +25,9 @@ import tempfile
 import click
 import unicodecsv
 
-from conan import image
-from conan import dockerfile
-from conan import rootfs
+from container_inspector import image
+from container_inspector import dockerfile
+from container_inspector import rootfs
 
 logger = logging.getLogger(__name__)
 # un-comment these lines to enable logging
@@ -39,15 +39,15 @@ logger = logging.getLogger(__name__)
 @click.argument('image_path', metavar='IMAGE_path', type=click.Path(exists=True, readable=True))
 @click.argument('extract_directory', metavar='TARGET_DIR', type=click.Path(exists=True, writable=True))
 @click.help_option('-h', '--help')
-def conan_squash(image_path, extract_directory):
+def container_inspector_squash(image_path, extract_directory):
     """
     Given a Docker image at IMAGE_PATH, extract and squash that image in TARGET_DIR
     merging all layers in a single rootfs-like structure.'))
     """
-    _conan_squash(image_path, extract_directory)
+    _container_inspector_squash(image_path, extract_directory)
 
 
-def _conan_squash(image_path, extract_directory):
+def _container_inspector_squash(image_path, extract_directory):
     images = get_images_from_dir_or_tarball(image_path)
     assert len(images) == 1, 'Can only squash one image at a time'
     img = images[0]
@@ -60,15 +60,15 @@ def _conan_squash(image_path, extract_directory):
 @click.option('--json', is_flag=True, help='Print information as JSON.')
 @click.option('--csv', is_flag=True, help='Print information  as CSV.')
 @click.help_option('-h', '--help')
-def conan_dockerfile(directory, json=False, csv=False):
+def container_inspector_dockerfile(directory, json=False, csv=False):
     """
     Find source Dockerfile files in DIR. Print information as JSON or CSV to stdout.
     Output is printed to stdout. Use a ">" redirect to save in a file.
     """
-    _conan_dockerfile(directory, json, csv)
+    _container_inspector_dockerfile(directory, json, csv)
 
 
-def _conan_dockerfile(directory, json=False, csv=False):
+def _container_inspector_dockerfile(directory, json=False, csv=False):
     assert json or csv, 'At least one of --json or --csv is required.'
     dir_loc = os.path.abspath(os.path.expanduser(directory))
 
@@ -92,18 +92,18 @@ def _conan_dockerfile(directory, json=False, csv=False):
 @click.option('--extract-to', default=None, metavar='PATH', type=click.Path(exists=True, readable=True))
 @click.option('--csv', is_flag=True, default=False, help='Print information as csv instead of JSON.')
 @click.help_option('-h', '--help')
-def conan(image_path, extract_to=None, csv=False):
+def container_inspector(image_path, extract_to=None, csv=False):
     """
     Find Docker images and their layers in IMAGE_PATH.
     Print information as JSON by default or as CSV with --csv.
     Optionally extract images with extract-to.
     Output is printed to stdout. Use a ">" redirect to save in a file.
     """
-    results = _conan(image_path, extract_to=extract_to, csv=csv)
+    results = _container_inspector(image_path, extract_to=extract_to, csv=csv)
     click.echo(results)
 
 
-def _conan(image_path, extract_to=None, csv=False):
+def _container_inspector(image_path, extract_to=None, csv=False):
     images = list(get_images_from_dir_or_tarball(image_path, extract_to=extract_to))
     as_json = not csv
 

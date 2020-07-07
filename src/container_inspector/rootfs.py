@@ -1,5 +1,5 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
-# http://nexb.com and https://github.com/nexB/conan/
+# http://nexb.com and https://github.com/nexB/container-inspector/
 #
 # This software is licensed under the Apache License version 2.0.#
 #
@@ -20,8 +20,8 @@ import os
 from os import path
 import tempfile
 
-from conan import LAYER_TAR_FILE
-from conan import utils
+from container_inspector import LAYER_TAR_FILE
+from container_inspector import utils
 
 
 logger = logging.getLogger(__name__)
@@ -78,7 +78,7 @@ def rebuild_rootfs(img, target_dir):
         layer_id = layer.layer_id
         layer_tarball = path.join(img.base_location, layer_id, LAYER_TAR_FILE)
         logger.debug('Extracting layer {layer_num} tarball: {layer_tarball}'.format(**locals()))
-        temp_target = tempfile.mkdtemp('conan-docker')
+        temp_target = tempfile.mkdtemp('container_inspector-docker')
 
         # 1. extract a layer to temp.
         # Note that we are not preserving any special file and any file permission
