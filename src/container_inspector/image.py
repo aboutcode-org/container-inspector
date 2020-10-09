@@ -87,17 +87,28 @@ class ToDictMixin(object):
         return attr.asdict(self)
 
 
-def flatten_images(images):
+def flatten_images(images, with_history=True):
     """
     Yield mapping for each layer of each image of an `images` list of Image.
-    This is a flat data structure for csv output.
+    This is a flat data structure for CSV and tabular output.
+    If with_history, include the image history if available and aligned.
     """
+
     for img in images:
         base_data = dict([
             ('image_dir', img.base_location),
             ('image_id', img.image_id),
             ('image_tags', ','.join(img.tags)),
         ])
+        history = img.history
+        non_empty_layers = [l for l in img.layers if not l.is_empty_layer]
+        if len(history) == len(non_empty_layers):
+            # we can align
+            for hist, lay in zip(history, non_empty_layers):
+                if not lay.created_by:
+                    created_by = hist.get('created_by') or None
+                    if created_by:
+                        lay.created_by=created_by
         for layer in img.layers:
             layer_data = dict(base_data)
             layer_data['author'] = layer.author
@@ -405,15 +416,36 @@ class Image(ToDictMixin, ConfigMixin):
             )
 
     @staticmethod
-    def from_manifest_config(base_location, manifest_config, verify_config=False):
+    def from_manifest_config(base_location, manifest_config, verify_config=False, verify_layers_on_disk=False):
         """
-        Return an Image object built from the JSON config file at `location` and
-        the `manifest_config` data mapping (from a manifest.json).  The
-        manifest_config[Config] JSON file is named after its SHA256 and there is
-        one such file for each img.
+        Return an Image object built from `manifest_config` data mapping (from a
+        manifest.json) and the `base_location` directory that contains the
+        `manifest.json` and each image JSON config file.
 
-        Each file has this shape:
-        {
+        The `manifest_config["Config"]` contains a path to JSON config file is
+        named after its SHA256 and there is one such file for each image.
+
+        A `manifest_config` has this shape:
+          {'Config': '7043867122e704683c9eaccd7e26abcd5bc9fea413ddfeae66166697bdcbde1f.json',
+           'Layers': [
+               '768d4f50f65f00831244703e57f64134771289e3de919a576441c9140e037ea2/layer.tar',
+               '6a630e46a580e8b2327fc45d9d1f4734ccaeb0afaa094e0f45722a5f1c91e009/layer.tar',
+               ]
+           'RepoTags': ['user/image:version'],
+           "Parent": "sha256:5a00e6ccb81ef304e1bb9995ea9605f199aa96659a44237d58ca96982daf9af8"
+           },
+
+          {'Config': '7043867122e704683c9eaccd7e26abcd5bc9fea413ddfeae66166697bdcbde1f.json',
+           'Layers': [
+               '768d4f50f65f00831244703e57f64134771289e3de919a576441c9140e037ea2/layer.tar',
+               '6a630e46a580e8b2327fc45d9d1f4734ccaeb0afaa094e0f45722a5f1c91e009/layer.tar',
+               ]
+           'RepoTags': ['user/image:version']
+           },
+
+
+        Each JSON config file has this shape:
+         {
             'docker_version': '1.8.2',
             'os': 'linux',
             'architecture': 'amd64',
@@ -457,7 +489,7 @@ class Image(ToDictMixin, ConfigMixin):
                     'sha256:cd141a5beb0ec83004893dfea6ea8508c6d09a0634593c3f35c0d433898c9322',]
                 'type': u'layers'
             }
-        }
+         }
         """
         config_file = manifest_config.get('Config') or ''
         config_file_loc = path.join(base_location, config_file)
@@ -473,7 +505,6 @@ class Image(ToDictMixin, ConfigMixin):
 
         layer_paths = manifest_config.get('Layers') or []
         layers_locations = [path.join(base_location, layer_path) for layer_path in layer_paths]
-        layers_by_sha256 = {sha256_digest(loc): loc for loc in layers_locations}
 
         parent_digest = manifest_config.get('Parent')
         tags = manifest_config.get('RepoTags') or []
@@ -490,15 +521,22 @@ class Image(ToDictMixin, ConfigMixin):
         # diff for an empty layer with a digest for some EMPTY content e.g.
         # e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 
-        layer_sha256s = [as_bare_id(layer_sha256) for layer_sha256 in rootfs['diff_ids']]
+        layers_sha256s = [as_bare_id(layer_sha256) for layer_sha256 in rootfs['diff_ids']]
+        layer_locs_and_sha256s = list(zip(layers_locations, layers_sha256s))
 
         layers = []
-        for layer_sha256 in layer_sha256s:
-            layer_location = layers_by_sha256[layer_sha256]
+        for layer_location, layer_sha256 in layer_locs_and_sha256s:
+            layer_size = 0
+            if verify_layers_on_disk:
+                on_disk_layer_sha256 = sha256_digest(layer_location)
+                assert layer_sha256 == on_disk_layer_sha256, (
+                    'Layer SHA256 at {} does not match its config "diff_id"'.format(layer_location))
+                layer_size = path.getsize(layer_location)
             lay = Layer(
                 layer_sha256=layer_sha256,
                 layer_location=layer_location,
-                layer_size=path.getsize(layer_location))
+                layer_size=layer_size,
+            )
             layers.append(lay)
 
         img = Image(
