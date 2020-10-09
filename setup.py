@@ -24,7 +24,7 @@ def read(*names, **kwargs):
 
 setup(
     name='container-inspector',
-    version='3.1.2',
+    version='3.2.0',
     license='Apache-2.0',
     description='Docker-related utilities.',
     long_description='Docker-related utilities.',
@@ -53,7 +53,6 @@ setup(
         'click',
         'attrs',
         'dockerfile_parse',
-        'unicodecsv',
     ],
 
     entry_points={
