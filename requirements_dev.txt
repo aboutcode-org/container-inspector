@@ -1,4 +1,3 @@
-bumpversion
 pytest
 # used for its tests classes
 commoncode
