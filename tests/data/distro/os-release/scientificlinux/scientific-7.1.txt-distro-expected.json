@@ -1,0 +1,27 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Scientific Linux",
+  "version": "7.1 (Nitrogen)",
+  "identifier": "rhel",
+  "id_like": "fedora",
+  "version_codename": null,
+  "version_id": "7.1",
+  "pretty_name": "Scientific Linux 7.1 (Nitrogen)",
+  "cpe_name": "cpe:/o:redhat:enterprise_linux:7.1:GA",
+  "home_url": "http://www.scientificlinux.org//",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": "scientific-linux-devel@listserv.fnal.gov",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {
+    "REDHAT_BUGZILLA_PRODUCT": "Scientific Linux 7",
+    "REDHAT_BUGZILLA_PRODUCT_VERSION": "7.1",
+    "REDHAT_SUPPORT_PRODUCT": "Scientific Linux",
+    "REDHAT_SUPPORT_PRODUCT_VERSION": "7.1"
+  }
+}

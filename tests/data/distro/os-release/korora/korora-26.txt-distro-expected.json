@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Korora",
+  "version": "26 (Bloat)",
+  "identifier": "korora",
+  "id_like": "fedora",
+  "version_codename": null,
+  "version_id": "26",
+  "pretty_name": "Korora 26 (Bloat)",
+  "cpe_name": "cpe:/o:kororaproject:korora:26",
+  "home_url": "https://kororaproject.org/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": null,
+  "privacy_policy_url": "https://fedoraproject.org/wiki/Legal:PrivacyPolicy",
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

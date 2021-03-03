@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Container Linux by CoreOS",
+  "version": "1235.6.0",
+  "identifier": "coreos",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": "1235.6.0",
+  "pretty_name": "Container Linux by CoreOS 1235.6.0 (Ladybug)",
+  "cpe_name": null,
+  "home_url": "https://coreos.com/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": "https://github.com/coreos/bugs/issues",
+  "privacy_policy_url": null,
+  "build_id": "2017-01-10-0545",
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

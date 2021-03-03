@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Slackware",
+  "version": "14.1",
+  "identifier": "slackware",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": "14.1",
+  "pretty_name": "Slackware 14.1",
+  "cpe_name": "cpe:/o:slackware:slackware_linux:14.1",
+  "home_url": "http://slackware.com/",
+  "documentation_url": null,
+  "support_url": "http://www.linuxquestions.org/questions/slackware-14/",
+  "bug_report_url": "http://www.linuxquestions.org/questions/slackware-14/",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

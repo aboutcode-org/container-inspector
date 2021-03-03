@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Amazon Linux AMI",
+  "version": "2016.09",
+  "identifier": "amzn",
+  "id_like": "rhel fedora",
+  "version_codename": null,
+  "version_id": "2016.09",
+  "pretty_name": "Amazon Linux AMI 2016.09",
+  "cpe_name": "cpe:/o:amazon:linux:2016.09:ga",
+  "home_url": "http://aws.amazon.com/amazon-linux-ami/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": null,
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

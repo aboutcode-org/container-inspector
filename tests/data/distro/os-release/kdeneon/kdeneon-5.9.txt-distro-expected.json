@@ -1,0 +1,24 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "KDE neon",
+  "version": "5.9",
+  "identifier": "neon",
+  "id_like": "ubuntu debian",
+  "version_codename": "xenial",
+  "version_id": "16.04",
+  "pretty_name": "KDE neon User Edition 5.9",
+  "cpe_name": null,
+  "home_url": "http://neon.kde.org/",
+  "documentation_url": null,
+  "support_url": "http://neon.kde.org/",
+  "bug_report_url": "http://bugs.kde.org/",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {
+    "UBUNTU_CODENAME": "xenial"
+  }
+}

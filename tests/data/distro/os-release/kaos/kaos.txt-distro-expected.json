@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "KaOS",
+  "version": "2018",
+  "identifier": "kaos",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": null,
+  "pretty_name": "KaOS (2018)",
+  "cpe_name": null,
+  "home_url": "https://kaosx.us/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": null,
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

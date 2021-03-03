@@ -1,0 +1,24 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Pop!_OS",
+  "version": "20.04 LTS",
+  "identifier": "pop",
+  "id_like": "ubuntu debian",
+  "version_codename": "focal",
+  "version_id": "20.04",
+  "pretty_name": "Pop!_OS 20.04 LTS",
+  "cpe_name": null,
+  "home_url": "https://pop.system76.com",
+  "documentation_url": null,
+  "support_url": "https://support.system76.com",
+  "bug_report_url": "https://github.com/pop-os/pop/issues",
+  "privacy_policy_url": "https://system76.com/privacy",
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": "distributor-logo-pop-os",
+  "extra_data": {
+    "UBUNTU_CODENAME": "focal"
+  }
+}

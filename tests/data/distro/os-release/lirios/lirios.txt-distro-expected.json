@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Liri OS",
+  "version": null,
+  "identifier": "lirios",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": null,
+  "pretty_name": "Liri OS",
+  "cpe_name": null,
+  "home_url": "https://liri.io",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": "https://github.com/lirios/lirios/issues",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

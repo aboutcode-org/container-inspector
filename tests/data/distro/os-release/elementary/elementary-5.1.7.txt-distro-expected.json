@@ -1,0 +1,24 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "elementary OS",
+  "version": "5.1.7 Hera",
+  "identifier": "elementary",
+  "id_like": "ubuntu",
+  "version_codename": "hera",
+  "version_id": "5.1.7",
+  "pretty_name": "elementary OS 5.1.7 Hera",
+  "cpe_name": null,
+  "home_url": "https://elementary.io/",
+  "documentation_url": null,
+  "support_url": "https://elementary.io/support",
+  "bug_report_url": "https://github.com/elementary/os/issues/new",
+  "privacy_policy_url": "https://elementary.io/privacy-policy",
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": "distributor-logo",
+  "extra_data": {
+    "UBUNTU_CODENAME": "bionic"
+  }
+}
