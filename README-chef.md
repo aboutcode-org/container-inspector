@@ -1,6 +1,7 @@
 # os_release
 
-This repo contains the /etc/os-release file from Linux distros.
+This repo contains the /etc/os-release file from Linux distros
+Oirginally from https://github.com/chef/os_release
 
 ## About os-release
 
