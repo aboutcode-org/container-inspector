@@ -36,7 +36,7 @@ def check_expected(result, expected, regen=False):
 
 def clean_image(image):
     """
-    Clean image data for test purpose
+    Clean `image` data for test purpose
     """
     image.base_location = ''
     for layer in image.layers:
@@ -47,7 +47,7 @@ def clean_image(image):
 
 def clean_layer(layer):
     """
-    Clean layerdata for test purpose
+    Clean `layer` data for test purpose
     """
     layer.layer_location = path.basename(layer.layer_location)
     return layer

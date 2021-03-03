@@ -303,6 +303,7 @@ class Distro(object):
         Return a Distro built from an os-release file in the root filesystem at
         `location`.
         """
+        # /etc/os-release has precedence over /usr/lib/os-release.
         for candidate_path in ('etc/os-release', 'usr/lib/os-release',):
             os_release = path.join(location, candidate_path)
             if path.exists(os_release):

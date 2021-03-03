@@ -11,9 +11,6 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
 
 import csv as csv_module
 import json as json_module
@@ -131,7 +128,7 @@ def get_images_from_dir_or_tarball(image_path, extract_to=None, quiet=False):
     if path.isdir(image_path):
         images = list(image.Image.get_images_from_dir(image_loc))
     else:
-    # assume tarball
+        # assume tarball
         extract_to = extract_to or tempfile.mkdtemp()
         images = list(image.Image.get_images_from_tarball(
             image_loc, target_dir=extract_to, force_extract=True))
