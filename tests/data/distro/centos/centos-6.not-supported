@@ -1,5 +1,0 @@
-CentOS 6.7 does not include /etc/os-release.
-
-OS release information can be found in /etc/centos-release or /etc/redhat-release instead:
-
-CentOS release 6.7 (Final)

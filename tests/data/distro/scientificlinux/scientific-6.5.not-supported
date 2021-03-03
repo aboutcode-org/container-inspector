@@ -1,5 +1,0 @@
-Scientific Linux 6.5 does not include /etc/os-release.
-
-OS release information can be found in /etc/redhat-release instead:
-
-Scientific Linux release 6.5 (Carbon)
