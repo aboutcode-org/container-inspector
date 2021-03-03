@@ -1,33 +1,19 @@
-Software license
-================
-
-Copyright (c) nexB Inc. and others. All rights reserved.
-http://nexb.com and https://github.com/nexB/container-inspector/
-This software is licensed under the Apache License version 2.0.#
-You may not use this software except in compliance with the License.
-You may obtain a copy of the License at: 
-    http://apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software distributed
-under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-CONDITIONS OF ANY KIND, either express or implied. See the License for the
-specific language governing permissions and limitations under the License.
-
-
-Third-party software licenses
-=============================
-
-container-inspector embeds third-party free and open source software packages
-under various licenses including copyleft licenses. Some of the third-party
-software packages are delivered as pre-built binaries. The origin and license
-of these packages is documented by .ABOUT files.
-
-The corresponding source code for pre-compiled third-party software is available
-as part of this download.
-
-You may also contact us to request the source code by email at info@nexb.com or
-by postal mail at:
-  nexB Inc., container-inspector open source code request
-  735 Industrial Road, Suite #101, 94070 San Carlos, CA, USA
-Please indicate in your communication the container-inspector version for which
-you are requesting source code.
-
+#
+# Copyright (c) nexB Inc. and others.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Visit https://aboutcode.org and https://github.com/nexB/ for support and download.
+# ScanCode is a trademark of nexB Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
