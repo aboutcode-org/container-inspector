@@ -54,7 +54,7 @@ setup(
         'attrs',
         'dockerfile_parse',
     ],
-
+    python_requires='>=3.6',
     entry_points={
         'console_scripts': [
             'container_inspector=container_inspector.cli:container_inspector',
