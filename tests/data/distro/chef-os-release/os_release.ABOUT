@@ -1,5 +1,6 @@
 about_resource: os_release-64342eac15c8cc800e3747ede584fda9a2c44781.zip
 download_url: https://github.com/chef/os_release/archive/64342eac15c8cc800e3747ede584fda9a2c44781.zip
+homepage_url: https://github.com/chef/os_release
 license_expression: apache-2.0
 copyright: Copyright (c)  Chef Software, Inc.
 attribute: yes
