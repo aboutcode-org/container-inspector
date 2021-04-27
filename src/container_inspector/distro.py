@@ -11,7 +11,6 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-
 import logging
 from os import path
 import shlex
@@ -246,7 +245,7 @@ class Distro(object):
         return (
             self.identifier == 'debian'
             or self.identifier == 'ubuntu'
-            or (self.id_like and 'debian' in (self.id_like or '')) 
+            or (self.id_like and 'debian' in (self.id_like or ''))
         )
 
     def to_dict(self):
@@ -305,6 +304,36 @@ class Distro(object):
             os_release = path.join(location, candidate_path)
             if path.exists(os_release):
                 return cls.from_file(os_release)
+
+    def categories(self):
+        """
+        WIP: Return category codes for this distro. These should help determine:
+          - base, lowest level package manager (which implies a package format
+            and an installed package DB format), such as RPM, Alpine, Debian.
+          - base OS style such as linux, bsd.
+          - some indicative OS family
+        """
+        return dict(
+            rpm=dict(
+                redhat=('fedora', 'centos', 'rhel', 'amazon', 'scientific', 'oraclelinux',),
+                suse=('opensuse', 'suse', 'sles', 'sled', 'sles_sap', 'opensuse-leap', 'opensuse-tumbleweed',),
+                altlinux=('altlinux',),
+                photon=('photon',),
+                mandriva=('mandriva', 'mageia', 'mandrake', 'open-mandriva'),
+            ),
+            debian=('debian', 'kali', 'linuxmint', 'raspbian', 'ubuntu',),
+            arch=('archlinux', 'antergos', 'manjaro',),
+            slackware=('slackware',),
+            gentoo=('gentoo',),
+            alpine=('alpine',),
+            openwrt=('openwrt', 'lede',),
+            bsd=dict(
+                freebsd=('freebsd',),
+                openbsd=('openbsd',),
+                netbsd=('netbsd',),
+                dragonfly=('dragonfly',),
+            ),
+        )
 
 
 def parse_os_release(location):
@@ -420,7 +449,7 @@ def get_distroless_details():
     The presence of /var/lib/dpkg/status.d/ dir with one Package-like file for each
     installed file replaces using a /var/lib/dpkg/status file.
 
-    /etc/os-release is the file to check for for details
+    /etc/os-release is the file to check for details
     There are no apt sources and no dpkg/info details
     the /usr/lib/os-release is that of upstream Debian
 
