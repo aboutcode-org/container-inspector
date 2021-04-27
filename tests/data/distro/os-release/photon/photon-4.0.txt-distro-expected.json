@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "VMware Photon OS",
+  "version": "4.0",
+  "identifier": "photon",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": "4.0",
+  "pretty_name": "VMware Photon OS/Linux",
+  "cpe_name": null,
+  "home_url": "https://vmware.github.io/photon/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": "https://github.com/vmware/photon/issues",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}
