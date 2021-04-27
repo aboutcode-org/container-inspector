@@ -27,13 +27,15 @@ def logger_debug(*args):
     return logger.debug(' '.join(isinstance(a, str) and a or repr(a) for a in args))
 
 """
-Utilities to detect the distro of a root filesystem (image or layer) and collect
-useful details.
+Utilities to detect the "distro" of a root filesystem (be it a VM or rootfs
+image or a container layer) and collect useful details.
 
-The main file of interest is: /etc/os-release
-- https://www.freedesktop.org/software/systemd/man/os-release.html
+The main file of interest for Linux is: /etc/os-release
+See https://www.freedesktop.org/software/systemd/man/os-release.html
 
 """
+
+os_choices = 'linux', 'bsd', 'windows',
 
 
 @attr.attributes
@@ -45,7 +47,7 @@ class Distro(object):
 
     os = attr.attrib(
         default='linux',
-        metadata=dict(doc='Operating system, dafeulat to linux.')
+        metadata=dict(doc='Operating system, default to linux.')
     )
 
     architecture = attr.attrib(
