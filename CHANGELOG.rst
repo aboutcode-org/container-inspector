@@ -1,6 +1,15 @@
 Changelog
 =========
 
+v21.4.26 (2021-04-26)
+--------------------
+
+This is a minor release. There is no API change
+
+- Add new find_root function to find the root of a filesystem
+- Add new minor tests for extra distro
+
+
 v21.3.3 (2021-03-03)
 --------------------
 

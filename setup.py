@@ -24,7 +24,7 @@ def read(*names, **kwargs):
 
 setup(
     name='container-inspector',
-    version='21.3.3',
+    version='21.4.26',
     license='Apache-2.0',
     description='Docker-related utilities.',
     long_description='Docker-related utilities.',
