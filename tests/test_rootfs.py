@@ -18,6 +18,7 @@ from commoncode import testcase
 
 from container_inspector import image
 from container_inspector.rootfs import rebuild_rootfs
+from container_inspector import rootfs
 
 
 class TestRootfs(testcase.FileBasedTesting):
@@ -145,3 +146,50 @@ class TestRootfs(testcase.FileBasedTesting):
             '/usr/share/udhcpc/default.script',
         ]
         assert expected == results
+
+    def test_rootfs_can_find_root(self):
+
+        def mock_walker(root):
+            return [
+                (root, ['bin', 'usr'], []),
+                (os.path.join(root, 'usr'), ['lib'], ['foo', 'bar']),
+            ]
+
+        assert rootfs.find_root('baz', _walker=mock_walker) == 'baz'
+
+    def test_rootfs_can_find_no_root(self):
+
+        def mock_walker(root):
+            return [
+                (root, ['abin', 'ausr'], []),
+                (os.path.join(root, 'usr'), ['lib'], ['foo', 'bar']),
+            ]
+
+        assert rootfs.find_root('baz', _walker=mock_walker) is None
+
+    def test_rootfs_can_find_no_root_with_single_match(self):
+
+        def mock_walker(root):
+            return [
+                (root, ['bin', 'ausr'], []),
+                (os.path.join(root, 'usr'), ['lib'], ['foo', 'bar']),
+            ]
+
+        assert rootfs.find_root('baz', _walker=mock_walker) is None
+
+    def test_rootfs_does_respects_max_depth(self):
+        test_dir = self.extract_test_tar('rootfs/find_root.tar.gz')
+        assert not rootfs.find_root(test_dir, max_depth=1)
+        assert not rootfs.find_root(test_dir, max_depth=2)
+        assert not rootfs.find_root(test_dir, max_depth=3)
+        assert not rootfs.find_root(test_dir, max_depth=4)
+
+        expected = '/find_root/level1/level2/level3'
+        found = rootfs.find_root(test_dir, max_depth=5)
+        assert found.replace(test_dir, '') == expected
+
+        found = rootfs.find_root(test_dir, max_depth=0)
+        assert found.replace(test_dir, '') == expected
+
+        found = rootfs.find_root(os.path.join(test_dir, 'find_root'), max_depth=4)
+        assert found.replace(test_dir, '') == expected
