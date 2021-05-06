@@ -2,7 +2,7 @@ Changelog
 =========
 
 v21.4.26 (2021-04-26)
---------------------
+---------------------
 
 This is a major release. There is no API change.
 

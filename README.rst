@@ -1,8 +1,7 @@
-
-container-inspector is a suite of analysis utilities and command line tools for Docker images,
-their layers and how these relate to each other as well as Dockerfiles.
-
-Note: this is a work in progress
+container-inspector is a suite of analysis utilities and command line tools for
+Docker images, containers, root filesytems and virtual machine images.
+For Docker images, it can porcess layers and how these relate to each other as
+well as Dockerfiles.
  
 container-inspector provides utilities to:
  - identify Docker images in a file system, its layers and the related metadata.
@@ -11,21 +10,22 @@ container-inspector provides utilities to:
    rootfs would look like
  - find and parse Dockerfiles
  - find how Dockerfiles relate to actual images and their layers.
+ - given a Docker image, rootfs or Virtual Machime image collect system packages.
  
  
 Quick start
 -----------
 
-- Get Python 2.7. or 3.6
+- Get 3.6+
 - Check out a clone or download of container-inspector, then run: `./configure`.
-- Then run `bin/container-nspector -h` for help.
+- Then run `tmp/bin/container-inspector -h` for help.
 
  
 Container image formats
 -----------------------
 
-container-inspector handles the formats of Docker images as created by the `docker save` command.
-There are three versions for this Docker image format. 
+container-inspector handles the formats of Docker images as created by the
+`docker save` command. There are three versions for this Docker image format. 
 The latest v1.2 is a minor update to v1.1.
 
 - v1.1 provides improved and richer metadata over v1.0 with a top level manifest.json
