@@ -11,20 +11,12 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-import json
 import logging
 import os
 from os import path
 
 import attr
 
-from container_inspector import LAYER_JSON_FILE
-from container_inspector import LAYER_TAR_FILE
-from container_inspector import LAYER_VERSION_FILE
 from container_inspector import MANIFEST_JSON_FILE
 
 from container_inspector.utils import as_bare_id
@@ -90,21 +82,25 @@ class ToDictMixin(object):
 def flatten_images(images):
     """
     Yield mapping for each layer of each image of an `images` list of Image.
-    This is a flat data structure for csv output.
+    This is a flat data structure for CSV and tabular output.
+    If with_history, include the image history if available and aligned.
     """
+
     for img in images:
-        base_data = dict([
-            ('image_dir', img.base_location),
-            ('image_id', img.image_id),
-            ('image_tags', ','.join(img.tags)),
-        ])
+        base_data = dict(
+            image_dir=img.base_location,
+            image_id=img.image_id,
+            image_tags=','.join(img.tags),
+        )
         for layer in img.layers:
             layer_data = dict(base_data)
-            layer_data['author'] = layer.author
-            layer_data['created_by'] = layer.created_by
+            layer_data['is_empty_layer'] = layer.is_empty_layer
             layer_data['layer_id'] = layer.layer_id
             layer_data['layer_sha256'] = layer.layer_sha256
-            layer_data['is_empty_layer'] = layer.is_empty_layer
+            layer_data['author'] = layer.author
+            layer_data['created_by'] = layer.created_by
+            layer_data['created'] = layer.created
+            layer_data['comment'] = layer.comment
             if layer.layer_id:
                 ld = path.join(img.base_location, layer.layer_id)
             else:
@@ -208,7 +204,9 @@ class Image(ToDictMixin, ConfigMixin):
 
     layers = attr.attrib(
         default=attr.Factory(list),
-        metadata=dict(doc='A list of layer objects from bottom to top, excluding empty layers. This is really the "rootfs"')
+        metadata=dict(
+            doc='A list of layer objects from bottom to top, excluding empty '
+                'layers. This is really the "rootfs"')
     )
 
     tags = attr.attrib(
@@ -218,7 +216,10 @@ class Image(ToDictMixin, ConfigMixin):
 
     history = attr.attrib(
         default=attr.Factory(list),
-        metadata=dict(doc='List of mapping for the layers history. All layers are included including empty layers.')
+        metadata=dict(
+            doc='List of mapping for the layers history. '
+                'All layers are included including empty layers.'
+        )
     )
 
     distro = attr.attrib(
@@ -346,17 +347,17 @@ class Image(ToDictMixin, ConfigMixin):
         return Image.get_images_from_dir(target_dir)
 
     @staticmethod
-    def get_images_from_dir(location):
+    def get_images_from_dir(location, verify=False):
         """
         Yield Image objects found in a base directory at `location`. The
         directory must contain a manifest.json and must be in the same format as
         a "docker save" extracted to `location`.
+        If `verify` is True, perform extra checks on the config data and layers
+        checksums.
 
+        The "manifest.json" JSON file for format v1.1/1.2. of a saved Docker
+        image contains a mapping with this shape:
 
-        The "manifest.json" JSON file for format v1.1/1.2. of saved Docker
-        images.
-
-        This file is a mapping with this shape:
         - The `Config` field references another JSON file in same directory
           that includes the image detailed data.
         - The `RepoTags` field lists references pointing to this image.
@@ -388,12 +389,12 @@ class Image(ToDictMixin, ConfigMixin):
         ]
         """
         if not path.isdir(location):
-            raise Exception('Not a directory: {}'.format(location))
+            raise Exception(f'Not a directory: {location}')
 
         manifest_loc = path.join(location, MANIFEST_JSON_FILE)
         # NOTE: we are only looking at V1.1/2 repos layout for now and not the legacy v1.0.
         if not path.exists(manifest_loc):
-            raise Exception('manifest.json file missing in {}'.format(location))
+            raise Exception(f'manifest.json file missing in {location}')
 
         manifest = load_json(manifest_loc)
 
@@ -401,19 +402,47 @@ class Image(ToDictMixin, ConfigMixin):
             yield Image.from_manifest_config(
                 base_location=location,
                 manifest_config=manifest_config,
-                verify_config=False
+                verify_config=verify,
+                verify_layers_on_disk=verify,
             )
 
     @staticmethod
-    def from_manifest_config(base_location, manifest_config, verify_config=False):
+    def from_manifest_config(
+        base_location,
+        manifest_config,
+        verify_config=False,
+        verify_layers_on_disk=False
+    ):
         """
-        Return an Image object built from the JSON config file at `location` and
-        the `manifest_config` data mapping (from a manifest.json).  The
-        manifest_config[Config] JSON file is named after its SHA256 and there is
-        one such file for each img.
+        Return an Image object built from `manifest_config` data mapping
+        (obtained from a manifest.json) and the `base_location` directory that
+        contains the `manifest.json` and each image JSON config file.
 
-        Each file has this shape:
-        {
+        The `manifest_config["Config"]` contains a path to JSON config file that
+        is named after its SHA256 checksum and there is one such file for each
+        image.
+
+        A `manifest_config` has this shape:
+          {'Config': '7043867122e704683c9eaccd7e26abcd5bc9fea413ddfeae66166697bdcbde1f.json',
+           'Layers': [
+               '768d4f50f65f00831244703e57f64134771289e3de919a576441c9140e037ea2/layer.tar',
+               '6a630e46a580e8b2327fc45d9d1f4734ccaeb0afaa094e0f45722a5f1c91e009/layer.tar',
+               ]
+           'RepoTags': ['user/image:version'],
+           "Parent": "sha256:5a00e6ccb81ef304e1bb9995ea9605f199aa96659a44237d58ca96982daf9af8"
+           },
+
+          {'Config': '7043867122e704683c9eaccd7e26abcd5bc9fea413ddfeae66166697bdcbde1f.json',
+           'Layers': [
+               '768d4f50f65f00831244703e57f64134771289e3de919a576441c9140e037ea2/layer.tar',
+               '6a630e46a580e8b2327fc45d9d1f4734ccaeb0afaa094e0f45722a5f1c91e009/layer.tar',
+               ]
+           'RepoTags': ['user/image:version']
+           },
+
+
+        Each JSON config file has this shape:
+         {
             'docker_version': '1.8.2',
             'os': 'linux',
             'architecture': 'amd64',
@@ -421,34 +450,27 @@ class Image(ToDictMixin, ConfigMixin):
             'created': '2016-09-30T10:16:27.109917034Z',
             'container': '1ee508bc7a35150c9e5924097a31dfb4b6b2ca1260deb6fd14cb03c53764e40b',
 
-            # these two mappings are essentially similar: image_config is the
-            # runtime image_config and container_config is the image_config as
-            # it existed when the container was created.
+            # The `image_config` and `container_config` mappings are essentially
+            # similar: image_config is the runtime image_config and
+            # container_config is the image_config as it existed when the
+            # container was created.
+
             'image_config': { <some image_config k/v pairs> },
             'container_config': { <some image_config k/v pairs> },
 
-            # array of objects describing the history of each layer.
-            # The array is ordered from bottom-most layer to top-most layer.
-            # but contains also entries for empty layers
-            'history': [
-                {'author': 'The CentOS Project <cloud-ops@centos.org> - ami_creator',
-                 'created': '2015-04-22T05:12:47.171582029Z',
-                 'created_by': '/bin/sh -c #(nop) MAINTAINER The CentOS Project <cloud-ops@centos.org> - ami_creator'
-                 'comment': 'some comment (eg a commit message)',
-                 'empty_layer': True or False (if not present, defaults to False.
-                                True for empty, no-op layers with no rootfs content.
-                },
+            # `history` is an array of objects describing the history of each
+            # layer. The array is ordered from bottom-most layer to top-most
+            # layer, and contains also entries for empty layers.
 
-                {'author': 'The CentOS Project <cloud-ops@centos.org> - ami_creator',
-                 'created': '2015-04-22T05:13:47.072498418Z',
-                 'created_by': '/bin/sh -c #(nop) ADD file:eab3c2991729003be2fad083bc2535fb4d03 in /'
-                },
-            ]
-            # This is in order from bottom-most to top-most
-            # each id is the sha256 of a layer.tar
-            # NOTE: Empty layer may NOT have their digest listed here, so this list
-            # may not align exactly with the history list:
-            # e.g. this list only has entries if "empty_layer" is not set to True for that layer.
+            'history': [...],
+
+            # Rootfs lists the "layers" in order from bottom-most to top-most
+            # where each id is the sha256 of a layer.tar.
+
+            # NOTE: Empty layer may NOT have their digest listed here, so this
+            # list may not align exactly with the history list: e.g. this list
+            # only has entries if "empty_layer" is not set to True for that
+            # layer.
 
             'rootfs': {
                 'diff_ids': [
@@ -457,23 +479,24 @@ class Image(ToDictMixin, ConfigMixin):
                     'sha256:cd141a5beb0ec83004893dfea6ea8508c6d09a0634593c3f35c0d433898c9322',]
                 'type': u'layers'
             }
-        }
+         }
         """
         config_file = manifest_config.get('Config') or ''
         config_file_loc = path.join(base_location, config_file)
         if not path.exists(config_file_loc):
-            raise Exception('Invalid configuration. Missing Config file: {}'.format(config_file_loc))
+            raise Exception(
+                f'Invalid configuration. Missing Config file: {config_file_loc}')
 
         image_id, _ = path.splitext(path.basename(config_file_loc))
         config_digest = sha256_digest(config_file_loc)
         if verify_config:
             if image_id != as_bare_id(config_digest):
                 logger.warning('WARNING: img config digest is not consistent.')
-                config_digest = 'sha256:'.format(image_id)
+                config_digest = f'sha256:{image_id}'
 
         layer_paths = manifest_config.get('Layers') or []
-        layers_locations = [path.join(base_location, layer_path) for layer_path in layer_paths]
-        layers_by_sha256 = {sha256_digest(loc): loc for loc in layers_locations}
+        layers_locations = [
+            path.join(base_location, layer_path) for layer_path in layer_paths]
 
         parent_digest = manifest_config.get('Parent')
         tags = manifest_config.get('RepoTags') or []
@@ -481,25 +504,34 @@ class Image(ToDictMixin, ConfigMixin):
         image_config = load_json(config_file_loc)
         rootfs = image_config.get('rootfs')
 
-        history = image_config.get('history') or {}
-
         assert rootfs['type'] == 'layers', (
-            'Unknown type for img rootfs: expecting "layers": {}'.format(config_file_loc))
+            f'Unknown type for img rootfs: expecting "layers": {config_file_loc}')
 
         # TODO: add support for empty tarball as this may not work if there is a
         # diff for an empty layer with a digest for some EMPTY content e.g.
         # e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 
-        layer_sha256s = [as_bare_id(layer_sha256) for layer_sha256 in rootfs['diff_ids']]
+        layers_sha256s = [as_bare_id(layer_sha256) for layer_sha256 in rootfs['diff_ids']]
+        layer_locs_and_sha256s = list(zip(layers_locations, layers_sha256s))
 
         layers = []
-        for layer_sha256 in layer_sha256s:
-            layer_location = layers_by_sha256[layer_sha256]
+        for layer_location, layer_sha256 in layer_locs_and_sha256s:
+            layer_size = path.getsize(layer_location)
+
+            if verify_layers_on_disk:
+                on_disk_layer_sha256 = sha256_digest(layer_location)
+                assert layer_sha256 == on_disk_layer_sha256, (
+                    f'Layer SHA256 at {layer_location} does not match its config "diff_id"')
+
             lay = Layer(
                 layer_sha256=layer_sha256,
                 layer_location=layer_location,
-                layer_size=path.getsize(layer_location))
+                layer_size=layer_size,
+            )
             layers.append(lay)
+
+        history = image_config.get('history') or {}
+        assign_history_to_layers(history, layers)
 
         img = Image(
             base_location=base_location,
@@ -513,6 +545,54 @@ class Image(ToDictMixin, ConfigMixin):
         )
 
         return img
+
+
+def assign_history_to_layers(history, layers):
+    """
+    Given a list of history data mappings and a list of Layer objects, attempt
+    to assign history-related fields to each Layer if possible
+
+    `history` is an array of objects describing the history of each
+    layer. The array is ordered from bottom-most layer to top-most
+    layer, and contains also entries for empty layers.
+
+    'history': [
+        {'author': 'The CentOS Project <cloud-ops@centos.org> - ami_creator',
+         'created': '2015-04-22T05:12:47.171582029Z',
+         'created_by': '/bin/sh -c #(nop) MAINTAINER The CentOS Project <cloud-ops@centos.org> - ami_creator'
+         'comment': 'some comment (eg a commit message)',
+         'empty_layer': True or False (if not present, defaults to False.
+                        True for empty, no-op layers with no rootfs content.
+        },
+
+        {'author': 'The CentOS Project <cloud-ops@centos.org> - ami_creator',
+         'created': '2015-04-22T05:13:47.072498418Z',
+         'created_by': '/bin/sh -c #(nop) ADD file:eab3c2991729003be2fad083bc2535fb4d03 in /'
+        },
+    ]
+    History spec is at
+    https://github.com/opencontainers/image-spec/blob/79b036d80240ae530a8de15e1d21c7ab9292c693/config.md
+    """
+    if not history:
+        return
+
+    non_empty_history = [h for h in history if not h.get('empty_layer', False)]
+    non_empty_layers = [l for l in layers if not l.is_empty_layer]
+
+    if len(non_empty_history) != len(non_empty_layers):
+        # we cannot align history with layers if we do not have the same numbers
+        # of entries
+        # TODO: raise some warning?
+        return
+
+    fields = 'author', 'created', 'created_by', 'comment'
+
+    for hist, layer in zip(non_empty_history, non_empty_layers):
+
+        for field in fields:
+            value = hist.get(field)
+            if value:
+                setattr(layer, field, value)
 
 
 @attr.attributes
@@ -561,18 +641,33 @@ class Layer(ToDictMixin, ConfigMixin):
     )
 
     layer_size = attr.attrib(
-        default=attr.Factory(int),
+        default=0,
         metadata=dict(doc='Size in byte of the layer.tar archive')
     )
 
     layer_id = attr.attrib(
         default=None,
-        metadata=dict(doc='The id for this layer. aka. its directory')
+        metadata=dict(doc='The id for this layer. aka. its tarball parent directory name ')
+    )
+
+    author = attr.attrib(
+        default=None,
+        metadata=dict(doc='The author of this layer.')
+    )
+
+    created = attr.attrib(
+        default=None,
+        metadata=dict(doc='The date/timestamp for when this layer was created.')
     )
 
     created_by = attr.attrib(
         default=None,
         metadata=dict(doc='The command for this layer.')
+    )
+
+    comment = attr.attrib(
+        default=None,
+        metadata=dict(doc='A comment for this layer.')
     )
 
     is_empty_layer = attr.attrib(
@@ -661,80 +756,3 @@ class Layer(ToDictMixin, ConfigMixin):
           the same structure).
         """
         return packages_getter(self.extracted_to_location)
-
-    @staticmethod
-    def from_layer_tarball(location, layer_sha256):
-        """
-        Return a Layer object built from a layer tarball at `location`.
-        Raise an exception on errors.
-        """
-        if not location or not path.isfile(location):
-            return
-
-        layer = Layer(
-            layer_sha256=sha256_digest(location),
-            layer_size=path.getsize(location),
-            layer_location=path.dirname(location),
-            is_empty_layer=False,
-        )
-        return layer
-
-    @classmethod
-    def from_layer_dir(cls, location):
-        """
-        DEPRECATED:
-        Return a Layer object built from layer metadata in the layer_dir.
-        Raise an exception on errors.
-        Legacy for v1-style layouts only.
-        """
-        if not location or not path.isdir(location):
-            return
-
-        # infer from the directory
-        layer_id = path.basename(location)
-
-        files = os.listdir(location)
-        assert files
-        logger_debug('from_dir: Layer files: ', files, 'layer_dir: ', location)
-
-        # check that all the files we expect to be in the layer dir are present.
-        assert LAYER_VERSION_FILE in files, ('Missing layer VERSION for: {}'.format(location))
-        assert LAYER_JSON_FILE in files, ('Missing layer json for: {}'.format(location))
-        assert LAYER_TAR_FILE in files, ('Missing layer.tar for: {}'.format(location))
-
-        layer_format_version_file = path.join(location, LAYER_VERSION_FILE)
-        supported_format_version = cls.format_version
-        with open(layer_format_version_file) as lv:
-            layer_format_version = lv.read().strip()
-            assert supported_format_version == layer_format_version, (
-                'Unknown layer format version: {layer_format_version} '
-                'in: {layer_format_version_file}. '
-                'Supported version: {supported_format_version}'.format(**locals())
-            )
-
-        # Note: it is possible to have an EMPTY layer.tar that is a link to another
-        # non-empty layer.tar. This is not handled for now.
-        layer_tar = path.join(location, LAYER_TAR_FILE)
-        layer_sha256 = sha256_digest(layer_tar)
-        layer_size = path.getsize(layer_tar)
-
-        # load data
-        with open(path.join(location, LAYER_JSON_FILE)) as layer_json:
-            layer_data = json.load(layer_json)
-
-        # make some basic checks
-        assert layer_id == layer_data['id']
-
-        is_empty_layer = layer_data.get('config', {}).get('empty_layer')
-
-        config_data = ConfigMixin.from_config_data(layer_data)
-
-        layer = Layer(
-            layer_sha256=layer_sha256,
-            layer_id=layer_id,
-            layer_size=layer_size,
-            layer_location=location,
-            is_empty_layer=is_empty_layer,
-            **config_data
-        )
-        return layer

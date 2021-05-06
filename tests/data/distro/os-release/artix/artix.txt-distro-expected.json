@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Artix Linux",
+  "version": null,
+  "identifier": "artix",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": null,
+  "pretty_name": "Artix Linux",
+  "cpe_name": null,
+  "home_url": "https://www.artixlinux.org/",
+  "documentation_url": "https://wiki.artixlinux.org/",
+  "support_url": "https://forum.artixlinux.org/",
+  "bug_report_url": "https://bugs.artixlinux.org/",
+  "privacy_policy_url": null,
+  "build_id": "rolling",
+  "variant": null,
+  "variant_id": null,
+  "logo": "artixlinux",
+  "extra_data": {}
+}

@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "openSUSE Tumbleweed",
+  "version": null,
+  "identifier": "opensuse-tumbleweed",
+  "id_like": "opensuse suse",
+  "version_codename": null,
+  "version_id": "20200528",
+  "pretty_name": "openSUSE Tumbleweed",
+  "cpe_name": "cpe:/o:opensuse:tumbleweed:20200528",
+  "home_url": "https://www.opensuse.org/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": "https://bugs.opensuse.org",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": "distributor-logo",
+  "extra_data": {}
+}

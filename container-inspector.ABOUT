@@ -1,19 +1,11 @@
 about_resource: .
-
 name: container-inspector
-version: 3.1.1
-
 owner: nexB Inc.
-
 home_url: http://nexb.com
-
 vcs_tool: git
 vcs_repository: https://github.com/nexB/container_inspector.git
-
 description: Docker utilities
-
 license: apache-2.0
 license_text_file: apache-2.0.LICENSE
 notice_file: NOTICE
-
 copyright: Copyright (c) nexB Inc. and others

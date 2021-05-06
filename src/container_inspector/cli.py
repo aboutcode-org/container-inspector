@@ -11,10 +11,8 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
 
+import csv as csv_module
 import json as json_module
 import logging
 import os
@@ -23,7 +21,6 @@ import sys
 import tempfile
 
 import click
-import unicodecsv
 
 from container_inspector import image
 from container_inspector import dockerfile
@@ -81,7 +78,7 @@ def _container_inspector_dockerfile(directory, json=False, csv=False):
     if csv:
         dockerfiles = list(dockerfile.flatten_dockerfiles(dockerfiles))
         keys = dockerfiles[0].keys()
-        w = unicodecsv.DictWriter(sys.stdout, keys, encoding='utf-8')
+        w = csv_module.DictWriter(sys.stdout, keys)
         w.writeheader()
         for df in dockerfiles:
             w.writerow(df)
@@ -90,7 +87,7 @@ def _container_inspector_dockerfile(directory, json=False, csv=False):
 @click.command()
 @click.argument('image_path', metavar='IMAGE_PATH', type=click.Path(exists=True, readable=True))
 @click.option('--extract-to', default=None, metavar='PATH', type=click.Path(exists=True, readable=True))
-@click.option('--csv', is_flag=True, default=False, help='Print information as csv instead of JSON.')
+@click.option('--csv', is_flag=True, default=False, help='Print information as CSV instead of JSON.')
 @click.help_option('-h', '--help')
 def container_inspector(image_path, extract_to=None, csv=False):
     """
@@ -117,12 +114,13 @@ def _container_inspector(image_path, extract_to=None, csv=False):
         if not flat:
             return
         keys = flat[0].keys()
-        w = unicodecsv.DictWriter(output, keys, encoding='utf-8')
+        w = csv_module.DictWriter(output, keys)
         w.writeheader()
         for f in flat:
             w.writerow(f)
+        val = output.getvalue()
         output.close()
-        return output
+        return val
 
 
 def get_images_from_dir_or_tarball(image_path, extract_to=None, quiet=False):
@@ -130,7 +128,7 @@ def get_images_from_dir_or_tarball(image_path, extract_to=None, quiet=False):
     if path.isdir(image_path):
         images = list(image.Image.get_images_from_dir(image_loc))
     else:
-    # assume tarball
+        # assume tarball
         extract_to = extract_to or tempfile.mkdtemp()
         images = list(image.Image.get_images_from_tarball(
             image_loc, target_dir=extract_to, force_extract=True))

@@ -104,7 +104,7 @@ class DockerRegistry:
         url = url.rstrip('/')
         # Prepend https:// automatically
         if '://' not in url:
-            url = 'https://{}'.format(url)
+            url = f'https://{url}'
 
         self.url = url
         self.headers = {}

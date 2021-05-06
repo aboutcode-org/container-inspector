@@ -11,13 +11,9 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import re
 
-__version__ = '3.1.2'
+__version__ = '21.5.7'
 
 REPOSITORIES_FILE = 'repositories'  # legacy v1
 
@@ -26,9 +22,7 @@ MANIFEST_JSON_FILE = 'manifest.json'
 LAYER_VERSION_FILE = 'VERSION'
 LAYER_JSON_FILE = 'json'  # legacy v1
 LAYER_TAR_FILE = 'layer.tar'
-
-docker_version = re.compile('docker/([^\s]+)')
-
+    
 EMPTY_SHA256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
 EMPTY_DIGEST = 'sha256:' + EMPTY_SHA256
 

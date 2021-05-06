@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Gentoo",
+  "version": null,
+  "identifier": "gentoo",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": null,
+  "pretty_name": "Gentoo/Linux",
+  "cpe_name": null,
+  "home_url": "http://www.gentoo.org/",
+  "documentation_url": null,
+  "support_url": "http://www.gentoo.org/main/en/support.xml",
+  "bug_report_url": "https://bugs.gentoo.org/",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

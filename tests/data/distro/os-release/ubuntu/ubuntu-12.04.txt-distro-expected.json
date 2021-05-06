@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Ubuntu",
+  "version": "12.04.5 LTS, Precise Pangolin",
+  "identifier": "ubuntu",
+  "id_like": "debian",
+  "version_codename": null,
+  "version_id": "12.04",
+  "pretty_name": "Ubuntu precise (12.04.5 LTS)",
+  "cpe_name": null,
+  "home_url": null,
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": null,
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

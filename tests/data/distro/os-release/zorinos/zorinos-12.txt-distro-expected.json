@@ -1,0 +1,24 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Zorin OS",
+  "version": "12",
+  "identifier": "ZorinOS",
+  "id_like": "ubuntu",
+  "version_codename": "xenial",
+  "version_id": "12",
+  "pretty_name": "Zorin OS 12",
+  "cpe_name": null,
+  "home_url": "http://www.zorinos.com/",
+  "documentation_url": null,
+  "support_url": "http://www.zorinos.com/help",
+  "bug_report_url": "https://bugs.launchpad.net/zorin-os/+filebug",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {
+    "UBUNTU_CODENAME": "xenial"
+  }
+}

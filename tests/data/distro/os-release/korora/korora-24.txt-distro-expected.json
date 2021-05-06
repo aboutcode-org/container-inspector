@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Korora",
+  "version": "24 (Sheldon)",
+  "identifier": "fedora",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": "24",
+  "pretty_name": "Korora 24 (Sheldon)",
+  "cpe_name": "cpe:/o:kororaproject:korora:24",
+  "home_url": "https://kororaproject.org/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": null,
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

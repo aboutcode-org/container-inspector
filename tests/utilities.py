@@ -11,10 +11,6 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import json
 from os import path
 
@@ -36,7 +32,7 @@ def check_expected(result, expected, regen=False):
 
 def clean_image(image):
     """
-    Clean image data for test purpose
+    Clean `image` data for test purpose
     """
     image.base_location = ''
     for layer in image.layers:
@@ -47,7 +43,7 @@ def clean_image(image):
 
 def clean_layer(layer):
     """
-    Clean layerdata for test purpose
+    Clean `layer` data for test purpose
     """
     layer.layer_location = path.basename(layer.layer_location)
     return layer

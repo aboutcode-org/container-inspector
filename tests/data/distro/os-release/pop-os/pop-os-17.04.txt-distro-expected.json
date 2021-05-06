@@ -1,0 +1,24 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Pop_OS",
+  "version": "17.04 (Zesty Zapus)",
+  "identifier": "pop-os",
+  "id_like": "debianubuntu",
+  "version_codename": "zesty",
+  "version_id": "17.04",
+  "pretty_name": "Pop_OS 17.04",
+  "cpe_name": null,
+  "home_url": "http://www.system76.com",
+  "documentation_url": null,
+  "support_url": "http://support.system76.com",
+  "bug_report_url": "https://github.com/system76/distro",
+  "privacy_policy_url": "https://system76.com/privacy",
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {
+    "UBUNTU_CODENAME": "zesty"
+  }
+}

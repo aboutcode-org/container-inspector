@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "CoreOS",
+  "version": "1185.3.0",
+  "identifier": "coreos",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": "1185.3.0",
+  "pretty_name": "CoreOS 1185.3.0 (MoreOS)",
+  "cpe_name": null,
+  "home_url": "https://coreos.com/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": "https://github.com/coreos/bugs/issues",
+  "privacy_policy_url": null,
+  "build_id": "2016-11-01-0605",
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

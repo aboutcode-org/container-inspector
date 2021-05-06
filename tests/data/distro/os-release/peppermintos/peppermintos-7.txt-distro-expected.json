@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Peppermint",
+  "version": "Seven",
+  "identifier": "peppermint",
+  "id_like": "debian",
+  "version_codename": null,
+  "version_id": "7",
+  "pretty_name": "Peppermint Seven",
+  "cpe_name": null,
+  "home_url": "http://peppermintos.com/",
+  "documentation_url": null,
+  "support_url": "http://forum.peppermintos.com/",
+  "bug_report_url": "http://bugs.launchpad.net/~peppermintos/",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

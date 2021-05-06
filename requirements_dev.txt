@@ -1,4 +1,4 @@
-bumpversion
 pytest
-scancode-toolkit # used for its tests classes
+# used for its tests classes
+commoncode
 -e .

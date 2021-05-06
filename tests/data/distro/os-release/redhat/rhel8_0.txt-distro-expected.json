@@ -1,0 +1,28 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Red Hat Enterprise Linux",
+  "version": "8.0 (Ootpa)",
+  "identifier": "rhel",
+  "id_like": "fedora",
+  "version_codename": null,
+  "version_id": "8.0",
+  "pretty_name": "Red Hat Enterprise Linux 8.0 Beta (Ootpa)",
+  "cpe_name": "cpe:/o:redhat:enterprise_linux:8.0:beta",
+  "home_url": "https://www.redhat.com/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": "https://bugzilla.redhat.com/",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {
+    "PLATFORM_ID": "platform:el8",
+    "REDHAT_BUGZILLA_PRODUCT": "Red Hat Enterprise Linux 8",
+    "REDHAT_BUGZILLA_PRODUCT_VERSION": "8.0",
+    "REDHAT_SUPPORT_PRODUCT": "Red Hat Enterprise Linux",
+    "REDHAT_SUPPORT_PRODUCT_VERSION": "8.0 Beta"
+  }
+}

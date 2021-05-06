@@ -11,10 +11,6 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import logging
 from os import path
 import shlex
@@ -31,13 +27,15 @@ def logger_debug(*args):
     return logger.debug(' '.join(isinstance(a, str) and a or repr(a) for a in args))
 
 """
-Utilities to detect the distro of a root filesystem (image or layer) and collect
-useful details.
+Utilities to detect the "distro" of a root filesystem (be it a VM or rootfs
+image or a container layer) and collect useful details.
 
-The main file of interest is: /etc/os-release
-- https://www.freedesktop.org/software/systemd/man/os-release.html
+The main file of interest for Linux is: /etc/os-release
+See https://www.freedesktop.org/software/systemd/man/os-release.html
 
 """
+
+os_choices = 'linux', 'bsd', 'windows',
 
 
 @attr.attributes
@@ -49,7 +47,7 @@ class Distro(object):
 
     os = attr.attrib(
         default='linux',
-        metadata=dict(doc='Operating system, dafeulat to linux.')
+        metadata=dict(doc='Operating system, default to linux.')
     )
 
     architecture = attr.attrib(
@@ -249,7 +247,7 @@ class Distro(object):
         return (
             self.identifier == 'debian'
             or self.identifier == 'ubuntu'
-            or (self.id_like and 'debian' in (self.id_like or '')) 
+            or (self.id_like and 'debian' in (self.id_like or ''))
         )
 
     def to_dict(self):
@@ -303,10 +301,41 @@ class Distro(object):
         Return a Distro built from an os-release file in the root filesystem at
         `location`.
         """
+        # /etc/os-release has precedence over /usr/lib/os-release.
         for candidate_path in ('etc/os-release', 'usr/lib/os-release',):
             os_release = path.join(location, candidate_path)
             if path.exists(os_release):
                 return cls.from_file(os_release)
+
+    def categories(self):
+        """
+        WIP: Return category codes for this distro. These should help determine:
+          - base, lowest level package manager (which implies a package format
+            and an installed package DB format), such as RPM, Alpine, Debian.
+          - base OS style such as linux, bsd.
+          - some indicative OS family
+        """
+        return dict(
+            rpm=dict(
+                redhat=('fedora', 'centos', 'rhel', 'amazon', 'scientific', 'oraclelinux',),
+                suse=('opensuse', 'suse', 'sles', 'sled', 'sles_sap', 'opensuse-leap', 'opensuse-tumbleweed',),
+                altlinux=('altlinux',),
+                photon=('photon',),
+                mandriva=('mandriva', 'mageia', 'mandrake', 'open-mandriva'),
+            ),
+            debian=('debian', 'kali', 'linuxmint', 'raspbian', 'ubuntu',),
+            arch=('archlinux', 'antergos', 'manjaro',),
+            slackware=('slackware',),
+            gentoo=('gentoo',),
+            alpine=('alpine',),
+            openwrt=('openwrt', 'lede',),
+            bsd=dict(
+                freebsd=('freebsd',),
+                openbsd=('openbsd',),
+                netbsd=('netbsd',),
+                dragonfly=('dragonfly',),
+            ),
+        )
 
 
 def parse_os_release(location):
@@ -422,7 +451,7 @@ def get_distroless_details():
     The presence of /var/lib/dpkg/status.d/ dir with one Package-like file for each
     installed file replaces using a /var/lib/dpkg/status file.
 
-    /etc/os-release is the file to check for for details
+    /etc/os-release is the file to check for details
     There are no apt sources and no dpkg/info details
     the /usr/lib/os-release is that of upstream Debian
 

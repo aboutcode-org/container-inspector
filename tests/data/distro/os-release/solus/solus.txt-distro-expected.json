@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Solus",
+  "version": "2017.04.18.0",
+  "identifier": "solus",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": "2017.04.18.0",
+  "pretty_name": "Solus 2017.04.18.0",
+  "cpe_name": null,
+  "home_url": "https://www.solus-project.com",
+  "documentation_url": null,
+  "support_url": "https://www.solus-project.com/forums/",
+  "bug_report_url": "https://dev.solus-project.com/",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

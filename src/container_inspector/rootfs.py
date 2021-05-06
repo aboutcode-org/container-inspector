@@ -11,10 +11,6 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import logging
 import os
 from os import path
@@ -22,7 +18,6 @@ import tempfile
 
 from container_inspector import LAYER_TAR_FILE
 from container_inspector import utils
-
 
 logger = logging.getLogger(__name__)
 # un-comment these lines to enable logging
@@ -157,3 +152,25 @@ def find_whiteouts(base_location):
             if whiteable_path:
                 relative_path = whiteable_path.replace(base_location, '').strip('/')
                 yield location, relative_path
+
+
+LINUX_PATHS = set(['usr', 'etc', 'var', 'home', 'sbin', 'sys', 'lib', 'bin', 'vmlinuz', ])
+WINDOWS_PATHS = set(['Program Files', 'Windows', ])
+
+
+def find_root(location, max_depth=3, root_paths=LINUX_PATHS, min_paths=2, _walker=os.walk):
+    """
+    Return the first likely location of the root of a filesystem found in the
+    `location` directory and looking down up to `max_depth` directory levels
+    deep. If `max_depth` == 0, look at full depth. Search for well known
+    directories listed in the `root_paths` set. A root directory is return as
+    found if at least `min_paths` exists as filenames or directories under it.
+    `_walker` is a callable that behaves the same as `os.walk() and is used
+    mostly for tests`
+    """
+    for depth, (top, dirs, files) in enumerate(_walker(location), 1):
+        matches = len(set(dirs + files) & root_paths)
+        if matches >= min_paths:
+            return top
+        if max_depth and depth == max_depth:
+            return

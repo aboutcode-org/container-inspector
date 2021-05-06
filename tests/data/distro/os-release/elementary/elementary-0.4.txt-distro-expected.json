@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "elementary OS",
+  "version": "0.4 Loki",
+  "identifier": "elementary OS",
+  "id_like": "ubuntu",
+  "version_codename": null,
+  "version_id": "0.4",
+  "pretty_name": "elementary OS Loki",
+  "cpe_name": null,
+  "home_url": "http://elementary.io/",
+  "documentation_url": null,
+  "support_url": "http://elementary.io/support/",
+  "bug_report_url": "https://bugs.launchpad.net/elementary/+filebug",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

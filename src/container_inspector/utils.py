@@ -11,10 +11,6 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import json
 import logging
 import hashlib
@@ -54,9 +50,10 @@ def sha256_digest(location):
     """
     Return a SHA256 checksum for the file content at location.
     """
-    with open(location, 'rb') as loc:
-        sha256 = hashlib.sha256(loc.read())
-    return location and str(sha256.hexdigest())
+    if os.path.exists(location):
+        with open(location, 'rb') as loc:
+            sha256 = hashlib.sha256(loc.read())
+        return str(sha256.hexdigest())
 
 
 def as_bare_id(string):

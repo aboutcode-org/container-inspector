@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Arch Linux",
+  "version": null,
+  "identifier": "arch",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": null,
+  "pretty_name": "Arch Linux",
+  "cpe_name": null,
+  "home_url": "https://www.archlinux.org/",
+  "documentation_url": null,
+  "support_url": "https://bbs.archlinux.org/",
+  "bug_report_url": "https://bugs.archlinux.org/",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

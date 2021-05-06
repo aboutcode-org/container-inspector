@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Endless",
+  "version": "3.2.2",
+  "identifier": "endless",
+  "id_like": "ubuntu debian",
+  "version_codename": null,
+  "version_id": "3.2.2",
+  "pretty_name": "Endless 3.2.2",
+  "cpe_name": null,
+  "home_url": "http://www.endlessm.com/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": null,
+  "privacy_policy_url": null,
+  "build_id": "170714-005624",
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}
