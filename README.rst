@@ -1,5 +1,5 @@
 container-inspector is a suite of analysis utilities and command line tools for
-Docker images, containers, root filesytems and virtual machine images.
+Docker images, containers, root filesystems and virtual machine images.
 For Docker images, it can process layers and how these relate to each other as
 well as Dockerfiles.
  
