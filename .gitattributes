@@ -1,2 +1,4 @@
 # Ignore all Git auto CR/LF line endings conversions
 * -text
+pyproject.toml export-subst
+
