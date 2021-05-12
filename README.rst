@@ -16,7 +16,7 @@ container-inspector provides utilities to:
 Quick start
 -----------
 
-- Get 3.6+
+- Get Python 3.6+
 - Check out a clone or download of container-inspector, then run: `./configure`.
 - Then run `tmp/bin/container-inspector -h` for help.
 
