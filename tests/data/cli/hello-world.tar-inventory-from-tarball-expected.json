@@ -9,7 +9,6 @@
     "labels": {},
     "base_location": null,
     "image_id": "1815c82652c03bfd8644afda26fb184f2ed891d921b20a0703b46768f9755c57",
-    "parent_digest": null,
     "config_digest": "1815c82652c03bfd8644afda26fb184f2ed891d921b20a0703b46768f9755c57",
     "layers": [
       {
@@ -26,7 +25,6 @@
         "created_by": "/bin/sh -c #(nop) COPY file:b65349dad8105cbef74456e9c0c9da5d001e9eb2ade4b3c21e107909aee5b25a in / ",
         "comment": null,
         "is_empty_layer": false,
-        "parent_id": null,
         "extracted_to_location": null
       }
     ],

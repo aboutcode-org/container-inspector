@@ -11,7 +11,6 @@
     },
     "base_location": null,
     "image_id": "6d190579c3d7ccc07188cd204310927f553f2ebe1faf868169365f3eccf9c8ab",
-    "parent_digest": null,
     "config_digest": "6d190579c3d7ccc07188cd204310927f553f2ebe1faf868169365f3eccf9c8ab",
     "layers": [
       {
@@ -28,7 +27,6 @@
         "created_by": "/bin/sh -c #(nop) ADD file:bc85f38b0c798897406a4c35fe08d06599df3831fca6db0cbd279e5d71bf9514 in / ",
         "comment": null,
         "is_empty_layer": false,
-        "parent_id": null,
         "extracted_to_location": null
       },
       {
@@ -45,7 +43,6 @@
         "created_by": "/bin/sh -c #(nop) COPY dir:dce95f07b795ec49ef6ddbcc12f24aaad9af237726904837c77b5ed2967e349e in /additions ",
         "comment": null,
         "is_empty_layer": false,
-        "parent_id": null,
         "extracted_to_location": null
       },
       {
@@ -62,7 +59,6 @@
         "created_by": "/bin/sh -c #(nop) COPY dir:dce95f07b795ec49ef6ddbcc12f24aaad9af237726904837c77b5ed2967e349e in /additions ",
         "comment": null,
         "is_empty_layer": false,
-        "parent_id": null,
         "extracted_to_location": null
       },
       {
@@ -79,7 +75,6 @@
         "created_by": "/bin/sh -c #(nop) ADD file:bc85f38b0c798897406a4c35fe08d06599df3831fca6db0cbd279e5d71bf9514 in /additions/hello ",
         "comment": null,
         "is_empty_layer": false,
-        "parent_id": null,
         "extracted_to_location": null
       }
     ],

@@ -190,11 +190,6 @@ class Image(ToDictMixin, ConfigMixin):
                       'repositories JSON which is the top layer_id.')
     )
 
-    parent_digest = attr.attrib(
-        default=None,
-        metadata=dict(doc='The digest of the parent for this image.')
-    )
-
     config_digest = attr.attrib(
         default=None,
         metadata=dict(doc='The digest of the config JSON file for this image. '
@@ -363,9 +358,6 @@ class Image(ToDictMixin, ConfigMixin):
         - The `RepoTags` field lists references pointing to this image.
         - The `Layers` field points to the filesystem changeset tars, e.g. the
           path to the layer.tar files as a list of paths.
-        - An optional `Parent` field references the imageID (as a sha256-prefixed
-          digest?) of the parent image. This parent must be part of the same
-          `manifest.json` file.
 
         For example:
 
@@ -376,7 +368,6 @@ class Image(ToDictMixin, ConfigMixin):
                  '6a630e46a580e8b2327fc45d9d1f4734ccaeb0afaa094e0f45722a5f1c91e009/layer.tar',
                  ]
              'RepoTags': ['user/image:version'],
-             "Parent": "sha256:5a00e6ccb81ef304e1bb9995ea9605f199aa96659a44237d58ca96982daf9af8"
              },
 
             {'Config': '7043867122e704683c9eaccd7e26abcd5bc9fea413ddfeae66166697bdcbde1f.json',
@@ -429,7 +420,6 @@ class Image(ToDictMixin, ConfigMixin):
                '6a630e46a580e8b2327fc45d9d1f4734ccaeb0afaa094e0f45722a5f1c91e009/layer.tar',
                ]
            'RepoTags': ['user/image:version'],
-           "Parent": "sha256:5a00e6ccb81ef304e1bb9995ea9605f199aa96659a44237d58ca96982daf9af8"
            },
 
           {'Config': '7043867122e704683c9eaccd7e26abcd5bc9fea413ddfeae66166697bdcbde1f.json',
@@ -498,7 +488,6 @@ class Image(ToDictMixin, ConfigMixin):
         layers_locations = [
             path.join(base_location, layer_path) for layer_path in layer_paths]
 
-        parent_digest = manifest_config.get('Parent')
         tags = manifest_config.get('RepoTags') or []
 
         image_config = load_json(config_file_loc)
@@ -538,7 +527,6 @@ class Image(ToDictMixin, ConfigMixin):
             image_id=image_id,
             layers=layers,
             config_digest=config_digest,
-            parent_digest=parent_digest,
             history=history,
             tags=tags,
             **ConfigMixin.from_config_data(image_config)
@@ -673,11 +661,6 @@ class Layer(ToDictMixin, ConfigMixin):
     is_empty_layer = attr.attrib(
         default=False,
         metadata=dict(doc='True if this is an empty layer. An empty layer has no tarball.')
-    )
-
-    parent_id = attr.attrib(
-        default=None,
-        metadata=dict(doc='parent layer id. LEGACY V10 format.')
     )
 
     extracted_to_location = attr.attrib(
