@@ -335,6 +335,8 @@ class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
             os=self.os,
             architecture=self.architecture,
         )
+        if self.os_version:
+            distro.version = self.os_version
 
         self.distro = Distro.from_rootfs(
             location=bottom_layer.extracted_location,
