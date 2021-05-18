@@ -27,11 +27,11 @@ def clean_images_data(images):
     Clean an Image.to_dict() for testing
     """
     for i in images:
-        i['base_location'] = None
-        i['extracted_to_location'] = None
+        i['extracted_location'] = None
+        i['archive_location'] = None
         for l in i['layers']:
-            l['layer_location'] = None
-            l['extracted_to_location'] = None
+            l['extracted_location'] = None
+            l['archive_location'] = None
     return images
 
 
@@ -67,7 +67,7 @@ class TestContainerInspectorCli(FileBasedTesting):
             image_path=test_dir,
             extract_directory=target_dir)
 
-        results = sorted([p.replace(target_dir, '') 
+        results = sorted([p.replace(target_dir, '')
             for p in fileutils.resource_iter(target_dir)])
         expected = ['/hello']
         assert expected == results
@@ -78,9 +78,10 @@ class TestContainerInspectorCli(FileBasedTesting):
 
         cli._container_inspector_squash(
             image_path=test_dir,
-            extract_directory=target_dir)
+            extract_directory=target_dir,
+        )
 
-        results = sorted([p.replace(target_dir, '') 
+        results = sorted([p.replace(target_dir, '')
             for p in fileutils.resource_iter(target_dir)])
         expected = [
             '/additions',

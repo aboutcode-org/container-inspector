@@ -1,35 +1,43 @@
 [
   {
+    "extracted_location": null,
+    "archive_location": null,
+    "sha256": "4d99bd478599e97b8fc8c647d7c6b1b4c3cf1d445949d5f20b08de9ca427cd2f",
     "docker_version": "17.03.1-ce",
     "os": "linux",
+    "os_version": null,
     "architecture": "amd64",
+    "variant": null,
     "created": "2017-06-14T19:29:01.037740325Z",
     "author": null,
     "comment": null,
     "labels": {},
-    "base_location": null,
+    "image_format": "docker",
     "image_id": "1815c82652c03bfd8644afda26fb184f2ed891d921b20a0703b46768f9755c57",
-    "config_digest": "1815c82652c03bfd8644afda26fb184f2ed891d921b20a0703b46768f9755c57",
+    "config_digest": "sha256:1815c82652c03bfd8644afda26fb184f2ed891d921b20a0703b46768f9755c57",
+    "tags": [
+      "hello-world:latest"
+    ],
+    "distro": null,
     "layers": [
       {
+        "extracted_location": null,
+        "archive_location": null,
+        "sha256": "45761469c965421a92a69cc50e92c01e0cfa94fe026cdd1233445ea00e96289a",
         "docker_version": null,
         "os": null,
+        "os_version": null,
         "architecture": null,
+        "variant": null,
         "labels": [],
-        "layer_location": null,
-        "layer_sha256": "45761469c965421a92a69cc50e92c01e0cfa94fe026cdd1233445ea00e96289a",
-        "layer_size": 3584,
-        "layer_id": "3e0554cb0efadb678332292bb7835495fbb0c71af7e01bd4f7d11e64fe3d54df",
+        "layer_id": "45761469c965421a92a69cc50e92c01e0cfa94fe026cdd1233445ea00e96289a",
+        "size": 3584,
+        "is_empty_layer": false,
         "author": null,
         "created": "2017-06-14T19:28:14.683824199Z",
         "created_by": "/bin/sh -c #(nop) COPY file:b65349dad8105cbef74456e9c0c9da5d001e9eb2ade4b3c21e107909aee5b25a in / ",
-        "comment": null,
-        "is_empty_layer": false,
-        "extracted_to_location": null
+        "comment": null
       }
-    ],
-    "tags": [
-      "hello-world:latest"
     ],
     "history": [
       {
@@ -41,8 +49,6 @@
         "created_by": "/bin/sh -c #(nop)  CMD [\"/hello\"]",
         "empty_layer": true
       }
-    ],
-    "distro": null,
-    "extracted_to_location": null
+    ]
   }
 ]

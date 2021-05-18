@@ -35,7 +35,7 @@ def clean_image(image):
     Clean `image` data for test purpose
     """
     image.extracted_location = ''
-    image.archive_location =  ''
+    image.archive_location = ''
     for layer in image.layers:
         layer.extracted_location = os.path.basename(layer.extracted_location or '')
         layer.archive_location = os.path.basename(layer.archive_location or '')
