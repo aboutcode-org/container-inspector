@@ -16,7 +16,7 @@ import re
 MANIFEST_JSON_FILE = 'manifest.json'
 
 LAYER_TAR_FILE = 'layer.tar'
-    
+
 EMPTY_SHA256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
 EMPTY_DIGEST = 'sha256:' + EMPTY_SHA256
 

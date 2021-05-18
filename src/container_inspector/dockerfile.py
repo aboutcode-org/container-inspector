@@ -18,12 +18,10 @@ from os import path
 import dockerfile_parse
 import os
 
-
 logger = logging.getLogger(__name__)
 # un-comment these lines to enable logging
 # logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 # logger.setLevel(logging.DEBUG)
-
 
 """
 Analysis helper for Docker Dockerfiles.
@@ -222,7 +220,6 @@ def map_image_to_dockerfile(image, dockerfile):
     from_image_startline = from_base['startline']
     from_image_name_tag = from_base['value'].strip()
     from_image_name, _, from_image_tag = from_image_name_tag.partition(':')
-
 
     # align layers and dockerfile lines, from top to bottom
     aligned = map(None, reversed(image.layers), reversed(dockerfile['instructions']))

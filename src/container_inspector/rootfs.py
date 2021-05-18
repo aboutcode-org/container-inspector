@@ -168,6 +168,7 @@ def find_whiteouts(root_location, walker=os.walk):
 
 # Set of well known file and directory paths found at the root of a filesystem
 
+
 LINUX_PATHS = set([
     'usr',
     'etc',
@@ -193,10 +194,10 @@ WINDOWS_PATHS = set([
 
 
 def find_root(
-    location, 
-    max_depth=3, 
-    root_paths=LINUX_PATHS, 
-    min_paths=2, 
+    location,
+    max_depth=3,
+    root_paths=LINUX_PATHS,
+    min_paths=2,
     walker=os.walk,
 ):
     """
