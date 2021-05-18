@@ -14,12 +14,11 @@
 import json
 import logging
 import hashlib
-from os import path
-from os import remove as os_remove
-from os import rmdir as os_rmdir
-import shutil
 import os
 
+from commoncode import fileutils
+
+from extractcode.extract import extract_file
 
 logger = logging.getLogger(__name__)
 # un-comment these lines to enable logging
@@ -37,20 +36,22 @@ def load_json(location):
     return data
 
 
-def get_command(cmd):
+def get_command(cmds):
     """
-    Clean the `cmd` list of command elements as found in the layer history.
+    Clean the `cmds` list of command strings as found in a Docker image layer
+    history.
     """
     # FIXME: this need to be cleaned further
-    return cmd and ' '.join(
-        [c for c in cmd if not c.startswith(('/bin/sh', '-c',))]) or ''
+    cmds = cmds or []
+    cmds = [c for c in cmds if not c.startswith(('/bin/sh', '-c',))]
+    return ' '.join(cmds)
 
 
 def sha256_digest(location):
     """
     Return a SHA256 checksum for the file content at location.
     """
-    if os.path.exists(location):
+    if location and os.path.exists(location):
         with open(location, 'rb') as loc:
             sha256 = hashlib.sha256(loc.read())
         return str(sha256.hexdigest())
@@ -69,106 +70,73 @@ def as_bare_id(string):
 
 def get_labels(config, container_config):
     """
-    Return a mapping of unique labels from the merged config and container_config
-    mappings
+    Return a sorted mapping of unique labels from the merged config and
+    container_config mappings
     """
-    labels = set()
+    labels = {}
 
-    config_labels = config.get('Labels', {}) or {}
+    config = lower_keys(config)
+    config_labels = config.get('labels', {}) or {}
     labels.update(config_labels.items())
 
-    container_labels = (container_config.get('Labels', {}) or {})
+    container_config = lower_keys(container_config)
+    container_labels = container_config.get('labels', {}) or {}
     labels.update(container_labels.items())
-    return dict(sorted(labels))
+    return dict(sorted(labels.items()))
 
 
 def extract_tar(location, target_dir):
     """
     Extract a tar archive at `location` in the `target_dir` directory.
-    Ignore special device files.
+    Ignore special device files and symlinks and hardlinks.
+    Do not preserve the permissions and owners.
+    Raise an Exception on error.
+    """
+    errors = []
+    fileutils.create_dir(target_dir)
+    for event in extract_file(location, target_dir):
+        if event.done:
+            errors.extend(event.errors)
+
+    if errors:
+        raise Exception(f'Failed to extract: {location} to: {target_dir}', *errors)
+
+
+def extract_tar_keeping_symlinks(location, target_dir):
+    """
+    Extract a tar archive at `location` in the `target_dir` directory.
+    Ignore special device files. Keep symlinks and hardlinks
     Do not preserve the permissions and owners.
     Raise exceptions on possible problematic relative paths.
     """
+    fileutils.create_dir(target_dir)
     import tarfile
     with tarfile.open(location) as tarball:
         # never extract character device, block and fifo files:
-        # we extract dirs, files and links
-        to_extract = [tinfo for tinfo in tarball.getmembers() if not tinfo.isdev()]
-        # force a u+rwx on all files
-        for tinfo in to_extract:
-            tinfo.mode = 0o700
-            # no absolute nor relative paths:
-            # if tinfo.name != path.normpath(tinfo.name).lstrip('./\\'):
-            #     raise Exception('Illegal tar member file path: {}'.format(tinfo.name))
-            # if tinfo.linkname != path.normpath(tinfo.linkname).lstrip('./\\'):
-            #     raise Exception('Illegal tar member file path link from: {} to: {}'.format(tinfo.name, tinfo.linkname))
-        tarball.extractall(target_dir, members=to_extract)
+        # we extract dirs, files and links only
+        for tinfo in tarball:
+            if tinfo.isdev():
+                continue
+            tarball.extract(
+                member=tinfo,
+                path=target_dir,
+                set_attrs=False,
+            )
 
 
-def _rm_handler(function, path, excinfo):  # @UnusedVariable
+def lower_keys(mapping):
     """
-    shutil.rmtree handler invoked on error when deleting a directory tree.
-    This retries deleting once before giving up.
+    Return a new ``mapping`` modified such that all keys are lowercased strings.
+    Fails with an Exception if a key is not a string-like obect.
+    Perform this operation recursively on nested mapping and lists.
+
+    For example::
+    >>> lower_keys({'baZ': 'Amd64', 'Foo': {'Bar': {'ABC': 'bAr'}}})
+    {'baz': 'Amd64', 'foo': {'bar': {'abc': 'bAr'}}}
     """
-    if function == os_rmdir:
-        try:
-            shutil.rmtree(path, True)
-        except Exception:
-            pass
-
-        if path.exists(path):
-            logger.warning('Failed to delete directory %s', path)
-
-    elif function == os_remove:
-        try:
-            delete(path, _err_handler=None)
-        except:
-            pass
-
-        if path.exists(path):
-            logger.warning('Failed to delete file %s', path)
-
-
-def delete(location, _err_handler=_rm_handler):
-    """
-    Delete a directory or file at `location` recursively. Similar to "rm -rf"
-    in a shell or a combo of os.remove and shutil.rmtree.
-    """
-    if not location:
-        return
-
-    if path.exists(location) or path.islink(location):
-        if path.isdir(location):
-            shutil.rmtree(location, False, _rm_handler)
-        else:
-            os_remove(location)
-
-
-def copytree(src, dst):
-    """
-    Copy recursively the `src` directory to the `dst` directory. If `dst` is an
-    existing directory, files in `dst` may be overwritten during the copy.
-    """
-    names = os.listdir(src)
-
-    if not os.path.exists(dst):
-        os.makedirs(dst)
-
-    for name in names:
-        srcname = os.path.join(src, name)
-        dstname = os.path.join(dst, name)
-
-        if path.isdir(srcname):
-            copytree(srcname, dstname)
-        elif path.isfile(srcname):
-            copyfile(srcname, dstname)
-
-
-def copyfile(src, dst):
-    """
-    Copy src file to dst file
-    """
-    assert path.isfile(src)
-    if path.isdir(dst):
-        dst = path.join(dst, path.basename(src))
-    shutil.copyfile(src, dst)
+    new_mapping = {}
+    for key, value in mapping.items():
+        if isinstance(value, dict):
+            value = lower_keys(value)
+        new_mapping[key.lower()] = value
+    return new_mapping
