@@ -367,13 +367,17 @@ class Distro(object):
         for candidate_path in ('etc/os-release', 'usr/lib/os-release',):
             os_release = path.join(location, candidate_path)
             if path.exists(os_release):
-                return cls.from_os_release_file(location=os_release),
+                return cls.from_os_release_file(location=os_release)
 
     @classmethod
     def find_windows_details(cls, location):
         """
         Find a Windows installation details and return a Distro object or None.
         """
+        return cls(
+            os='windows',
+            identifier='identifier',
+        )
 
     @classmethod
     def find_freebsd_details(cls, location):

@@ -52,6 +52,25 @@ class TestImages(FileBasedTesting):
         result = [clean_image(i).to_dict() for i in images]
         check_expected(result, expected, regen=False)
 
+    def test_Image_get_images_from_tarball_windows(self):
+        test_tarball = self.get_test_loc('image/windows-mini-image.tar.gz')
+        extract_dir = self.get_temp_dir()
+        expected = path.join(
+            self.get_test_loc('image'),
+            'windows-mini-image.tar.gz.expected.json',
+        )
+
+        image = Image.get_images_from_tarball(
+            archive_location=test_tarball,
+            extracted_location=extract_dir,
+            verify=False,
+        )[0]
+        layer_extracted_location = self.get_temp_dir()
+        image.extract_layers(extracted_location=layer_extracted_location)
+        image.get_and_set_distro()
+        result = clean_image(image).to_dict()
+        check_expected(result, expected, regen=False)
+
     def test_Image_get_images_from_dir(self):
         test_tarball = self.get_test_loc('repos/imagesv11.tar')
         test_dir = self.extract_test_tar(test_tarball)
