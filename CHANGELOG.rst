@@ -1,16 +1,68 @@
 Changelog
 =========
 
-v21.4.26
+v21.5.15
 --------
 
-This is a major release. There is no API change.
+This is a major release. 
+
+API changes
+~~~~~~~~~~~
+
+The Image and Layer object structures have changed significantly:
+- legacy parent_id and parent_digest attributes are removed from Image
+
+- new attributes have been added to correctly track the tarball of an image
+  or layer and its extracted location:
+  - "extracted_location" is the absolute path where an image or layer is extracted
+  - "archive_location" is the absolute path to an image or layer archive
+  Therefore we have these attribute renames, additions and deletions:
+    - Image.base_location -> Image.extracted_location
+    - Image.archive_location: added
+    - Layer.extracted_to_location -> Layer.extracted_location
+    - Layer.layer_location -> Layer.archive_location
+    - Layer.layer_sha256 -> Layer.sha256
+  Also:
+    - Layer.layer_id is now the sha256 of the Layer archive
+    - Image.sha256, os_version, variant: added
+
+- the layer_id is now based on the SHA256 of the layer tarball and not based on
+  the UUID-like directory names that contain a "layer.tar" in Docker image.
+- Image.config_digest is now prefixed with "sha256:"
+- All mappings keys are now lowercased recursively, including for labels.
+
+- Dropped support for Python 2. The minimum Python version is now Python 3.6
+- Dropped support for Docker image v1-style format
+
+- The way Image and Layers archives are extracted has changed significantly.
+  Images are extracted as before keeping symlinks (which are essential to support
+  certain Docker image layouts). In contrast, Layers are now exracted using
+  extractcode and links are ignored.
+
+
+New features
+~~~~~~~~~~~~
 
 - Add new find_root function to find the root of a filesystem
-- Drop support for Python 2. The minimum Python version is now Python 3.6
-- Drop support for Docker imgae v1-style format
-- Add new tests for distro detection and os-release handling
-- The master branch has been renamed to main
+
+- Add new tests for distro detection and os-release handling using a large
+  collection of os-release files
+
+- Layer/Image.to_dict() now accepts a new "exclude_fields" argument with a list
+  of field names to optionally exclude.
+
+- Add experimental support for container images using the OCI layout and add a
+  new Image attribute "image_format" with the value "docker" or "oci"
+
+- Add experimental support for Windows-based containers.
+
+
+Misc
+~~~~
+
+- The experimental fetch module has been removed
+- The master branch has been renamed to main.
+
 
 
 v3.1.2 (2020-07-07)
