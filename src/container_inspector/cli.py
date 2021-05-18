@@ -11,7 +11,6 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-
 import csv as csv_module
 import json as json_module
 import logging
@@ -101,7 +100,7 @@ def container_inspector(image_path, extract_to=None, csv=False):
 
 
 def _container_inspector(image_path, extract_to=None, csv=False):
-    images = list(get_images_from_dir_or_tarball(image_path, extract_to=extract_to))
+    images = get_images_from_dir_or_tarball(image_path, extract_to=extract_to)
     as_json = not csv
 
     if as_json:
@@ -110,7 +109,7 @@ def _container_inspector(image_path, extract_to=None, csv=False):
     else:
         from io import StringIO
         output = StringIO()
-        flat = list(image.flatten_images(images))
+        flat = list(image.flatten_images_data(images))
         if not flat:
             return
         keys = flat[0].keys()
@@ -126,14 +125,18 @@ def _container_inspector(image_path, extract_to=None, csv=False):
 def get_images_from_dir_or_tarball(image_path, extract_to=None, quiet=False):
     image_loc = os.path.abspath(os.path.expanduser(image_path))
     if path.isdir(image_path):
-        images = list(image.Image.get_images_from_dir(image_loc))
+        images = image.Image.get_images_from_dir(image_loc)
     else:
         # assume tarball
         extract_to = extract_to or tempfile.mkdtemp()
-        images = list(image.Image.get_images_from_tarball(
-            image_loc, target_dir=extract_to, force_extract=True))
+        images = image.Image.get_images_from_tarball(
+            archive_location=image_loc,
+            extracted_location=extract_to,
+            verify=True,
+        )
+
         for img in images:
-            img.extract_layers(target_dir=extract_to)
+            img.extract_layers(extracted_location=extract_to)
         if not quiet:
             click.echo('Extracting image tarball to: {}'.format(extract_to))
     return images
