@@ -12,7 +12,7 @@
 # specific language governing permissions and limitations under the License.
 
 import json
-from os import path
+import os
 
 
 def check_expected(result, expected, regen=False):
@@ -27,23 +27,16 @@ def check_expected(result, expected, regen=False):
     with open(expected) as ex:
         expected = json.loads(ex.read())
 
-    assert expected == result
+    assert result == expected
 
 
 def clean_image(image):
     """
     Clean `image` data for test purpose
     """
-    image.base_location = ''
+    image.extracted_location = ''
+    image.archive_location = ''
     for layer in image.layers:
-        clean_layer(layer)
-
+        layer.extracted_location = os.path.basename(layer.extracted_location or '')
+        layer.archive_location = os.path.basename(layer.archive_location or '')
     return image
-
-
-def clean_layer(layer):
-    """
-    Clean `layer` data for test purpose
-    """
-    layer.layer_location = path.basename(layer.layer_location)
-    return layer

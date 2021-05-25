@@ -26,7 +26,7 @@ class TestRootfs(testcase.FileBasedTesting):
 
     def test_rebuild_rootfs_simple(self):
         test_dir = self.extract_test_tar('rootfs/hello-world.tar')
-        img = list(image.Image.get_images_from_dir(test_dir))[0]
+        img = image.Image.get_images_from_dir(test_dir)[0]
         target_dir = self.get_temp_dir()
         rebuild_rootfs(img, target_dir)
         results = sorted([p.replace(target_dir, '')
@@ -36,7 +36,7 @@ class TestRootfs(testcase.FileBasedTesting):
 
     def test_image_squash_simple(self):
         test_dir = self.extract_test_tar('rootfs/hello-world.tar')
-        img = list(image.Image.get_images_from_dir(test_dir))[0]
+        img = image.Image.get_images_from_dir(test_dir)[0]
         target_dir = self.get_temp_dir()
         img.squash(target_dir)
         results = sorted([p.replace(target_dir, '')
@@ -46,7 +46,7 @@ class TestRootfs(testcase.FileBasedTesting):
 
     def test_rebuild_rootfs_with_delete(self):
         test_dir = self.extract_test_tar('rootfs/she-image_from_scratch-1.0.tar')
-        img = list(image.Image.get_images_from_dir(test_dir))[0]
+        img = image.Image.get_images_from_dir(test_dir)[0]
         target_dir = self.get_temp_dir()
         rebuild_rootfs(img, target_dir)
         results = sorted([p.replace(target_dir, '')
@@ -147,6 +147,34 @@ class TestRootfs(testcase.FileBasedTesting):
         ]
         assert expected == results
 
+    def test_rootfs_can_find_whiteouts(self):
+
+        def mock_walker(root):
+            opj = os.path.join
+            return [
+                (root, ['bin', 'usr'], []),
+                (opj(root, 'bin'), [], ['.wh..wh.opq']),
+                (opj(root, 'usr'), ['lib'], ['foo', '.wh.bar']),
+            ]
+
+        results = list(rootfs.find_whiteouts('baz', walker=mock_walker))
+        expected = [
+            ('baz/bin/.wh..wh.opq', 'bin'),
+            ('baz/usr/.wh.bar', 'usr/bar'),
+        ]
+        assert results == expected
+
+    def test_rootfs_can_find_whiteouts_none(self):
+
+        def mock_walker(root):
+            return [
+                (root, ['bin', 'usr'], []),
+                (os.path.join(root, 'usr'), ['lib'], ['foo', 'bar']),
+            ]
+
+        results = list(rootfs.find_whiteouts('baz', walker=mock_walker))
+        assert results == []
+
     def test_rootfs_can_find_root(self):
 
         def mock_walker(root):
@@ -155,7 +183,7 @@ class TestRootfs(testcase.FileBasedTesting):
                 (os.path.join(root, 'usr'), ['lib'], ['foo', 'bar']),
             ]
 
-        assert rootfs.find_root('baz', _walker=mock_walker) == 'baz'
+        assert rootfs.find_root('baz', walker=mock_walker) == 'baz'
 
     def test_rootfs_can_find_no_root(self):
 
@@ -165,7 +193,7 @@ class TestRootfs(testcase.FileBasedTesting):
                 (os.path.join(root, 'usr'), ['lib'], ['foo', 'bar']),
             ]
 
-        assert rootfs.find_root('baz', _walker=mock_walker) is None
+        assert rootfs.find_root('baz', walker=mock_walker) is None
 
     def test_rootfs_can_find_no_root_with_single_match(self):
 
@@ -175,7 +203,7 @@ class TestRootfs(testcase.FileBasedTesting):
                 (os.path.join(root, 'usr'), ['lib'], ['foo', 'bar']),
             ]
 
-        assert rootfs.find_root('baz', _walker=mock_walker) is None
+        assert rootfs.find_root('baz', walker=mock_walker) is None
 
     def test_rootfs_does_respects_max_depth(self):
         test_dir = self.extract_test_tar('rootfs/find_root.tar.gz')

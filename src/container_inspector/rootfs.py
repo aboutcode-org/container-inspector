@@ -13,11 +13,10 @@
 
 import logging
 import os
-from os import path
 import tempfile
 
-from container_inspector import LAYER_TAR_FILE
-from container_inspector import utils
+from commoncode.fileutils import copytree
+from commoncode.fileutils import delete
 
 logger = logging.getLogger(__name__)
 # un-comment these lines to enable logging
@@ -37,13 +36,14 @@ class InconsistentLayersError(Exception):
 
 def rebuild_rootfs(img, target_dir):
     """
-    Extract and merge all layers of the `image` Image in `target_dir`.
-    Extraction is done in sequence from bottom (root) to top (latest layer)
-    and the "whiteout" unionfs/overlayfs procedure is applied at each step
-    as per the OCI spec:
-        https://github.com/opencontainers/image-spec/blob/master/layer.md#whiteouts
+    Extract and merge or "squash" all layers of the `image` Image in a single
+    rootfs in `target_dir`. Extraction is done in sequence from the bottom (root
+    or initial) layer to the top (or latest) layer and the "whiteouts"
+    unionfs/overlayfs procedure is applied at each step as per the OCI spec:
+    https://github.com/opencontainers/image-spec/blob/master/layer.md#whiteouts
 
     Return a list of deleted "whiteout" files.
+    Raise an Exception on errrors.
 
     The extraction process consists of these steps:
      - extract the layer in a temp directory
@@ -54,121 +54,164 @@ def rebuild_rootfs(img, target_dir):
 
     See also some related implementations and links:
     https://github.com/moby/moby/blob/d1f470946/pkg/archive/whiteouts.go
-    https://github.com/virt-manager/virt-bootstrap/commit/8a7e752d6614f8425874adbbdab16443ee0b1d9b
+    https://github.com/virt-manager/virt-bootstrap/blob/8a7e752d/src/virtBootstrap/whiteout.py
     https://github.com/goldmann/docker-squash
-
 
     https://github.com/moby/moby/blob/master/image/spec/v1.md
     https://github.com/moby/moby/blob/master/image/spec/v1.1.md
     https://github.com/moby/moby/blob/master/image/spec/v1.2.md
     """
 
-    assert path.isdir(target_dir)
-    assert path.exists(target_dir)
-    extract_errors = []
+    assert os.path.isdir(target_dir)
+
     # log  deletions
     deletions = []
 
     for layer_num, layer in enumerate(img.layers):
-        layer_id = layer.layer_id
-        layer_tarball = path.join(img.base_location, layer_id, LAYER_TAR_FILE)
-        logger.debug('Extracting layer {layer_num} tarball: {layer_tarball}'.format(**locals()))
-        temp_target = tempfile.mkdtemp('container_inspector-docker')
+        logger.debug(
+            f'Extracting layer {layer_num} - {layer.layer_id} '
+            f'tarball: {layer.archive_location}'
+        )
 
         # 1. extract a layer to temp.
         # Note that we are not preserving any special file and any file permission
-        utils.extract_tar(location=layer_tarball, target_dir=temp_target)
-        logger.debug('  Extracted layer to: {}'.format(temp_target))
+        extracted_loc = tempfile.mkdtemp('container_inspector-docker')
+        layer.extract(extracted_location=extracted_loc)
+        logger.debug(f'  Extracted layer to: {extracted_loc}')
 
         # 2. find whiteouts in that layer.
-        layer_whiteouts = list(find_whiteouts(temp_target))
-        logger.debug('  Merging extracted layers and applying AUFS whiteouts/deletes')
-        logger.debug('  Whiteouts:\n' + '     \n'.join(map(repr, layer_whiteouts)))
+        whiteouts = list(find_whiteouts(extracted_loc))
+        logger.debug('  Merging extracted layers and applying unionfs whiteouts')
+        logger.debug('  Whiteouts:\n' + '     \n'.join(map(repr, whiteouts)))
 
         # 3. remove whiteouts in the previous layer stack (e.g. the WIP rootfs)
-        for layer_whiteout_marker, target_whiteable_path in layer_whiteouts:
-            logger.debug('    Deleting whiteout dir or file: {target_whiteable_path}'.format(**locals()))
-            whiteable = path.join(target_dir, target_whiteable_path)
-            utils.delete(whiteable)
+        for whiteout_marker_loc, whiteable_path in whiteouts:
+            logger.debug(f'    Deleting dir or file with whiteout marker: {whiteout_marker_loc}')
+            whiteable_loc = os.path.join(target_dir, whiteable_path)
+            delete(whiteable_loc)
             # also delete the whiteout marker file
-            utils.delete(layer_whiteout_marker)
-            deletions.extend(target_whiteable_path)
+            delete(whiteout_marker_loc)
+            deletions.append(whiteable_loc)
 
         # 4. finall copy/overwrite the extracted layer over the WIP rootfs
-        logger.debug('  Moving extracted layer from: {temp_target} to: {target_dir}'.format(**locals()))
-        utils.copytree(temp_target, target_dir)
-        logger.debug('  Moved layer to: {}'.format(target_dir))
-        utils.delete(temp_target)
+        logger.debug(f'  Moving extracted layer from: {extracted_loc} to: {target_dir}')
+        copytree(extracted_loc, target_dir)
+        logger.debug(f'  Moved layer to: {target_dir}')
+        delete(extracted_loc)
 
     return deletions
 
 
 WHITEOUT_EXPLICIT_PREFIX = '.wh.'
-WHITEOUT_OPAQUE_PREFIX = ('.wh..wh.opq')
+WHITEOUT_OPAQUE_PREFIX = '.wh..wh.opq'
 
 
-def get_whiteout_marker_type(file_name):
+def is_whiteout_marker(path):
     """
-    Return the type of whiteout or False if the file_name is a whiteout marker file.
+    Return True if the ``path`` is a whiteout marker file.
+
+    For example::
+    >>> is_whiteout_marker('.wh.somepath')
+    True
+    >>> is_whiteout_marker('.wh..wh.opq')
+    True
+    >>> is_whiteout_marker('somepath.wh.')
+    False
+    >>> is_whiteout_marker('somepath/.wh.foo')
+    True
+    >>> is_whiteout_marker('somepath/.wh.foo/')
+    True
     """
+    file_name = path and os.path.basename(path.strip('/')) or ''
+    return file_name.startswith(WHITEOUT_EXPLICIT_PREFIX)
+
+
+def get_whiteable_path(path):
+    """
+    Return the whiteable path for ``path`` or None if this not a whiteable path.
+    TODO: Handle OSses with case-insensitive FS (e.g. Windows)
+    """
+    file_name = os.path.basename(path)
+    parent_dir = os.path.dirname(path)
+
     if file_name == WHITEOUT_OPAQUE_PREFIX:
-        return WHITEOUT_OPAQUE_PREFIX
-    if file_name.startswith(WHITEOUT_EXPLICIT_PREFIX):
-        return WHITEOUT_EXPLICIT_PREFIX
-
-
-def get_whiteable_path(location):
-    """
-    Given a location path string, return the whiteable path for this `location`
-    or None.
-    """
-    file_name = path.basename(location)
-    parent_dir = path.dirname(location)
-
-    wh_marker_type = get_whiteout_marker_type(file_name)
-
-    if wh_marker_type == WHITEOUT_OPAQUE_PREFIX:
-        # Opaque whiteouts means the whole parent direvtory should be removed
+        # Opaque whiteouts means the whole parent directory should be removed
         # https://github.com/opencontainers/image-spec/blob/master/layer.md#whiteouts
         return parent_dir
 
-    elif wh_marker_type == WHITEOUT_EXPLICIT_PREFIX:
+    if file_name.startswith(WHITEOUT_EXPLICIT_PREFIX):
         # Explicit, file-only whiteout
         # https://github.com/opencontainers/image-spec/blob/master/layer.md#whiteouts
         _, _, real_file_name = file_name.rpartition(WHITEOUT_EXPLICIT_PREFIX)
-        return path.join(parent_dir, real_file_name)
+        return os.path.join(parent_dir, real_file_name)
 
 
-def find_whiteouts(base_location):
+def find_whiteouts(root_location, walker=os.walk):
     """
-    Yield tuple of (whiteout location, `base_location`-relative path of things to delete)
-    found in the list of `locations` path strings.
-    Does not access filesystem.
+    Yield a two-tuple of:
+     - whiteout marker file location
+     - corresponding file or directory path, relative to the root_location
+
+    found under the `root_location` directory.
+
+    `_walker` is a callable that behaves the same as `os.walk() and is used
+    for testing`
     """
-    for top, _dirs, files in os.walk(base_location, base_location):
-        for f in files:
-            location = path.join(top, f)
-            whiteable_path = get_whiteable_path(location)
+    for top, _dirs, files in walker(root_location):
+        for fil in files:
+            whiteout_marker_loc = os.path.join(top, fil)
+            whiteable_path = get_whiteable_path(whiteout_marker_loc)
             if whiteable_path:
-                relative_path = whiteable_path.replace(base_location, '').strip('/')
-                yield location, relative_path
+                whiteable_path = whiteable_path.replace(
+                    root_location, '').strip(os.path.sep)
+                yield whiteout_marker_loc, whiteable_path
+
+# Set of well known file and directory paths found at the root of a filesystem
 
 
-LINUX_PATHS = set(['usr', 'etc', 'var', 'home', 'sbin', 'sys', 'lib', 'bin', 'vmlinuz', ])
-WINDOWS_PATHS = set(['Program Files', 'Windows', ])
+LINUX_PATHS = set([
+    'usr',
+    'etc',
+    'var',
+    'home',
+    'sbin',
+    'sys',
+    'lib',
+    'bin',
+    'vmlinuz',
+])
+
+WINDOWS_PATHS = set([
+    'Program Files',
+    'Program Files(x86)',
+    'Windows',
+    'ProgramData',
+    'Users',
+    '$Recycle.Bin',
+    'PerfLogs',
+    'System Volume Information',
+])
 
 
-def find_root(location, max_depth=3, root_paths=LINUX_PATHS, min_paths=2, _walker=os.walk):
+def find_root(
+    location,
+    max_depth=3,
+    root_paths=LINUX_PATHS,
+    min_paths=2,
+    walker=os.walk,
+):
     """
     Return the first likely location of the root of a filesystem found in the
     `location` directory and looking down up to `max_depth` directory levels
-    deep. If `max_depth` == 0, look at full depth. Search for well known
-    directories listed in the `root_paths` set. A root directory is return as
-    found if at least `min_paths` exists as filenames or directories under it.
-    `_walker` is a callable that behaves the same as `os.walk() and is used
-    mostly for tests`
+    deep below the location directory. If `max_depth` == 0, look at full depth.
+    Search for well known directories listed in the `root_paths` set. A root
+    directory is return as found if at least `min_paths` exists as filenames or
+    directories under it.
+
+    `walker` is a callable that behaves the same as `os.walk() and is used
+    for testing`
     """
-    for depth, (top, dirs, files) in enumerate(_walker(location), 1):
+    for depth, (top, dirs, files) in enumerate(walker(location), 1):
         matches = len(set(dirs + files) & root_paths)
         if matches >= min_paths:
             return top

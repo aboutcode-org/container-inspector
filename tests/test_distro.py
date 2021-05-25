@@ -35,12 +35,12 @@ class TestDistro(FileBasedTesting):
             result = parse_os_release(test_file)
             check_expected(result, expected, regen=False)
 
-    def test_distro_from_file(self):
+    def test_distro_from_os_release_file(self):
         test_dir = self.get_test_loc('distro/os-release')
 
         for test_file in resource_iter(test_dir, with_dirs=False):
             if test_file.endswith('-expected.json'):
                 continue
             expected = test_file + '-distro-expected.json'
-            result = Distro.from_file(test_file).to_dict()
+            result = Distro.from_os_release_file(test_file).to_dict()
             check_expected(result, expected, regen=False)

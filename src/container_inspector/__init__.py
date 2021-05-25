@@ -13,16 +13,10 @@
 
 import re
 
-__version__ = '21.5.7'
-
-REPOSITORIES_FILE = 'repositories'  # legacy v1
-
 MANIFEST_JSON_FILE = 'manifest.json'
 
-LAYER_VERSION_FILE = 'VERSION'
-LAYER_JSON_FILE = 'json'  # legacy v1
 LAYER_TAR_FILE = 'layer.tar'
-    
+
 EMPTY_SHA256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
 EMPTY_DIGEST = 'sha256:' + EMPTY_SHA256
 
