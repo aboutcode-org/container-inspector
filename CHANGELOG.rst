@@ -1,7 +1,7 @@
 Changelog
 =========
 
-v21.5.15
+v21.5.25
 --------
 
 This is a major release. 
