@@ -14,14 +14,17 @@ The Image and Layer object structures have changed significantly:
 
 - new attributes have been added to correctly track the tarball of an image
   or layer and its extracted location:
+
   - "extracted_location" is the absolute path where an image or layer is extracted
   - "archive_location" is the absolute path to an image or layer archive
+
   Therefore we have these attribute renames, additions and deletions:
     - Image.base_location -> Image.extracted_location
     - Image.archive_location: added
     - Layer.extracted_to_location -> Layer.extracted_location
     - Layer.layer_location -> Layer.archive_location
     - Layer.layer_sha256 -> Layer.sha256
+
   Also:
     - Layer.layer_id is now the sha256 of the Layer archive
     - Image.sha256, os_version, variant: added

@@ -1,18 +1,25 @@
-container-inspector is a suite of analysis utilities and command line tools for
-Docker images, containers, root filesystems and virtual machine images.
+**container-inspector** is a suite of analysis utilities and command line tools
+for Docker images, containers, root filesystems and virtual machine images.
+
 For Docker images, it can process layers and how these relate to each other as
 well as Dockerfiles.
  
-container-inspector provides utilities to:
+**container-inspector** provides utilities to:
+
  - identify Docker images in a file system, its layers and the related metadata.
  - given a Docker image, collect and report its metadata.
  - given a Docker image, extract the layers used to rebuild what how a runtime
    rootfs would look.
  - find and parse Dockerfiles.
  - find how Dockerfiles relate to actual images and their layers.
- - given a Docker image, rootfs or Virtual Machime image collect system packages.
- 
- 
+ - given a Docker image, rootfs or Virtual Machime image collect inventories of
+   packages and files installed in an image or layer or rootfs
+   (implemented using a provided callable)
+ - detect the "distro" of a rootfs of image using os-release files (and an
+   extensive test suite for these)
+ - detect the operating system, architecture and 
+
+
 Quick start
 -----------
 
@@ -50,24 +57,24 @@ layer (or selected tagged layer) using a union file system (e.g. AUFS).
 In AUFS, any file or directory prefixed with .wh. are "white outs" files deleting
 files in the underlying layers.
 
-See the imaged specifications saved in docs/references/
+See the image specifications saved in docs/references/
 
 
 Internal data model
 -------------------
-- Registry: this is a collection of Image Repositories (related or not).
-- Repository: this is a collection of related Images, stored in the same base directory.
 - Image: this is a runnable image composed of metadata and a sequence of layers.
 - Layer: this is a slice of an image root filesystem with a payload and metadata
-
-We skip entirely Registry and Repository and only expose Image and Layer
+- Resource: this a file or directory
 
 
 Plans
 -----
  - in progress: support OCI image layout
- - in progress: fetch Image from remote registry (already available, but not integrated)
- - in progress: collect inventories of packages and files installed in an image or layer 
-   (implemented using a provided callable)
- - future: given collected Dockerfiles and Images, build a graph
-   of the relationships between all these elements.
+ - improved suport for Windows containers
+
+
+Related tools
+-------------
+ - Fetching Image from remote registry is available in ScanCode.io
+ - Extracting VM Image filesystems as archives is available in ExtractCode
+
