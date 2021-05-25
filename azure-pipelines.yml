@@ -46,19 +46,3 @@ jobs:
           python_versions: ['3.6', '3.7', '3.8', '3.9']
           test_suites:
               all: tmp/bin/pytest -n 2 -vvs
-
-    - template: etc/ci/azure-win.yml
-      parameters:
-          job_name: win2016_cpython
-          image_name: vs2017-win2016
-          python_versions: ['3.6', '3.7', '3.8', '3.9']
-          test_suites:
-              all: tmp\Scripts\pytest -n 2 -vvs
-
-    - template: etc/ci/azure-win.yml
-      parameters:
-          job_name: win2019_cpython
-          image_name: windows-2019
-          python_versions: ['3.6', '3.7', '3.8', '3.9']
-          test_suites:
-              all: tmp\Scripts\pytest -n 2 -vvs

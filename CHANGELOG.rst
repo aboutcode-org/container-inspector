@@ -33,7 +33,8 @@ The Image and Layer object structures have changed significantly:
 
 - Dropped support for Python 2. The minimum Python version is now Python 3.6
 - Dropped support for Docker image v1-style format
-
+- Dropped support for Windows as it was never intended to run on Windows.
+  Windows as a container is a target though.
 - The way Image and Layers archives are extracted has changed significantly.
   Images are extracted as before keeping symlinks (which are essential to support
   certain Docker image layouts). In contrast, Layers are now exracted using
