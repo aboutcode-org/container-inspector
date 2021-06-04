@@ -18,9 +18,9 @@
   "distro": {
     "os": "windows",
     "architecture": "amd64",
-    "name": "linux",
+    "name": null,
     "version": "10.0.19042.985",
-    "identifier": "identifier",
+    "identifier": "windows",
     "id_like": [],
     "version_codename": null,
     "version_id": null,

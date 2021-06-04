@@ -1,6 +1,19 @@
 Changelog
 =========
 
+v21.6.4
+--------
+
+This is a minor release with bug fixes and minor API changes. 
+
+API changes
+~~~~~~~~~~~
+
+The Distro.from_rootfs() now works as expected. It can handle empty location
+and works correctly with a base_distro. When a base_distro is provided it
+will raise an Exception if the found Distro.os does not match the base Distro.os
+
+
 v21.5.25
 --------
 

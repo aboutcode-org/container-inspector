@@ -65,6 +65,7 @@ class TestImages(FileBasedTesting):
             extracted_location=extract_dir,
             verify=False,
         )[0]
+
         layer_extracted_location = self.get_temp_dir()
         image.extract_layers(extracted_location=layer_extracted_location)
         image.get_and_set_distro()

@@ -230,6 +230,7 @@ class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
     Image objects can be created from these inputs:
     - an image tarball in docker format (e.g. "docker save").
     - a directory that contains an extracted image tarball in these layouts.
+
     OCI format is not yet supported.
     """
 

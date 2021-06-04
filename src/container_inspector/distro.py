@@ -12,10 +12,13 @@
 # specific language governing permissions and limitations under the License.
 
 import logging
-from os import path
+import os
 import shlex
+from os import path
 
 import attr
+
+from container_inspector import rootfs
 
 logger = logging.getLogger(__name__)
 # un-comment these lines to enable logging
@@ -46,19 +49,21 @@ class Distro(object):
     """
 
     os = attr.attrib(
-        default='linux',
+        default=None,
         metadata=dict(
-            doc='Operating system, default to linux. '
+            doc='Operating system. '
                 'One of: {}'.format(', '.join(os_choices)))
     )
 
     architecture = attr.attrib(
         default=None,
-        metadata=dict(doc='Processor architecture such as x86, x86_64, arm or amd64.')
+        metadata=dict(
+            doc='Processor architecture such as x86, x86_64, arm or amd64.'
+        )
     )
 
     name = attr.attrib(
-        default='linux',
+        default=None,
         metadata=dict(doc='''Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             NAME= A string identifying the operating system, without a version
@@ -82,7 +87,7 @@ class Distro(object):
     )
 
     identifier = attr.attrib(
-        default='linux',
+        default=None,
         metadata=dict(doc='''Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             ID= A lower-case string (no spaces or other characters outside of
@@ -291,7 +296,13 @@ class Distro(object):
     def from_os_release_file(cls, location):
         """
         Return a Distro built from a Linux os-release file.
+        Return None if ``location`` is empty or missing.
+        Raise an Exception if the os-release file is invalid and cannot be
+        parsed
         """
+        if not location or not os.path.exists(location):
+            return
+
         data = parse_os_release(location) or {}
         new_data = dict(
             # This idiom looks a tad wierd but we want to always get a linux as
@@ -333,13 +344,23 @@ class Distro(object):
     @classmethod
     def from_rootfs(cls, location, base_distro=None):
         """
-        Return a Distro discovered from the rootfs at `location`.
-        Return None if no OS was found.
+        Return a Distro discovered from the rootfs at ``location``. Return None
+        if no OS is found or if ``location`` is empty or missing.
 
         Use the optional ``base_distro`` Distro object attributes as a base and
-        to guide discovery. If provided ``base_distro`` may be returned as-is
-        if no extra OS details were found.
+        to guide discovery.
+
+        Raise an Exception if the ``base_distro`` OS does not match the found
+        distro.
+
+        Providing a ``base_distro`` Distro is useful when the distro information
+        are already known ahead of time (for instance from a Docker image
+        manifest) and may be missing from the rootfs proper (for instance of an
+        /etc/os-release is missing in the rootfs for a Linux-based image).
         """
+        if not location or not os.path.exists(location):
+            return
+
         finders = {
             'linux': cls.find_linux_details,
             'windows': cls.find_windows_details,
@@ -347,21 +368,27 @@ class Distro(object):
         }
 
         for finder_os, finder in finders.items():
-            if base_distro and base_distro.os != finder_os:
-                continue
 
             found = finder(location)
             if found:
-                return base_distro.merge(found)
+                if base_distro:
+                    if base_distro.os != finder_os:
+                        raise Exception(
+                            f'Inconsistent base distro OS: {base_distro.os} '
+                            f'and found distro OS : {found.os}'
+                        )
 
-        if base_distro:
-            return base_distro
+                    return base_distro.merge(found)
+                else:
+                    return found
 
     @classmethod
     def find_linux_details(cls, location):
         """
-        Find a linux distro details using the os-release file and return a
-        Distro object or None.
+        Find a linux distro details using the os-release file at ``location``
+        and return a Distro object or None.
+
+        Raise an Exception if an os-release file is found that cannot be parsed.
         """
         # note: /etc/os-release has precedence over /usr/lib/os-release.
         for candidate_path in ('etc/os-release', 'usr/lib/os-release',):
@@ -374,10 +401,12 @@ class Distro(object):
         """
         Find a Windows installation details and return a Distro object or None.
         """
-        return cls(
-            os='windows',
-            identifier='identifier',
-        )
+        if rootfs.find_root(
+            location,
+            max_depth=2,
+            root_paths=rootfs.WINDOWS_PATHS,
+        ):
+            return cls(os='windows', identifier='windows',)
 
     @classmethod
     def find_freebsd_details(cls, location):
@@ -422,8 +451,12 @@ class Distro(object):
         """
         existing = self.to_dict()
         if other_distro:
-            other_non_empty = {k: v for k, v in other_distro.to_dict().items() if v}
+            other_non_empty = {
+                k: v for k, v in other_distro.to_dict().items()
+                if v
+            }
             existing.update(other_non_empty)
+
         return type(self)(**existing)
 
 
