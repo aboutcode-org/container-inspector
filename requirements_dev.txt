@@ -1,4 +1,0 @@
-pytest
-# used for its tests classes
-commoncode
--e .
