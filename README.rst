@@ -77,4 +77,5 @@ Related tools
 -------------
  - Fetching Image from remote registry is available in ScanCode.io
  - Extracting VM Image filesystems as archives is available in ExtractCode
+ - Scanning for application and system packages is available in ScanCode Toolkit
 
