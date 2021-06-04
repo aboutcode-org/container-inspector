@@ -17,8 +17,9 @@ from extractcode.extract import extract_file
 
 logger = logging.getLogger(__name__)
 # un-comment these lines to enable logging
-# logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-# logger.setLevel(logging.DEBUG)
+import sys
+logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+logger.setLevel(logging.DEBUG)
 
 
 def load_json(location):
@@ -104,14 +105,19 @@ def extract_tar_keeping_symlinks(location, target_dir):
     Do not preserve the permissions and owners.
     Raise exceptions on possible problematic relative paths.
     """
-    fileutils.create_dir(target_dir)
     import tarfile
+    logger.debug(f'extract_tar_keeping_symlinks: {location} to {target_dir}')
+
+    fileutils.create_dir(target_dir)
+
+
     with tarfile.open(location) as tarball:
         # never extract character device, block and fifo files:
         # we extract dirs, files and links only
         for tinfo in tarball:
             if tinfo.isdev():
                 continue
+            logger.debug(f'extract_tar_keeping_symlinks: {tinfo}')
             tarball.extract(
                 member=tinfo,
                 path=target_dir,

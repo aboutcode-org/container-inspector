@@ -15,9 +15,9 @@ from commoncode.fileutils import delete
 
 logger = logging.getLogger(__name__)
 # un-comment these lines to enable logging
-# import sys
-# logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-# logger.setLevel(logging.DEBUG)
+import sys
+logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+logger.setLevel(logging.DEBUG)
 
 """
 Utilities to handle image and layer archives and recreate proper rootfs
@@ -206,9 +206,17 @@ def find_root(
     `walker` is a callable that behaves the same as `os.walk() and is used
     for testing`
     """
+    logger.debug(
+        f'find_root: {location} max_depth: {max_depth} '
+        f'root_paths: {root_paths}, min_paths: {min_paths}'
+    )
     for depth, (top, dirs, files) in enumerate(walker(location), 1):
+        logger.debug(f'find_root: depth={depth!r}, top={top!r} dirs={dirs!r} files={files!r}')
         matches = len(set(dirs + files) & root_paths)
+        logger.debug(f'find_root: top {top!r} matches: {matches}')
         if matches >= min_paths:
+            logger.debug(f'find_root: matches >= min_paths: returning {top!r}')
             return top
         if max_depth and depth == max_depth:
+            logger.debug(f'find_root: max_depth={max_depth!r}, depth={depth!r} returning None')
             return

@@ -17,8 +17,9 @@ from container_inspector import rootfs
 
 logger = logging.getLogger(__name__)
 # un-comment these lines to enable logging
-# logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-# logger.setLevel(logging.DEBUG)
+import sys
+logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+logger.setLevel(logging.DEBUG)
 
 
 def logger_debug(*args):
@@ -296,6 +297,7 @@ class Distro(object):
         parsed
         """
         if not location or not os.path.exists(location):
+            logger.debug(f'from_os_release_file: {location!r} does not exists')
             return
 
         data = parse_os_release(location) or {}
@@ -332,6 +334,8 @@ class Distro(object):
         if data:
             new_data['extra_data'] = data
 
+        logger.debug(f'from_os_release_file: new_data: {new_data!r}')
+
         return cls(**new_data)
 
     from_file = from_os_release_file
@@ -353,7 +357,10 @@ class Distro(object):
         manifest) and may be missing from the rootfs proper (for instance of an
         /etc/os-release is missing in the rootfs for a Linux-based image).
         """
+        logger.debug(f'from_rootfs: {location!r} base_distro: {base_distro!r}')
+
         if not location or not os.path.exists(location):
+            logger.debug(f'from_rootfs: {location!r} does not exists')
             return
 
         finders = {
@@ -363,8 +370,10 @@ class Distro(object):
         }
 
         for finder_os, finder in finders.items():
+            logger.debug(f'from_rootfs: trying finder_os: {finder_os!r}')
 
             found = finder(location)
+            logger.debug(f'from_rootfs: trying found: {found!r}')
             if found:
                 if base_distro:
                     if base_distro.os != finder_os:
@@ -373,8 +382,12 @@ class Distro(object):
                             f'and found distro OS : {found.os}'
                         )
 
-                    return base_distro.merge(found)
+                    merged = base_distro.merge(found)
+                    logger.debug(f'from_rootfs: returning merged: {merged!r}')
+                    return merged
+
                 else:
+                    logger.debug(f'from_rootfs: returning found: {found!r}')
                     return found
 
     @classmethod
@@ -398,7 +411,7 @@ class Distro(object):
         """
         if rootfs.find_root(
             location,
-            max_depth=2,
+            max_depth=3,
             root_paths=rootfs.WINDOWS_PATHS,
         ):
             return cls(os='windows', identifier='windows',)
@@ -444,6 +457,8 @@ class Distro(object):
         Return a new distro based on this Distro data updated with non-empty
         values from the ``other_distro`` Distro object.
         """
+        logger.debug(f'merge: {self!r} with: {other_distro!r}')
+
         existing = self.to_dict()
         if other_distro:
             other_non_empty = {
@@ -451,6 +466,9 @@ class Distro(object):
                 if v
             }
             existing.update(other_non_empty)
+            logger.debug(f'merge: updated data: {existing!r}')
+
+        logger.debug(f'merge: merged data: {existing!r}')
 
         return type(self)(**existing)
 
@@ -478,8 +496,14 @@ def parse_os_release(location):
     """
     with open(location) as osrl:
         lines = (line.strip() for line in osrl)
-        lines = (line.partition('=') for line in lines if line and not line.startswith('#'))
-        return {key.strip(): ''.join(shlex.split(value)) for key, _, value in lines}
+        lines = (
+            line.partition('=') for line in lines
+            if line and not line.startswith('#')
+        )
+        return {
+            key.strip(): ''.join(shlex.split(value))
+            for key, _, value in lines
+        }
 
 
 def get_debian_details():
