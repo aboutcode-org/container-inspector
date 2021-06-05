@@ -1,15 +1,10 @@
+#
 # Copyright (c) nexB Inc. and others. All rights reserved.
-# http://nexb.com and https://github.com/nexB/container-inspector/
+# SPDX-License-Identifier: Apache-2.0
+# See http://www.apache.org/licenses/LICENSE-2.0 for the license text.
+# See https://github.com/nexB/container-inspector for support or download.
+# See https://aboutcode.org for more information about nexB OSS projects.
 #
-# This software is licensed under the Apache License version 2.0.#
-#
-# You may not use this software except in compliance with the License.
-# You may obtain a copy of the License at:
-#     http://apache.org/licenses/LICENSE-2.0
-# Unless required by applicable law or agreed to in writing, software distributed
-# under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-# CONDITIONS OF ANY KIND, either express or implied. See the License for the
-# specific language governing permissions and limitations under the License.
 
 import logging
 import os
@@ -26,14 +21,12 @@ from container_inspector.utils import as_bare_id
 from container_inspector.utils import load_json
 from container_inspector.utils import sha256_digest
 
+TRACE = False
 logger = logging.getLogger(__name__)
-# un-comment these lines to enable logging
-# logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-# logger.setLevel(logging.DEBUG)
-
-
-def logger_debug(*args):
-    return logger.debug(' '.join(isinstance(a, str) and a or repr(a) for a in args))
+if TRACE:
+    import sys
+    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+    logger.setLevel(logging.DEBUG)
 
 """
 Objects to handle Docker and OCI images and Layers.
@@ -230,6 +223,7 @@ class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
     Image objects can be created from these inputs:
     - an image tarball in docker format (e.g. "docker save").
     - a directory that contains an extracted image tarball in these layouts.
+
     OCI format is not yet supported.
     """
 
@@ -422,6 +416,8 @@ class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
         If `verify` is True, perform extra checks on the config data and layers
         checksums.
         """
+        if TRACE: logger.debug(f'get_images_from_tarball: {archive_location} , extracting to: {extracted_location}')
+
         Image.extract(
             archive_location=archive_location,
             extracted_location=extracted_location,
@@ -446,10 +442,15 @@ class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
         If `verify` is True, perform extra checks on the config data and layers
         checksums.
         """
+        if TRACE: logger.debug(f'get_images_from_dir: from  {extracted_location} and archive_location: {archive_location}')
+
         if not os.path.isdir(extracted_location):
             raise Exception(f'Not a directory: {extracted_location}')
 
         image_format = Image.find_format(extracted_location)
+
+        if TRACE: logger.debug(f'get_images_from_dir: image_format: {image_format}')
+
         if image_format == 'docker':
             return Image.get_docker_images_from_dir(
                 extracted_location=extracted_location,
@@ -457,7 +458,7 @@ class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
                 verify=verify,
         )
 
-        if image_format == 'docker':
+        if image_format == 'oci':
             return Image.get_oci_images_from_dir(
                 extracted_location=extracted_location,
                 archive_location=archive_location,
@@ -506,6 +507,8 @@ class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
             ....
         ]
         """
+        if TRACE: logger.debug(f'get_docker_images_from_dir: {extracted_location}')
+
         if not os.path.isdir(extracted_location):
             raise Exception(f'Not a directory: {extracted_location}')
 
@@ -517,15 +520,21 @@ class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
 
         manifest = load_json(manifest_loc)
 
+        if TRACE: logger.debug(f'get_docker_images_from_dir: manifest: {manifest}')
+
         images = []
         for manifest_config in manifest:
-            images.append(
-                Image.from_docker_manifest_config(
-                    extracted_location=extracted_location,
-                    archive_location=archive_location,
-                    manifest_config=manifest_config,
-                    verify=verify,
-            ))
+            if TRACE: logger.debug(f'get_docker_images_from_dir: manifest_config: {manifest_config}')
+            img = Image.from_docker_manifest_config(
+                extracted_location=extracted_location,
+                archive_location=archive_location,
+                manifest_config=manifest_config,
+                verify=verify,
+
+            )
+            if TRACE: logger.debug(f'get_docker_images_from_dir: img: {img!r}')
+
+            images.append(img)
 
         return images
 
@@ -600,6 +609,8 @@ class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
             }
          }
         """
+        if TRACE: logger.debug(f'from_docker_manifest_config: manifest_config: {manifest_config!r}')
+
         manifest_config = utils.lower_keys(manifest_config)
 
         config_file = manifest_config.get('config') or ''
@@ -627,7 +638,9 @@ class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
 
         layer_paths = manifest_config.get('layers') or []
         layers_archive_locs = [
-            os.path.join(extracted_location, lp) for lp in layer_paths]
+            os.path.join(extracted_location, lp)
+            for lp in layer_paths
+        ]
 
         tags = manifest_config.get('repotags') or []
 

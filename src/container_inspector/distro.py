@@ -1,30 +1,29 @@
+#
 # Copyright (c) nexB Inc. and others. All rights reserved.
-# http://nexb.com and https://github.com/nexB/container-inspector/
+# SPDX-License-Identifier: Apache-2.0
+# See http://www.apache.org/licenses/LICENSE-2.0 for the license text.
+# See https://github.com/nexB/container-inspector for support or download.
+# See https://aboutcode.org for more information about nexB OSS projects.
 #
-# This software is licensed under the Apache License version 2.0.#
-#
-# You may not use this software except in compliance with the License.
-# You may obtain a copy of the License at:
-#     http://apache.org/licenses/LICENSE-2.0
-# Unless required by applicable law or agreed to in writing, software distributed
-# under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-# CONDITIONS OF ANY KIND, either express or implied. See the License for the
-# specific language governing permissions and limitations under the License.
 
 import logging
-from os import path
+import os
 import shlex
+from os import path
 
 import attr
 
+from container_inspector import rootfs
+
+TRACE = False
 logger = logging.getLogger(__name__)
-# un-comment these lines to enable logging
-# logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-# logger.setLevel(logging.DEBUG)
 
 
-def logger_debug(*args):
-    return logger.debug(' '.join(isinstance(a, str) and a or repr(a) for a in args))
+
+if TRACE:
+    import sys
+    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+    logger.setLevel(logging.DEBUG)
 
 """
 Utilities to detect the "distro" of a root filesystem (be it a VM or rootfs
@@ -46,19 +45,21 @@ class Distro(object):
     """
 
     os = attr.attrib(
-        default='linux',
+        default=None,
         metadata=dict(
-            doc='Operating system, default to linux. '
+            doc='Operating system. '
                 'One of: {}'.format(', '.join(os_choices)))
     )
 
     architecture = attr.attrib(
         default=None,
-        metadata=dict(doc='Processor architecture such as x86, x86_64, arm or amd64.')
+        metadata=dict(
+            doc='Processor architecture such as x86, x86_64, arm or amd64.'
+        )
     )
 
     name = attr.attrib(
-        default='linux',
+        default=None,
         metadata=dict(doc='''Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             NAME= A string identifying the operating system, without a version
@@ -82,7 +83,7 @@ class Distro(object):
     )
 
     identifier = attr.attrib(
-        default='linux',
+        default=None,
         metadata=dict(doc='''Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             ID= A lower-case string (no spaces or other characters outside of
@@ -291,7 +292,14 @@ class Distro(object):
     def from_os_release_file(cls, location):
         """
         Return a Distro built from a Linux os-release file.
+        Return None if ``location`` is empty or missing.
+        Raise an Exception if the os-release file is invalid and cannot be
+        parsed
         """
+        if not location or not os.path.exists(location):
+            if TRACE: logger.debug(f'from_os_release_file: {location!r} does not exists')
+            return
+
         data = parse_os_release(location) or {}
         new_data = dict(
             # This idiom looks a tad wierd but we want to always get a linux as
@@ -326,6 +334,8 @@ class Distro(object):
         if data:
             new_data['extra_data'] = data
 
+        if TRACE: logger.debug(f'from_os_release_file: new_data: {new_data!r}')
+
         return cls(**new_data)
 
     from_file = from_os_release_file
@@ -333,13 +343,26 @@ class Distro(object):
     @classmethod
     def from_rootfs(cls, location, base_distro=None):
         """
-        Return a Distro discovered from the rootfs at `location`.
-        Return None if no OS was found.
+        Return a Distro discovered from the rootfs at ``location``. Return None
+        if no OS is found or if ``location`` is empty or missing.
 
         Use the optional ``base_distro`` Distro object attributes as a base and
-        to guide discovery. If provided ``base_distro`` may be returned as-is
-        if no extra OS details were found.
+        to guide discovery.
+
+        Raise an Exception if the ``base_distro`` OS does not match the found
+        distro.
+
+        Providing a ``base_distro`` Distro is useful when the distro information
+        are already known ahead of time (for instance from a Docker image
+        manifest) and may be missing from the rootfs proper (for instance of an
+        /etc/os-release is missing in the rootfs for a Linux-based image).
         """
+        if TRACE: logger.debug(f'from_rootfs: {location!r} base_distro: {base_distro!r}')
+
+        if not location or not os.path.exists(location):
+            if TRACE: logger.debug(f'from_rootfs: {location!r} does not exists')
+            return
+
         finders = {
             'linux': cls.find_linux_details,
             'windows': cls.find_windows_details,
@@ -347,21 +370,33 @@ class Distro(object):
         }
 
         for finder_os, finder in finders.items():
-            if base_distro and base_distro.os != finder_os:
-                continue
+            if TRACE: logger.debug(f'from_rootfs: trying finder_os: {finder_os!r}')
 
             found = finder(location)
+            if TRACE: logger.debug(f'from_rootfs: trying found: {found!r}')
             if found:
-                return base_distro.merge(found)
+                if base_distro:
+                    if base_distro.os != finder_os:
+                        raise Exception(
+                            f'Inconsistent base distro OS: {base_distro.os} '
+                            f'and found distro OS : {found.os}'
+                        )
 
-        if base_distro:
-            return base_distro
+                    merged = base_distro.merge(found)
+                    if TRACE: logger.debug(f'from_rootfs: returning merged: {merged!r}')
+                    return merged
+
+                else:
+                    if TRACE: logger.debug(f'from_rootfs: returning found: {found!r}')
+                    return found
 
     @classmethod
     def find_linux_details(cls, location):
         """
-        Find a linux distro details using the os-release file and return a
-        Distro object or None.
+        Find a linux distro details using the os-release file at ``location``
+        and return a Distro object or None.
+
+        Raise an Exception if an os-release file is found that cannot be parsed.
         """
         # note: /etc/os-release has precedence over /usr/lib/os-release.
         for candidate_path in ('etc/os-release', 'usr/lib/os-release',):
@@ -374,10 +409,12 @@ class Distro(object):
         """
         Find a Windows installation details and return a Distro object or None.
         """
-        return cls(
-            os='windows',
-            identifier='identifier',
-        )
+        if rootfs.find_root(
+            location,
+            max_depth=3,
+            root_paths=rootfs.WINDOWS_PATHS,
+        ):
+            return cls(os='windows', identifier='windows',)
 
     @classmethod
     def find_freebsd_details(cls, location):
@@ -420,10 +457,19 @@ class Distro(object):
         Return a new distro based on this Distro data updated with non-empty
         values from the ``other_distro`` Distro object.
         """
+        if TRACE: logger.debug(f'merge: {self!r} with: {other_distro!r}')
+
         existing = self.to_dict()
         if other_distro:
-            other_non_empty = {k: v for k, v in other_distro.to_dict().items() if v}
+            other_non_empty = {
+                k: v for k, v in other_distro.to_dict().items()
+                if v
+            }
             existing.update(other_non_empty)
+            if TRACE: logger.debug(f'merge: updated data: {existing!r}')
+
+        if TRACE: logger.debug(f'merge: merged data: {existing!r}')
+
         return type(self)(**existing)
 
 
@@ -450,8 +496,14 @@ def parse_os_release(location):
     """
     with open(location) as osrl:
         lines = (line.strip() for line in osrl)
-        lines = (line.partition('=') for line in lines if line and not line.startswith('#'))
-        return {key.strip(): ''.join(shlex.split(value)) for key, _, value in lines}
+        lines = (
+            line.partition('=') for line in lines
+            if line and not line.startswith('#')
+        )
+        return {
+            key.strip(): ''.join(shlex.split(value))
+            for key, _, value in lines
+        }
 
 
 def get_debian_details():

@@ -1,27 +1,24 @@
+#
 # Copyright (c) nexB Inc. and others. All rights reserved.
-# http://nexb.com and https://github.com/nexB/container-inspector/
+# SPDX-License-Identifier: Apache-2.0
+# See http://www.apache.org/licenses/LICENSE-2.0 for the license text.
+# See https://github.com/nexB/container-inspector for support or download.
+# See https://aboutcode.org for more information about nexB OSS projects.
 #
-# This software is licensed under the Apache License version 2.0.#
-#
-# You may not use this software except in compliance with the License.
-# You may obtain a copy of the License at:
-#     http://apache.org/licenses/LICENSE-2.0
-# Unless required by applicable law or agreed to in writing, software distributed
-# under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-# CONDITIONS OF ANY KIND, either express or implied. See the License for the
-# specific language governing permissions and limitations under the License.
 
 import logging
 import operator
+import os
 from os import path
 
 import dockerfile_parse
-import os
 
+TRACE = False
 logger = logging.getLogger(__name__)
-# un-comment these lines to enable logging
-# logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-# logger.setLevel(logging.DEBUG)
+if TRACE:
+    import sys
+    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+    logger.setLevel(logging.DEBUG)
 
 """
 Analysis helper for Docker Dockerfiles.
@@ -37,7 +34,7 @@ def get_dockerfile(location):
     if not 'Dockerfile' in fn:
         return {}
 
-    logger.debug('Found Dockerfile at: %(location)r' % locals())
+    if TRACE: logger.debug('Found Dockerfile at: %(location)r' % locals())
 
     try:
         # TODO: keep comments instead of ignoring them:
@@ -57,7 +54,7 @@ def get_dockerfile(location):
             df_data['instructions'].append(entry)
         return {location: df_data}
     except:
-        logger.debug('Error parsing Dockerfile at: %(location)r' % locals())
+        if TRACE: logger.debug('Error parsing Dockerfile at: %(location)r' % locals())
         return {}
 
 
@@ -85,7 +82,7 @@ def collect_dockerfiles(location):
     for top, dirs, files in os.walk(location):
         for f in files:
             dfiles.update(get_dockerfile(path.join(top, f)))
-    logger.debug('collect_dockerfiles: %(dfiles)r' % locals())
+    if TRACE: logger.debug('collect_dockerfiles: %(dfiles)r' % locals())
     return dfiles
 
 
