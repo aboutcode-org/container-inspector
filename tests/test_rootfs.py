@@ -205,7 +205,7 @@ class TestRootfs(testcase.FileBasedTesting):
         assert not rootfs.find_root(test_dir, max_depth=1)
         assert not rootfs.find_root(test_dir, max_depth=2)
         assert not rootfs.find_root(test_dir, max_depth=3)
-        assert not rootfs.find_root(test_dir, max_depth=4)
+        assert rootfs.find_root(test_dir, max_depth=4).endswith('level1/level2/level3')
 
         expected = '/find_root/level1/level2/level3'
         found = rootfs.find_root(test_dir, max_depth=5)
@@ -216,3 +216,16 @@ class TestRootfs(testcase.FileBasedTesting):
 
         found = rootfs.find_root(os.path.join(test_dir, 'find_root'), max_depth=4)
         assert found.replace(test_dir, '') == expected
+
+    def test_rootfs_compute_path_depth(self):
+        assert rootfs.compute_path_depth(None, None) == 0
+        assert rootfs.compute_path_depth('', '') == 0
+        assert rootfs.compute_path_depth(None, 'foo') == 1
+        assert rootfs.compute_path_depth('foo', None) == 0
+        assert rootfs.compute_path_depth('/root', '/root/find_root') == 1
+        assert rootfs.compute_path_depth('/root', '/root/one/2/') == 2
+        assert rootfs.compute_path_depth('/root/', '/root/one/2/') == 2
+        assert rootfs.compute_path_depth('root/', '/root/one/2') == 2
+        assert rootfs.compute_path_depth('root/', '/root/') == 0
+        assert rootfs.compute_path_depth('root/', '/root/') == 0
+        assert rootfs.compute_path_depth('root/', '/root/1/2/3/4') == 4

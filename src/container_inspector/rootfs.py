@@ -12,6 +12,7 @@ import tempfile
 
 from commoncode.fileutils import copytree
 from commoncode.fileutils import delete
+from commoncode.paths import split
 
 logger = logging.getLogger(__name__)
 # un-comment these lines to enable logging
@@ -188,6 +189,24 @@ WINDOWS_PATHS = set([
 ])
 
 
+def compute_path_depth(root_path, dir_path):
+    """
+    Compute the depth of ``dir_path`` below ``root_path`` as the number of paths
+    segments that extend below the root.
+    """
+    if not dir_path:
+        return 0
+    dir_path = dir_path.strip('/')
+
+    if not root_path:
+        return len(split(dir_path))
+
+    root_path = root_path.strip('/')
+
+    suffix = dir_path[len(root_path):]
+    return len(split(suffix))
+
+
 def find_root(
     location,
     max_depth=3,
@@ -197,26 +216,38 @@ def find_root(
 ):
     """
     Return the first likely location of the root of a filesystem found in the
-    `location` directory and looking down up to `max_depth` directory levels
-    deep below the location directory. If `max_depth` == 0, look at full depth.
-    Search for well known directories listed in the `root_paths` set. A root
-    directory is return as found if at least `min_paths` exists as filenames or
-    directories under it.
+    ``location`` directory and below up and including to ``max_depth`` directory
+    levels deep below the ``location`` root directory.
 
-    `walker` is a callable that behaves the same as `os.walk() and is used
-    for testing`
+    If ``max_depth`` == 0, look at full depth.
+
+    Search for well known directories listed in the ``root_paths`` set. A root
+    directory is returned as found if at least ``min_paths`` exists as filenames
+    or directories under it.
+
+    ``walker`` is a callable behaving like ``os.walk()`` and is used for testing.
     """
     logger.debug(
-        f'find_root: {location} max_depth: {max_depth} '
-        f'root_paths: {root_paths}, min_paths: {min_paths}'
+        f'find_root: location={location!r}, max_depth={max_depth!r}, '
+        f'root_paths={root_paths!r}, min_paths={min_paths!r}'
     )
-    for depth, (top, dirs, files) in enumerate(walker(location), 1):
-        logger.debug(f'find_root: depth={depth!r}, top={top!r} dirs={dirs!r} files={files!r}')
+    depth = 0
+    for top, dirs, files in walker(location):
+        logger.debug(f' find_root: top={top!r}, dirs={dirs!r}, files={files!r}')
+        if max_depth:
+            depth = compute_path_depth(location, top)
+            logger.debug(f'  find_root: top depth={depth!r}')
+            if depth > max_depth:
+                logger.debug(
+                    f'    find_root: max_depth={max_depth!r}, '
+                    f'depth={depth!r} returning None')
+                return
+
         matches = len(set(dirs + files) & root_paths)
-        logger.debug(f'find_root: top {top!r} matches: {matches}')
+        logger.debug(f'  find_root: top={top!r}, matches={matches!r}')
+
         if matches >= min_paths:
-            logger.debug(f'find_root: matches >= min_paths: returning {top!r}')
+            logger.debug(f'    find_root: matches >= min_paths: returning {top!r}')
             return top
-        if max_depth and depth == max_depth:
-            logger.debug(f'find_root: max_depth={max_depth!r}, depth={depth!r} returning None')
-            return
+
+    logger.debug(f'find_root: noting found: returning None')
