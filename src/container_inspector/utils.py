@@ -15,11 +15,12 @@ from commoncode import fileutils
 
 from extractcode.extract import extract_file
 
+TRACE = False
 logger = logging.getLogger(__name__)
-# un-comment these lines to enable logging
-import sys
-logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-logger.setLevel(logging.DEBUG)
+if TRACE:
+    import sys
+    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+    logger.setLevel(logging.DEBUG)
 
 
 def load_json(location):
@@ -106,7 +107,7 @@ def extract_tar_keeping_symlinks(location, target_dir):
     Raise exceptions on possible problematic relative paths.
     """
     import tarfile
-    logger.debug(f'extract_tar_keeping_symlinks: {location} to {target_dir}')
+    if TRACE: logger.debug(f'extract_tar_keeping_symlinks: {location} to {target_dir}')
 
     fileutils.create_dir(target_dir)
 
@@ -117,7 +118,7 @@ def extract_tar_keeping_symlinks(location, target_dir):
         for tinfo in tarball:
             if tinfo.isdev():
                 continue
-            logger.debug(f'extract_tar_keeping_symlinks: {tinfo}')
+            if TRACE: logger.debug(f'extract_tar_keeping_symlinks: {tinfo}')
             tarball.extract(
                 member=tinfo,
                 path=target_dir,

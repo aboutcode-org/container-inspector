@@ -8,15 +8,17 @@
 
 import logging
 import operator
+import os
 from os import path
 
 import dockerfile_parse
-import os
 
+TRACE = False
 logger = logging.getLogger(__name__)
-# un-comment these lines to enable logging
-# logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-# logger.setLevel(logging.DEBUG)
+if TRACE:
+    import sys
+    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+    logger.setLevel(logging.DEBUG)
 
 """
 Analysis helper for Docker Dockerfiles.
@@ -32,7 +34,7 @@ def get_dockerfile(location):
     if not 'Dockerfile' in fn:
         return {}
 
-    logger.debug('Found Dockerfile at: %(location)r' % locals())
+    if TRACE: logger.debug('Found Dockerfile at: %(location)r' % locals())
 
     try:
         # TODO: keep comments instead of ignoring them:
@@ -52,7 +54,7 @@ def get_dockerfile(location):
             df_data['instructions'].append(entry)
         return {location: df_data}
     except:
-        logger.debug('Error parsing Dockerfile at: %(location)r' % locals())
+        if TRACE: logger.debug('Error parsing Dockerfile at: %(location)r' % locals())
         return {}
 
 
@@ -80,7 +82,7 @@ def collect_dockerfiles(location):
     for top, dirs, files in os.walk(location):
         for f in files:
             dfiles.update(get_dockerfile(path.join(top, f)))
-    logger.debug('collect_dockerfiles: %(dfiles)r' % locals())
+    if TRACE: logger.debug('collect_dockerfiles: %(dfiles)r' % locals())
     return dfiles
 
 

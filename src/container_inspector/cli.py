@@ -6,13 +6,13 @@
 # See https://aboutcode.org for more information about nexB OSS projects.
 #
 
-import csv as csv_module
-import json as json_module
 import logging
 import os
-from os import path
 import sys
 import tempfile
+import csv as csv_module
+import json as json_module
+from os import path
 
 import click
 
@@ -20,10 +20,11 @@ from container_inspector import image
 from container_inspector import dockerfile
 from container_inspector import rootfs
 
+TRACE = False
 logger = logging.getLogger(__name__)
-# un-comment these lines to enable logging
-# logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-# logger.setLevel(logging.DEBUG)
+if TRACE:
+    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+    logger.setLevel(logging.DEBUG)
 
 
 @click.command()
