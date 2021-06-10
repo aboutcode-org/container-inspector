@@ -140,3 +140,8 @@ class TestImages(FileBasedTesting):
         test_arch = self.get_test_loc('image/she-image_from_scratch-1.0.tar')
         test_dir = self.extract_test_tar(test_arch)
         assert Image.find_format(test_dir) == 'docker'
+
+    def test_Image_find_format_finds_Docker_images_without_repositories(self):
+        test_arch = self.get_test_loc('image/mini-image_from_scratch-2.0.tar')
+        test_dir = self.extract_test_tar(test_arch)
+        assert Image.find_format(test_dir) == 'docker'
