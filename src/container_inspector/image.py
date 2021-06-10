@@ -702,7 +702,7 @@ class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
         - oci (which is for the OCI format)
         """
         clue_files_by_image_format = {
-            'docker': ('manifest.json', 'repositories',),
+            'docker': ('manifest.json',),
             'oci': ('blobs', 'index.json', 'oci-layout',)
          }
 
