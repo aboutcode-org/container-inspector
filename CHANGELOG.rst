@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v21.6.10
+--------
+
+This is a minor release with bug fixes.
+
 v21.6.4
 --------
 
