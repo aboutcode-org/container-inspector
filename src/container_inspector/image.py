@@ -1035,7 +1035,7 @@ class Layer(ArchiveMixin, ConfigMixin, ToDictMixin):
                 yield build_resource(top, f, _is_file=True)
             if with_dir:
                 for d in dirs:
-                    yield build_resource(top, d, _is_file=True)
+                    yield build_resource(top, d, _is_file=False)
 
     def get_installed_packages(self, packages_getter):
         """
