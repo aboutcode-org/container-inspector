@@ -21,7 +21,7 @@
     "distro": null,
     "layers": [
       {
-        "extracted_location": "",
+        "extracted_location": null,
         "archive_location": "de331f94dc3592a39e495432d39ca14ed0cf04a6861c1e7714ff410e8a0225b4.tar",
         "sha256": "c2c0564e4d42ab2b8e947861d9324a6ab087818731e818bc8667c7523507c4f9",
         "docker_version": null,
@@ -70,7 +70,7 @@
     "distro": null,
     "layers": [
       {
-        "extracted_location": "",
+        "extracted_location": null,
         "archive_location": "a699c18e2119e668e5f1264e97559af65d2111ac0790b6832efeb450fc5193fc.tar",
         "sha256": "2d3d307589a202188a779ec6d094a39a396d7d48d6fef273b902af4389bcfd62",
         "docker_version": null,
@@ -132,7 +132,7 @@
     "distro": null,
     "layers": [
       {
-        "extracted_location": "",
+        "extracted_location": null,
         "archive_location": "f2323825799160c4c1e508c1189dc285c7928677747b5a679020e9b438843127.tar",
         "sha256": "c2c0564e4d42ab2b8e947861d9324a6ab087818731e818bc8667c7523507c4f9",
         "docker_version": null,
@@ -150,7 +150,7 @@
         "comment": "initial import"
       },
       {
-        "extracted_location": "",
+        "extracted_location": null,
         "archive_location": "1466996a39f8d2af81b92fad37ef15c04fb2ca64b43945a00f6f5943913f6b96.tar",
         "sha256": "2d3d307589a202188a779ec6d094a39a396d7d48d6fef273b902af4389bcfd62",
         "docker_version": null,

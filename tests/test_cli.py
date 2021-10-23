@@ -19,15 +19,21 @@ from utilities import check_expected
 
 def clean_images_data(images):
     """
-    Clean an Image.to_dict() for testing
+    Clean an a list of Image.to_dict() for testing
     """
-    for i in images:
-        i['extracted_location'] = None
-        i['archive_location'] = None
-        for l in i['layers']:
-            l['extracted_location'] = None
-            l['archive_location'] = None
+    for image in images:
+        clean_image_data(image)
     return images
+
+
+def clean_image_data(image):
+    """
+    Clean `image` data from Image.to_dict() for testing
+    """
+    image['extracted_location'] = ''
+    image['archive_location'] = os.path.basename(image['archive_location'] or '')
+    return image
+
 
 
 class TestContainerInspectorCli(FileBasedTesting):

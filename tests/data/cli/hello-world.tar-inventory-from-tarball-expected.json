@@ -1,7 +1,7 @@
 [
   {
-    "extracted_location": null,
-    "archive_location": null,
+    "extracted_location": "",
+    "archive_location": "hello-world.tar",
     "sha256": "4d99bd478599e97b8fc8c647d7c6b1b4c3cf1d445949d5f20b08de9ca427cd2f",
     "docker_version": "17.03.1-ce",
     "os": "linux",
@@ -21,8 +21,8 @@
     "distro": null,
     "layers": [
       {
-        "extracted_location": null,
-        "archive_location": null,
+        "extracted_location": "45761469c965421a92a69cc50e92c01e0cfa94fe026cdd1233445ea00e96289a",
+        "archive_location": "3e0554cb0efadb678332292bb7835495fbb0c71af7e01bd4f7d11e64fe3d54df/layer.tar",
         "sha256": "45761469c965421a92a69cc50e92c01e0cfa94fe026cdd1233445ea00e96289a",
         "docker_version": null,
         "os": null,
