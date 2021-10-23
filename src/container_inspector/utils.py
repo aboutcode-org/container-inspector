@@ -111,7 +111,6 @@ def extract_tar_keeping_symlinks(location, target_dir):
 
     fileutils.create_dir(target_dir)
 
-
     with tarfile.open(location) as tarball:
         # never extract character device, block and fifo files:
         # we extract dirs, files and links only

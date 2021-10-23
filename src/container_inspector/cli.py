@@ -95,17 +95,20 @@ def container_inspector(image_path, extract_to=None, csv=False):
     click.echo(results)
 
 
-def _container_inspector(image_path, extract_to=None, csv=False):
+def _container_inspector(image_path, extract_to=None, csv=False, _layer_path_segments=2):
     images = get_images_from_dir_or_tarball(image_path, extract_to=extract_to)
     as_json = not csv
 
     if as_json:
-        images = [i.to_dict() for i in images]
+        images = [i.to_dict(layer_path_segments=_layer_path_segments) for i in images]
         return json_module.dumps(images, indent=2)
     else:
         from io import StringIO
         output = StringIO()
-        flat = list(image.flatten_images_data(images))
+        flat = list(image.flatten_images_data(
+            images=images, 
+            layer_path_segments=_layer_path_segments
+        ))
         if not flat:
             return
         keys = flat[0].keys()

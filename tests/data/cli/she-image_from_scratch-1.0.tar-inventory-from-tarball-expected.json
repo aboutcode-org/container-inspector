@@ -24,7 +24,7 @@
     "layers": [
       {
         "extracted_location": "1f9928556cf4d8e357642820b93a68343ae4bf8eeba76a041b2ea3a4257c5a5a",
-        "archive_location": "390f462bd3d4a0f900a4c431a53dc8830461b9e703ba348a2700dcc46f720c02/layer.tar",
+        "archive_location": "layer.tar",
         "sha256": "1f9928556cf4d8e357642820b93a68343ae4bf8eeba76a041b2ea3a4257c5a5a",
         "docker_version": null,
         "os": null,
@@ -42,7 +42,7 @@
       },
       {
         "extracted_location": "57a9ef5e4048962620a6311018be2010c179c9853e878a20080aeaed97f42826",
-        "archive_location": "24ff9e455c2811b9f3ba124276b5f2bb0111555057fdcc5b528c471597186fc3/layer.tar",
+        "archive_location": "layer.tar",
         "sha256": "57a9ef5e4048962620a6311018be2010c179c9853e878a20080aeaed97f42826",
         "docker_version": null,
         "os": null,
@@ -60,7 +60,7 @@
       },
       {
         "extracted_location": "0676ff439070aa2108b9bc3904f04265f83a639b4e6fe3e45c9549fd7bbe3369",
-        "archive_location": "7295cea29559ce1e63515273dbd67ac770ef613b9b697473c1f95a0c494cfd80/layer.tar",
+        "archive_location": "layer.tar",
         "sha256": "0676ff439070aa2108b9bc3904f04265f83a639b4e6fe3e45c9549fd7bbe3369",
         "docker_version": null,
         "os": null,
@@ -78,7 +78,7 @@
       },
       {
         "extracted_location": "85dc439f0d28eceba0cfc2b883f3e99a37e60961e2686acf8b85c09e67facb01",
-        "archive_location": "649ef32010e339b304136b22154e13f984f88f528c8120a17291396b9264ccc0/layer.tar",
+        "archive_location": "layer.tar",
         "sha256": "85dc439f0d28eceba0cfc2b883f3e99a37e60961e2686acf8b85c09e67facb01",
         "docker_version": null,
         "os": null,

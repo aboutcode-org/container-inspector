@@ -22,7 +22,7 @@
     "layers": [
       {
         "extracted_location": "45761469c965421a92a69cc50e92c01e0cfa94fe026cdd1233445ea00e96289a",
-        "archive_location": "3e0554cb0efadb678332292bb7835495fbb0c71af7e01bd4f7d11e64fe3d54df/layer.tar",
+        "archive_location": "layer.tar",
         "sha256": "45761469c965421a92a69cc50e92c01e0cfa94fe026cdd1233445ea00e96289a",
         "docker_version": null,
         "os": null,
