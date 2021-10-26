@@ -29,8 +29,8 @@ if TRACE:
     logger.setLevel(logging.DEBUG)
 
 """
-Objects to handle Docker and OCI images and Layers.
-
+This module contains objects and utilities to handle Docker and OCI images and
+Layers.
 
 Supported formats:
 - docker v1.1 and v1.2
