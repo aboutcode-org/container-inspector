@@ -180,7 +180,6 @@ def clean_created_by(created_by):
     """
     # True if the command is a no-op and has no effect on the layer root fs (e.g
     # label, comment, authior, etc)
-    is_noop = False
     if isinstance(created_by, (list, tuple)):
         # this is a structure, pre-parsed command as found in a layer "json" file
         # we strip the prefix

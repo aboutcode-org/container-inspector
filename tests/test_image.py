@@ -6,7 +6,7 @@
 # See https://aboutcode.org for more information about nexB OSS projects.
 #
 
-from os import path
+import os
 
 from commoncode.testcase import FileBasedTesting
 
@@ -14,11 +14,10 @@ from container_inspector.image import Image
 from container_inspector.image import flatten_images_data
 
 from utilities import check_expected
-from utilities import clean_image
 
 
 class TestImages(FileBasedTesting):
-    test_data_dir = path.join(path.dirname(__file__), 'data')
+    test_data_dir = os.path.join(os.path.dirname(__file__), 'data')
 
     def test_Image(self):
         try:
@@ -34,7 +33,7 @@ class TestImages(FileBasedTesting):
     def test_Image_get_images_from_tarball(self):
         test_tarball = self.get_test_loc('repos/imagesv11.tar')
         extract_dir = self.get_temp_dir()
-        expected = path.join(
+        expected = os.path.join(
             self.get_test_loc('repos'),
             'imagesv11.tar.expected.json',
         )
@@ -44,33 +43,32 @@ class TestImages(FileBasedTesting):
             extracted_location=extract_dir,
             verify=False,
         )
-        result = [clean_image(i).to_dict() for i in images]
+        result = [i.to_dict(layer_path_segments=2, _test=True) for i in images]
         check_expected(result, expected, regen=False)
 
-    def test_Image_get_images_from_tarball_windows(self):
+    def test_windows_container_Image_get_images_from_tarball(self):
         test_tarball = self.get_test_loc('image/windows-mini-image.tar.gz')
         extract_dir = self.get_temp_dir()
-        expected = path.join(
-            self.get_test_loc('image'),
-            'windows-mini-image.tar.gz.expected.json',
-        )
-
         image = Image.get_images_from_tarball(
             archive_location=test_tarball,
             extracted_location=extract_dir,
             verify=False,
         )[0]
 
-        layer_extracted_location = self.get_temp_dir()
-        image.extract_layers(extracted_location=layer_extracted_location)
+        image.extract_layers(extracted_location=extract_dir)
         image.get_and_set_distro()
-        result = clean_image(image).to_dict()
+        result = image.to_dict(layer_path_segments=1, _test=True)
+        expected = self.get_test_loc(
+            'image/windows-mini-image.tar.gz.expected.json',
+            must_exist=False,
+        )
+
         check_expected(result, expected, regen=False)
 
     def test_Image_get_images_from_dir(self):
         test_tarball = self.get_test_loc('repos/imagesv11.tar')
         test_dir = self.extract_test_tar(test_tarball)
-        expected = path.join(
+        expected = os.path.join(
             self.get_test_loc('repos'),
             'imagesv11.tar.expected.json',
         )
@@ -78,40 +76,40 @@ class TestImages(FileBasedTesting):
             extracted_location=test_dir,
             archive_location=test_tarball,
         )
-        result = [clean_image(i).to_dict() for i in images]
+        result = [i.to_dict(layer_path_segments=2, _test=True) for i in images]
         check_expected(result, expected, regen=False)
 
     def test_Image_get_images_from_dir_from_hello_world(self):
         test_arch = self.get_test_loc('repos/hello-world.tar')
         test_dir = self.extract_test_tar(test_arch)
-        expected = path.join(
+        expected = os.path.join(
             self.get_test_loc('repos'),
             'hello-world.tar.registry.expected.json',
         )
         images = Image.get_images_from_dir(test_dir)
-        result = [clean_image(i).to_dict() for i in images]
+        result = [i.to_dict(layer_path_segments=2, _test=True) for i in images]
         check_expected(result, expected, regen=False)
 
     def test_Image_get_images_from_dir_then_flatten_images_data(self):
         test_arch = self.get_test_loc('repos/hello-world.tar')
         test_dir = self.extract_test_tar(test_arch)
-        expected = path.join(
+        expected = os.path.join(
             self.get_test_loc('repos'),
             'hello-world.tar.flatten.expected.json',
         )
-        images = [clean_image(i) for i in Image.get_images_from_dir(test_dir)]
-        result = list(flatten_images_data(images))
+        images = list(Image.get_images_from_dir(test_dir))
+        result = list(flatten_images_data(images, layer_path_segments=2, _test=True))
         check_expected(result, expected, regen=False)
 
     def test_Image_get_images_from_dir_with_direct_at_root_layerid_dot_tar_tarball(self):
         test_arch = self.get_test_loc('repos/imagesv11_with_tar_at_root.tar')
         test_dir = self.extract_test_tar(test_arch)
-        expected = path.join(
+        expected = os.path.join(
             self.get_test_loc('repos'),
             'imagesv11_with_tar_at_root.tar.registry.expected.json',
         )
         images = Image.get_images_from_dir(test_dir, verify=False)
-        result = [clean_image(i).to_dict() for i in images]
+        result = [i.to_dict(layer_path_segments=2, _test=True) for i in images]
         check_expected(result, expected, regen=False)
 
     def test_Image_get_images_from_dir_with_verify(self):
@@ -122,9 +120,9 @@ class TestImages(FileBasedTesting):
     def test_Image_get_images_from_dir_with_anotations(self):
         test_arch = self.get_test_loc('repos/images.tar.gz')
         test_dir = self.extract_test_tar(test_arch)
-        expected = path.join(self.get_test_loc('repos'), 'images.tar.gz.expected.json')
+        expected = os.path.join(self.get_test_loc('repos'), 'images.tar.gz.expected.json')
         images = Image.get_images_from_dir(test_dir, verify=False)
-        result = [clean_image(i).to_dict() for i in images]
+        result = [i.to_dict(layer_path_segments=2, _test=True) for i in images]
         check_expected(result, expected, regen=False)
 
     def test_Image_get_images_from_dir_with_verify_fails_if_invalid_checksum(self):
@@ -145,3 +143,18 @@ class TestImages(FileBasedTesting):
         test_arch = self.get_test_loc('image/mini-image_from_scratch-2.0.tar')
         test_dir = self.extract_test_tar(test_arch)
         assert Image.find_format(test_dir) == 'docker'
+
+    def test_Image_to_dict_can_report_image_trimmed_layer_paths_or_not(self):
+        test_image = self.get_test_loc('image/mini-image_from_scratch-2.0.tar')
+        extract_dir = self.get_temp_dir()
+        images = Image.get_images_from_tarball(
+            archive_location=test_image,
+            extracted_location=extract_dir,
+            verify=False,
+        )
+        expected1 = self.get_test_loc(
+            'image/mini-image_from_scratch-2.0.tar-relative-expected.json',
+            must_exist=False,
+        )
+        result = [i.to_dict(layer_path_segments=2, _test=True) for i in images]
+        check_expected(result, expected1, regen=False)

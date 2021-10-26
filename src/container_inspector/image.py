@@ -29,8 +29,8 @@ if TRACE:
     logger.setLevel(logging.DEBUG)
 
 """
-Objects to handle Docker and OCI images and Layers.
-
+This module contains objects and utilities to handle Docker and OCI images and
+Layers.
 
 Supported formats:
 - docker v1.1 and v1.2
@@ -61,32 +61,23 @@ The OCI specs:
 """
 
 
-class ToDictMixin(object):
-    """
-    A mixin to add an to_dict() method to an attr-based class.
-    """
-
-    def to_dict(self, exclude_fields=()):
-        if exclude_fields:
-            filt = lambda attr, value: attr.name not in exclude_fields
-        else:
-            filt = lambda attr, value: True
-        return attr.asdict(self, filter=filt)
-
-
-def flatten_images_data(images):
+def flatten_images_data(images, layer_path_segments=0, _test=False):
     """
     Yield mapping for each layer of each image of an `images` list of Image.
     This is a flat data structure for CSV and tabular output.
+    Keep only ``layer_path_segments`` trailing layer location segments (or keep
+    the locations unmodified if ``layer_path_segments`` is 0)
     """
 
     for img in images:
+        img_extracted_location = img.extracted_location
         base_data = dict(
-            image_extracted_location=img.extracted_location,
-            image_archive_location=img.archive_location,
+            image_extracted_location='' if _test else img_extracted_location,
+            image_archive_location='' if _test else img.archive_location,
             image_id=img.image_id,
             image_tags=','.join(img.tags),
         )
+
         for layer in img.layers:
             layer_data = dict(base_data)
             layer_data['is_empty_layer'] = layer.is_empty_layer
@@ -96,9 +87,46 @@ def flatten_images_data(images):
             layer_data['created_by'] = layer.created_by
             layer_data['created'] = layer.created
             layer_data['comment'] = layer.comment
-            layer_data['layer_extracted_location'] = layer.extracted_location
-            layer_data['layer_archive_location'] = layer.archive_location
+
+            lay_extracted_location = layer.extracted_location
+            lay_archive_location = layer.archive_location
+
+            if layer_path_segments:
+                lay_extracted_location = get_trimmed_path(
+                    location=lay_extracted_location,
+                    num_segments=layer_path_segments,
+                )
+                lay_archive_location = get_trimmed_path(
+                    location=lay_archive_location,
+                    num_segments=layer_path_segments,
+                )
+
+            layer_data['layer_archive_location'] = lay_archive_location
+            layer_data['layer_extracted_location'] = lay_extracted_location
             yield layer_data
+
+
+def get_trimmed_path(location, num_segments=2):
+    """
+    Return a trimmed relative path given a location keeping only the
+    ``num_segments`` trailing path segments.
+
+    For example::
+    >>> assert get_trimmed_path(None) == None
+    >>> assert get_trimmed_path('a/b/c') == 'b/c'
+    >>> assert get_trimmed_path('/b/c') == 'b/c'
+    >>> assert get_trimmed_path('b/c') == 'b/c'
+    >>> assert get_trimmed_path('b/c/') == 'b/c/'
+    >>> assert get_trimmed_path('/x/a/b/c/', 3) == 'a/b/c/'
+    >>> assert get_trimmed_path('/x/a/b/c', 3) == 'a/b/c'
+    """
+    if location:
+        ends = location.endswith('/')
+        segments = location.strip('/').split('/')[-num_segments:]
+        relative = '/'.join(segments)
+        if ends:
+            relative += '/'
+        return relative
 
 
 @attr.attributes
@@ -197,7 +225,7 @@ class ArchiveMixin:
     archive_location = attr.attrib(
         default=None,
         metadata=dict(doc=
-            'Absolute directory location of this Archive original archive.'
+            'Absolute directory location of this Archive original file.'
             'May be empty if this was created from an extracted_location directory.'
         )
     )
@@ -217,7 +245,7 @@ class ArchiveMixin:
 
 
 @attr.attributes
-class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
+class Image(ArchiveMixin, ConfigMixin):
     """
     A container image with pointers to its layers.
     Image objects can be created from these inputs:
@@ -283,6 +311,36 @@ class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
 
         if not self.image_format:
             self.image_format = self.find_format(self.extracted_location)
+
+    def to_dict(self, layer_path_segments=0, _test=False):
+        """
+        Return a dictionary of this image fields, excluding ``exclude_fields``.
+        Keep only ``layer_path_segments`` trailing layer location segments (or
+        keep the locations unmodified if ``layer_path_segments`` is 0).
+        """
+        image = attr.asdict(self)
+
+        if layer_path_segments:
+            for layer in image.get('layers', []):
+                layer['extracted_location'] = get_trimmed_path(
+                    location=layer.get('extracted_location'),
+                    num_segments=layer_path_segments,
+                )
+
+                layer['archive_location'] = get_trimmed_path(
+                    location=layer.get('archive_location'),
+                    num_segments=layer_path_segments,
+                )
+
+        if _test:
+            image['extracted_location'] = ''
+            img_archive_location = self.archive_location
+            image['archive_location'] = (
+                img_archive_location
+                and os.path.basename(img_archive_location)
+                or ''
+            )
+        return image
 
     @property
     def top_layer(self):
@@ -416,7 +474,11 @@ class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
         If `verify` is True, perform extra checks on the config data and layers
         checksums.
         """
-        if TRACE: logger.debug(f'get_images_from_tarball: {archive_location} , extracting to: {extracted_location}')
+        if TRACE:
+            logger.debug(
+                f'get_images_from_tarball: {archive_location} , '
+                f'extracting to: {extracted_location}'
+            )
 
         Image.extract(
             archive_location=archive_location,
@@ -442,7 +504,11 @@ class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
         If `verify` is True, perform extra checks on the config data and layers
         checksums.
         """
-        if TRACE: logger.debug(f'get_images_from_dir: from  {extracted_location} and archive_location: {archive_location}')
+        if TRACE:
+            logger.debug(
+                f'get_images_from_dir: from  {extracted_location} and '
+                f'archive_location: {archive_location}',
+            )
 
         if not os.path.isdir(extracted_location):
             raise Exception(f'Not a directory: {extracted_location}')
@@ -507,7 +573,8 @@ class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
             ....
         ]
         """
-        if TRACE: logger.debug(f'get_docker_images_from_dir: {extracted_location}')
+        if TRACE:
+            logger.debug(f'get_docker_images_from_dir: {extracted_location}')
 
         if not os.path.isdir(extracted_location):
             raise Exception(f'Not a directory: {extracted_location}')
@@ -520,11 +587,13 @@ class Image(ArchiveMixin, ConfigMixin, ToDictMixin):
 
         manifest = load_json(manifest_loc)
 
-        if TRACE: logger.debug(f'get_docker_images_from_dir: manifest: {manifest}')
+        if TRACE:
+            logger.debug(f'get_docker_images_from_dir: manifest: {manifest}')
 
         images = []
         for manifest_config in manifest:
-            if TRACE: logger.debug(f'get_docker_images_from_dir: manifest_config: {manifest_config}')
+            if TRACE:
+                logger.debug(f'get_docker_images_from_dir: manifest_config: {manifest_config}')
             img = Image.from_docker_manifest_config(
                 extracted_location=extracted_location,
                 archive_location=archive_location,
@@ -914,7 +983,7 @@ def assign_history_to_layers(history, layers):
 
 
 @attr.attributes
-class Resource(ToDictMixin):
+class Resource:
     path = attr.attrib(
         default=None,
         metadata=dict(doc='Rootfs-relative path for this Resource.')
@@ -942,9 +1011,12 @@ class Resource(ToDictMixin):
         metadata=dict(doc='True for symlink.')
     )
 
+    def to_dict(self, **kwargs):
+        return attr.asdict(self)
+
 
 @attr.attributes
-class Layer(ArchiveMixin, ConfigMixin, ToDictMixin):
+class Layer(ArchiveMixin, ConfigMixin):
     """
     A layer object represents a slice of a root filesystem in a container image.
     """
@@ -1035,7 +1107,7 @@ class Layer(ArchiveMixin, ConfigMixin, ToDictMixin):
                 yield build_resource(top, f, _is_file=True)
             if with_dir:
                 for d in dirs:
-                    yield build_resource(top, d, _is_file=True)
+                    yield build_resource(top, d, _is_file=False)
 
     def get_installed_packages(self, packages_getter):
         """
@@ -1054,3 +1126,6 @@ class Layer(ArchiveMixin, ConfigMixin, ToDictMixin):
           the same structure).
         """
         return packages_getter(self.extracted_location)
+
+    def to_dict(self, **kwargs):
+        return attr.asdict(self)

@@ -1,6 +1,19 @@
 Changelog
 =========
 
+
+v30.0.0 
+--------
+
+This is a minor release with bug fixes and minor updates.
+
+- Switched back to semver from calver like other AboutCode projects.
+- Adopted the latest skeleton. With this the virtualenv is created under venv.
+- Add new "layer_path_segments" argument to image.Image.to_dict() to allow
+  to report the Layer extracted locations as trimmed paths keeping only this
+  many trailing path segments.
+
+
 v21.6.10
 --------
 

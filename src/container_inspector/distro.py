@@ -18,8 +18,6 @@ from container_inspector import rootfs
 TRACE = False
 logger = logging.getLogger(__name__)
 
-
-
 if TRACE:
     import sys
     logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)

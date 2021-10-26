@@ -1,6 +1,6 @@
 {
   "extracted_location": "",
-  "archive_location": "",
+  "archive_location": "windows-mini-image.tar.gz",
   "sha256": "f3f60bf21091013c476cecbabe4c5579a180fd557c38b296c6d151c4f586b35c",
   "docker_version": null,
   "os": "windows",
