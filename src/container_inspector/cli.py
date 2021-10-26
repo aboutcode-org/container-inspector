@@ -106,7 +106,7 @@ def _container_inspector(image_path, extract_to=None, csv=False, _layer_path_seg
         from io import StringIO
         output = StringIO()
         flat = list(image.flatten_images_data(
-            images=images, 
+            images=images,
             layer_path_segments=_layer_path_segments
         ))
         if not flat:
