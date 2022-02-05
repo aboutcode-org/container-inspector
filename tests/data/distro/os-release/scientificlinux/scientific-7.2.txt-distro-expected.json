@@ -2,13 +2,13 @@
   "os": "linux",
   "architecture": null,
   "name": "Scientific Linux",
-  "version": "7.5 (Nitrogen)",
+  "version": "7.2 (Nitrogen)",
   "identifier": "rhel",
-  "id_like": "scientific centos fedora",
+  "id_like": "fedora",
   "version_codename": null,
-  "version_id": "7.5",
-  "pretty_name": "Scientific Linux 7.5 (Nitrogen)",
-  "cpe_name": "cpe:/o:scientificlinux:scientificlinux:7.5:GA",
+  "version_id": "7.2",
+  "pretty_name": "Scientific Linux 7.2 (Nitrogen)",
+  "cpe_name": "cpe:/o:scientificlinux:scientificlinux:7.2:GA",
   "home_url": "http://www.scientificlinux.org//",
   "documentation_url": null,
   "support_url": null,
@@ -20,8 +20,8 @@
   "logo": null,
   "extra_data": {
     "REDHAT_BUGZILLA_PRODUCT": "Scientific Linux 7",
-    "REDHAT_BUGZILLA_PRODUCT_VERSION": "7.5",
+    "REDHAT_BUGZILLA_PRODUCT_VERSION": "7.2",
     "REDHAT_SUPPORT_PRODUCT": "Scientific Linux",
-    "REDHAT_SUPPORT_PRODUCT_VERSION": "7.5"
+    "REDHAT_SUPPORT_PRODUCT_VERSION": "7.2"
   }
 }

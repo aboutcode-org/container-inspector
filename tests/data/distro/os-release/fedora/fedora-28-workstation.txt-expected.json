@@ -1,10 +1,10 @@
 {
   "NAME": "Fedora",
-  "VERSION": "28 (Twenty Eight)",
+  "VERSION": "28 (Workstation Edition)",
   "ID": "fedora",
   "VERSION_ID": "28",
   "PLATFORM_ID": "platform:f28",
-  "PRETTY_NAME": "Fedora 28 (Twenty Eight)",
+  "PRETTY_NAME": "Fedora 28 (Workstation Edition)",
   "ANSI_COLOR": "0;34",
   "CPE_NAME": "cpe:/o:fedoraproject:fedora:28",
   "HOME_URL": "https://fedoraproject.org/",
@@ -14,5 +14,7 @@
   "REDHAT_BUGZILLA_PRODUCT_VERSION": "28",
   "REDHAT_SUPPORT_PRODUCT": "Fedora",
   "REDHAT_SUPPORT_PRODUCT_VERSION": "28",
-  "PRIVACY_POLICY_URL": "https://fedoraproject.org/wiki/Legal:PrivacyPolicy"
+  "PRIVACY_POLICY_URL": "https://fedoraproject.org/wiki/Legal:PrivacyPolicy",
+  "VARIANT": "Workstation Edition",
+  "VARIANT_ID": "workstation"
 }

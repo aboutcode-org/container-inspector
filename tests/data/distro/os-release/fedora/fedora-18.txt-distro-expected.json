@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Fedora",
+  "version": "18 (Spherical Cow)",
+  "identifier": "fedora",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": "18",
+  "pretty_name": "Fedora 18 (Spherical Cow)",
+  "cpe_name": "cpe:/o:fedoraproject:fedora:18",
+  "home_url": null,
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": null,
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}
