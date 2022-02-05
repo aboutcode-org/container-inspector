@@ -1,0 +1,28 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Fedora Linux",
+  "version": "35 (Container Image)",
+  "identifier": "fedora",
+  "id_like": null,
+  "version_codename": "",
+  "version_id": "35",
+  "pretty_name": "Fedora Linux 35 (Container Image)",
+  "cpe_name": "cpe:/o:fedoraproject:fedora:35",
+  "home_url": "https://fedoraproject.org/",
+  "documentation_url": "https://docs.fedoraproject.org/en-US/fedora/f35/system-administrators-guide/",
+  "support_url": "https://ask.fedoraproject.org/",
+  "bug_report_url": "https://bugzilla.redhat.com/",
+  "privacy_policy_url": "https://fedoraproject.org/wiki/Legal:PrivacyPolicy",
+  "build_id": null,
+  "variant": "Container Image",
+  "variant_id": "container",
+  "logo": "fedora-logo-icon",
+  "extra_data": {
+    "PLATFORM_ID": "platform:f35",
+    "REDHAT_BUGZILLA_PRODUCT": "Fedora",
+    "REDHAT_BUGZILLA_PRODUCT_VERSION": "35",
+    "REDHAT_SUPPORT_PRODUCT": "Fedora",
+    "REDHAT_SUPPORT_PRODUCT_VERSION": "35"
+  }
+}
