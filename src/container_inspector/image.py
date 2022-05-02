@@ -1076,7 +1076,7 @@ class Layer(ArchiveMixin, ConfigMixin):
         this Layer ``extracted_location`` attribute to ``extracted_location``.
         """
         self.extracted_location = extracted_location
-        utils.extract_tar(
+        utils.extract_tar_keeping_symlinks(
             location=self.archive_location,
             target_dir=extracted_location,
         )

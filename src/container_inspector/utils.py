@@ -13,8 +13,6 @@ import os
 
 from commoncode import fileutils
 
-from extractcode.extract import extract_file
-
 TRACE = False
 logger = logging.getLogger(__name__)
 if TRACE:
@@ -89,14 +87,7 @@ def extract_tar(location, target_dir):
     Do not preserve the permissions and owners.
     Raise an Exception on error.
     """
-    errors = []
-    fileutils.create_dir(target_dir)
-    for event in extract_file(location, target_dir):
-        if event.done:
-            errors.extend(event.errors)
-
-    if errors:
-        raise Exception(f'Failed to extract: {location} to: {target_dir}', *errors)
+    raise NotImplementedError('This function has been removed, use extract_tar_keeping_symlinks instead')
 
 
 def extract_tar_keeping_symlinks(location, target_dir):
