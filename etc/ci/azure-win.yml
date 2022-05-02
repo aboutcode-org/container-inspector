@@ -1,3 +1,4 @@
+
 parameters:
     job_name: ''
     image_name: ''
@@ -30,9 +31,9 @@ jobs:
                 displayName: '${{ pyver }} - Install Python'
 
               - script: |
-                    python${{ pyver }} --version
-                    echo "python${{ pyver }}" > PYTHON_EXECUTABLE
-                    ./configure --clean && ./configure --dev
+                   python --version
+                   echo | set /p=python> PYTHON_EXECUTABLE
+                   configure --clean && configure --dev
                 displayName: '${{ pyver }} - Configure'
 
               - script: $(test_suite)
