@@ -613,7 +613,7 @@ def get_distroless_details():
 
 def get_busybox_details():
     """
-    A bare byusybox-based image has a base layer with only busybox
+    A bare busybox-based image has a base layer with only busybox
     So we can find about the /bin/[' exe and the '/bin/busybox' ... one of them
     should contain these strings
     "Usage: busybox"
