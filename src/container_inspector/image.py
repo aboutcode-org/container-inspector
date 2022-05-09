@@ -450,14 +450,15 @@ class Image(ArchiveMixin, ConfigMixin):
                 yield purl, package, layer
 
     @staticmethod
-    def extract(archive_location, extracted_location):
+    def extract(archive_location, extracted_location, skip_symlinks=False):
         """
         Extract the image archive tarball at ``archive_location`` to
-        ``extracted_location``.
+        ``extracted_location``. Skip symlinks and links if ``skip_symlinks`` is True.
         """
-        utils.extract_tar_keeping_symlinks(
+        utils.extract_tar(
             location=archive_location,
             target_dir=extracted_location,
+            skip_symlinks=skip_symlinks,
         )
 
     @staticmethod
@@ -1070,15 +1071,16 @@ class Layer(ArchiveMixin, ConfigMixin):
         if not self.size:
             self.size = os.path.getsize(self.archive_location)
 
-    def extract(self, extracted_location):
+    def extract(self, extracted_location, skip_symlinks=True):
         """
         Extract this layer archive in the `extracted_location` directory and set
         this Layer ``extracted_location`` attribute to ``extracted_location``.
         """
         self.extracted_location = extracted_location
-        utils.extract_tar_keeping_symlinks(
+        utils.extract_tar(
             location=self.archive_location,
             target_dir=extracted_location,
+            skip_symlinks=skip_symlinks,
         )
 
     def get_resources(self, with_dir=False, walker=os.walk):
