@@ -1,0 +1,28 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Fedora",
+  "version": "33 (Thirty Three)",
+  "identifier": "fedora",
+  "id_like": null,
+  "version_codename": "",
+  "version_id": "33",
+  "pretty_name": "Fedora 33 (Thirty Three)",
+  "cpe_name": "cpe:/o:fedoraproject:fedora:33",
+  "home_url": "https://fedoraproject.org/",
+  "documentation_url": "https://docs.fedoraproject.org/en-US/fedora/f33/system-administrators-guide/",
+  "support_url": "https://fedoraproject.org/wiki/Communicating_and_getting_help",
+  "bug_report_url": "https://bugzilla.redhat.com/",
+  "privacy_policy_url": "https://fedoraproject.org/wiki/Legal:PrivacyPolicy",
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": "fedora-logo-icon",
+  "extra_data": {
+    "PLATFORM_ID": "platform:f33",
+    "REDHAT_BUGZILLA_PRODUCT": "Fedora",
+    "REDHAT_BUGZILLA_PRODUCT_VERSION": "33",
+    "REDHAT_SUPPORT_PRODUCT": "Fedora",
+    "REDHAT_SUPPORT_PRODUCT_VERSION": "33"
+  }
+}

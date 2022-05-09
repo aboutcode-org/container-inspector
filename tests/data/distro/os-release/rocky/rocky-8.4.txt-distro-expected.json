@@ -1,0 +1,26 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Rocky Linux",
+  "version": "8.4 (Green Obsidian)",
+  "identifier": "rocky",
+  "id_like": "rhel fedora",
+  "version_codename": null,
+  "version_id": "8.4",
+  "pretty_name": "Rocky Linux 8.4 (Green Obsidian)",
+  "cpe_name": "cpe:/o:rocky:rocky:8.4:GA",
+  "home_url": "https://rockylinux.org/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": "https://bugs.rockylinux.org/",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {
+    "PLATFORM_ID": "platform:el8",
+    "ROCKY_SUPPORT_PRODUCT": "Rocky Linux",
+    "ROCKY_SUPPORT_PRODUCT_VERSION": "8"
+  }
+}

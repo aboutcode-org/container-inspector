@@ -1,0 +1,27 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Fedora",
+  "version": "27 (Workstation Edition)",
+  "identifier": "fedora",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": "27",
+  "pretty_name": "Fedora 27 (Workstation Edition)",
+  "cpe_name": "cpe:/o:fedoraproject:fedora:27",
+  "home_url": "https://fedoraproject.org/",
+  "documentation_url": null,
+  "support_url": "https://fedoraproject.org/wiki/Communicating_and_getting_help",
+  "bug_report_url": "https://bugzilla.redhat.com/",
+  "privacy_policy_url": "https://fedoraproject.org/wiki/Legal:PrivacyPolicy",
+  "build_id": null,
+  "variant": "Workstation Edition",
+  "variant_id": "workstation",
+  "logo": null,
+  "extra_data": {
+    "REDHAT_BUGZILLA_PRODUCT": "Fedora",
+    "REDHAT_BUGZILLA_PRODUCT_VERSION": "27",
+    "REDHAT_SUPPORT_PRODUCT": "Fedora",
+    "REDHAT_SUPPORT_PRODUCT_VERSION": "27"
+  }
+}

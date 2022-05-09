@@ -1,0 +1,28 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Oracle Linux Server",
+  "version": "8.4",
+  "identifier": "ol",
+  "id_like": "fedora",
+  "version_codename": null,
+  "version_id": "8.4",
+  "pretty_name": "Oracle Linux Server 8.4",
+  "cpe_name": "cpe:/o:oracle:linux:8:4:server",
+  "home_url": "https://linux.oracle.com/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": "https://bugzilla.oracle.com/",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": "Server",
+  "variant_id": "server",
+  "logo": null,
+  "extra_data": {
+    "PLATFORM_ID": "platform:el8",
+    "ORACLE_BUGZILLA_PRODUCT": "Oracle Linux 8",
+    "ORACLE_BUGZILLA_PRODUCT_VERSION": "8.4",
+    "ORACLE_SUPPORT_PRODUCT": "Oracle Linux",
+    "ORACLE_SUPPORT_PRODUCT_VERSION": "8.4"
+  }
+}

@@ -13,8 +13,6 @@ import os
 
 from commoncode import fileutils
 
-from extractcode.extract import extract_file
-
 TRACE = False
 logger = logging.getLogger(__name__)
 if TRACE:
@@ -82,47 +80,57 @@ def get_labels(config, container_config):
     return dict(sorted(labels.items()))
 
 
-def extract_tar(location, target_dir):
+def extract_tar(location, target_dir, skip_symlinks=True):
     """
     Extract a tar archive at `location` in the `target_dir` directory.
-    Ignore special device files and symlinks and hardlinks.
-    Do not preserve the permissions and owners.
-    Raise an Exception on error.
-    """
-    errors = []
-    fileutils.create_dir(target_dir)
-    for event in extract_file(location, target_dir):
-        if event.done:
-            errors.extend(event.errors)
-
-    if errors:
-        raise Exception(f'Failed to extract: {location} to: {target_dir}', *errors)
-
-
-def extract_tar_keeping_symlinks(location, target_dir):
-    """
-    Extract a tar archive at `location` in the `target_dir` directory.
-    Ignore special device files. Keep symlinks and hardlinks
+    Ignore special device files. Skip symlinks and hardlinks if skip_symlinks is True.
     Do not preserve the permissions and owners.
     Raise exceptions on possible problematic relative paths.
+    Issue a warning if skip_symlinks is True and links target are missing.
     """
     import tarfile
-    if TRACE: logger.debug(f'extract_tar_keeping_symlinks: {location} to {target_dir}')
+    tarfile.TarInfo
+    if TRACE: logger.debug(f'_extract_tar: {location} to {target_dir} skip_symlinks: {skip_symlinks}')
 
     fileutils.create_dir(target_dir)
 
     with tarfile.open(location) as tarball:
         # never extract character device, block and fifo files:
         # we extract dirs, files and links only
-        for tinfo in tarball:
-            if tinfo.isdev():
+        to_extract = []
+        for tarinfo in tarball:
+            if TRACE: logger.debug(f'_extract_tar: {tarinfo}')
+
+            if tarinfo.isdev() or tarinfo.ischr() or tarinfo.isblk() or tarinfo.isfifo() or tarinfo.sparse:
+                if TRACE:
+                    logger.debug(f'_extract_tar: skipping unsupported {tarinfo} file type: block, chr, dev or sparse file')
                 continue
-            if TRACE: logger.debug(f'extract_tar_keeping_symlinks: {tinfo}')
-            tarball.extract(
-                member=tinfo,
-                path=target_dir,
-                set_attrs=False,
-            )
+
+            if '..' in tarinfo.name:
+                if TRACE: logger.debug(f'_extract_tar: skipping unsupported {tarinfo} with relative path')
+                continue
+
+            if tarinfo.islnk() or tarinfo.issym():
+                try:
+                    target = tarball._find_link_target(tarinfo)
+                    if not target:
+                        if TRACE:
+                            logger.debug(f'_extract_tar: skipping link with missing target: {tarinfo}')
+                        continue
+
+                except Exception:
+                    import traceback
+                    if TRACE:
+                        logger.debug(f'_extract_tar: skipping link with missing target: {tarinfo}: {traceback.format_exc()}')
+                    continue
+
+            tarinfo.mode = 0o755
+            tarinfo.name = tarinfo.name.lstrip('/')
+            tarball.extract(member=tarinfo, path=target_dir, set_attrs=False,)
+
+
+def extract_tar_with_symlinks(location, target_dir):
+    return extract_tar(location, target_dir, skip_symlinks=False)
 
 
 def lower_keys(mapping):

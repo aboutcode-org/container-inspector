@@ -9,9 +9,8 @@ include *.rst
 include setup.*
 include configure*
 include requirements*
-include .git*
+include .giti*
 
-include tox.ini .travis.yml
 
 global-exclude *.py[co] __pycache__ *.*~
 

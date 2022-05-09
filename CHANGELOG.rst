@@ -1,6 +1,16 @@
 Changelog
 =========
 
+v31.0.0 
+--------
+
+This is a major release with bug fixes and API changes.
+
+- Remove dependency on extractcode as images only need basic tar to extract.
+  - "utils.extract_tar" function now accepts a skip_symlink argument
+- Adopt the latest skeleton. 
+- Add new os-release tests
+
 
 v30.0.0 
 --------

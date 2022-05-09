@@ -1,0 +1,27 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Fedora",
+  "version": "26 (Twenty Six)",
+  "identifier": "fedora",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": "26",
+  "pretty_name": "Fedora 26 (Twenty Six)",
+  "cpe_name": "cpe:/o:fedoraproject:fedora:26",
+  "home_url": "https://fedoraproject.org/",
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": "https://bugzilla.redhat.com/",
+  "privacy_policy_url": "https://fedoraproject.org/wiki/Legal:PrivacyPolicy",
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {
+    "REDHAT_BUGZILLA_PRODUCT": "Fedora",
+    "REDHAT_BUGZILLA_PRODUCT_VERSION": "26",
+    "REDHAT_SUPPORT_PRODUCT": "Fedora",
+    "REDHAT_SUPPORT_PRODUCT_VERSION": "26"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Ubuntu",
+  "version": "12.10, Quantal Quetzal",
+  "identifier": "ubuntu",
+  "id_like": "debian",
+  "version_codename": null,
+  "version_id": "12.10",
+  "pretty_name": "Ubuntu quantal (12.10)",
+  "cpe_name": null,
+  "home_url": null,
+  "documentation_url": null,
+  "support_url": null,
+  "bug_report_url": null,
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

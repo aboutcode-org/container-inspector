@@ -1,0 +1,28 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Fedora",
+  "version": "29 (Workstation Edition)",
+  "identifier": "fedora",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": "29",
+  "pretty_name": "Fedora 29 (Workstation Edition)",
+  "cpe_name": "cpe:/o:fedoraproject:fedora:29",
+  "home_url": "https://fedoraproject.org/",
+  "documentation_url": "https://docs.fedoraproject.org/en-US/fedora/f29/system-administrators-guide/",
+  "support_url": "https://fedoraproject.org/wiki/Communicating_and_getting_help",
+  "bug_report_url": "https://bugzilla.redhat.com/",
+  "privacy_policy_url": "https://fedoraproject.org/wiki/Legal:PrivacyPolicy",
+  "build_id": null,
+  "variant": "Workstation Edition",
+  "variant_id": "workstation",
+  "logo": null,
+  "extra_data": {
+    "PLATFORM_ID": "platform:f29",
+    "REDHAT_BUGZILLA_PRODUCT": "Fedora",
+    "REDHAT_BUGZILLA_PRODUCT_VERSION": "29",
+    "REDHAT_SUPPORT_PRODUCT": "Fedora",
+    "REDHAT_SUPPORT_PRODUCT_VERSION": "29"
+  }
+}

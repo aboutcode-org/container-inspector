@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Debian GNU/Linux",
+  "version": "Debian GNU/Linux 8 (jessie)",
+  "identifier": "debian",
+  "id_like": null,
+  "version_codename": null,
+  "version_id": "8",
+  "pretty_name": "Distroless",
+  "cpe_name": null,
+  "home_url": "https://github.com/GoogleContainerTools/distroless",
+  "documentation_url": null,
+  "support_url": "https://github.com/GoogleContainerTools/distroless/blob/master/README.md",
+  "bug_report_url": "https://github.com/GoogleContainerTools/distroless/issues/new",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

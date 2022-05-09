@@ -1,3 +1,7 @@
+========================
+container-inspector
+========================
+
 **container-inspector** is a suite of analysis utilities and command line tools
 for Docker images, containers, root filesystems and virtual machine images.
 
