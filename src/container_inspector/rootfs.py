@@ -100,7 +100,7 @@ def rebuild_rootfs(img, target_dir):
 
 
 WHITEOUT_EXPLICIT_PREFIX = '.wh.'
-WHITEOUT_OPAQUE_PREFIX = '.wh..wh.opq'
+WHITEOUT_OPAQUE_PREFIX = '.wh..wh..opq'
 
 
 def is_whiteout_marker(path):
