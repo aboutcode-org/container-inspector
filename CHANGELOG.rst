@@ -1,18 +1,28 @@
 Changelog
 =========
 
-v31.0.0 
+v31.1.0
+--------
+
+This is a minor release with minor updates.
+
+- ``utils.extract_tar`` now returns a list of error messages that occured during
+  extraction.
+- Add tests for ``utils.extract_tar``
+
+
+v31.0.0
 --------
 
 This is a major release with bug fixes and API changes.
 
 - Remove dependency on extractcode as images only need basic tar to extract.
   - "utils.extract_tar" function now accepts a skip_symlink argument
-- Adopt the latest skeleton. 
+- Adopt the latest skeleton.
 - Add new os-release tests
 
 
-v30.0.0 
+v30.0.0
 --------
 
 This is a minor release with bug fixes and minor updates.
@@ -32,7 +42,7 @@ This is a minor release with bug fixes.
 v21.6.4
 --------
 
-This is a minor release with bug fixes and minor API changes. 
+This is a minor release with bug fixes and minor API changes.
 
 API changes
 ~~~~~~~~~~~
@@ -45,7 +55,7 @@ will raise an Exception if the found Distro.os does not match the base Distro.os
 v21.5.25
 --------
 
-This is a major release. 
+This is a major release.
 
 API changes
 ~~~~~~~~~~~
