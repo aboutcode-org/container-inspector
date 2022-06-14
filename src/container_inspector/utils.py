@@ -97,36 +97,46 @@ def extract_tar(location, target_dir, skip_symlinks=True):
     with tarfile.open(location) as tarball:
         # never extract character device, block and fifo files:
         # we extract dirs, files and links only
-        to_extract = []
+        error_messages = []
         for tarinfo in tarball:
             if TRACE: logger.debug(f'_extract_tar: {tarinfo}')
 
             if tarinfo.isdev() or tarinfo.ischr() or tarinfo.isblk() or tarinfo.isfifo() or tarinfo.sparse:
+                msg = f'_extract_tar: skipping unsupported {tarinfo} file type: block, chr, dev or sparse file'
+                error_messages.append(msg)
                 if TRACE:
-                    logger.debug(f'_extract_tar: skipping unsupported {tarinfo} file type: block, chr, dev or sparse file')
+                    logger.debug(msg)
                 continue
 
             if '..' in tarinfo.name:
-                if TRACE: logger.debug(f'_extract_tar: skipping unsupported {tarinfo} with relative path')
+                msg = f'_extract_tar: skipping unsupported {tarinfo} with relative path'
+                error_messages.append(msg)
+                if TRACE:
+                    logger.debug(msg)
                 continue
 
             if tarinfo.islnk() or tarinfo.issym():
                 try:
                     target = tarball._find_link_target(tarinfo)
                     if not target:
+                        msg = f'_extract_tar: skipping link with missing target: {tarinfo}'
+                        error_messages.append(msg)
                         if TRACE:
-                            logger.debug(f'_extract_tar: skipping link with missing target: {tarinfo}')
+                            logger.debug(msg)
                         continue
 
                 except Exception:
                     import traceback
+                    msg = f'_extract_tar: skipping link with missing target: {tarinfo}: {traceback.format_exc()}'
+                    error_messages.append(msg)
                     if TRACE:
-                        logger.debug(f'_extract_tar: skipping link with missing target: {tarinfo}: {traceback.format_exc()}')
+                        logger.debug(msg)
                     continue
 
             tarinfo.mode = 0o755
             tarinfo.name = tarinfo.name.lstrip('/')
             tarball.extract(member=tarinfo, path=target_dir, set_attrs=False,)
+        return error_messages
 
 
 def extract_tar_with_symlinks(location, target_dir):
