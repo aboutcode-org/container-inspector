@@ -116,6 +116,8 @@ def extract_tar(location, target_dir, skip_symlinks=True):
                 continue
 
             if tarinfo.islnk() or tarinfo.issym():
+                if skip_symlinks:
+                    continue
                 try:
                     target = tarball._find_link_target(tarinfo)
                     if not target:
