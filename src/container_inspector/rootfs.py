@@ -31,13 +31,15 @@ class InconsistentLayersError(Exception):
     pass
 
 
-def rebuild_rootfs(img, target_dir):
+def rebuild_rootfs(img, target_dir, skip_symlinks=True):
     """
     Extract and merge or "squash" all layers of the `image` Image in a single
     rootfs in `target_dir`. Extraction is done in sequence from the bottom (root
     or initial) layer to the top (or latest) layer and the "whiteouts"
     unionfs/overlayfs procedure is applied at each step as per the OCI spec:
     https://github.com/opencontainers/image-spec/blob/master/layer.md#whiteouts
+
+    Skip symlinks and links if ``skip_symlinks`` is True.
 
     Return a list of deleted "whiteout" files.
     Raise an Exception on errrors.
@@ -73,8 +75,15 @@ def rebuild_rootfs(img, target_dir):
         # 1. extract a layer to temp.
         # Note that we are not preserving any special file and any file permission
         extracted_loc = tempfile.mkdtemp('container_inspector-docker')
-        layer.extract(extracted_location=extracted_loc)
-        if TRACE: logger.debug(f'  Extracted layer to: {extracted_loc}')
+        # TODO: do not ignore extract events
+        _extract_events = layer.extract(
+            extracted_location=extracted_loc,
+            skip_symlinks=skip_symlinks,
+        )
+        if TRACE:
+            logger.debug(f'  Extracted layer to: {extracted_loc} with skip_symlinks: {skip_symlinks}')
+            for ev in _extract_events:
+                logger.debug(f'  {ev}')
 
         # 2. find whiteouts in that layer.
         whiteouts = list(find_whiteouts(extracted_loc))

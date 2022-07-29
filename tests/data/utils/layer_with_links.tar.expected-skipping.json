@@ -1,0 +1,12 @@
+[
+  "/lib",
+  "/lib/libcrypto.so.1.0.0",
+  "/lib/libssl.so.1.0.0",
+  "/usr",
+  "/usr/lib",
+  "/usr/lib/icu",
+  "/usr/lib/icu/60.2",
+  "/usr/lib/icu/60.2/Makefile.inc",
+  "/usr/lib/icu/60.2/pkgdata.inc",
+  "/usr/lib/libffi.so.6.0.4"
+]
