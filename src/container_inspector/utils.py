@@ -99,12 +99,16 @@ class ExtractEvent(NamedTuple):
     # even message
     message: str
 
+    def to_string(self):
+        return f"{self.type}: {self.message}"
 
-def extract_tar(location, target_dir, skip_symlinks=True, trace=TRACE):
+
+def extract_tar(location, target_dir, as_events=False, skip_symlinks=True, trace=TRACE):
     """
-    Extract a tar archive at ``location`` in the ``target_dir`` directory and
-    return a list of ExtractEvent possibly empty.
-    Skip symlinks and hardlinks if skip_symlinks is True.
+    Extract a tar archive at ``location`` in the ``target_dir`` directory.
+    Return a list of ExtractEvent is ``as_events`` is True, or a list of message
+    strings otherwise. This list can be empty. Skip symlinks and hardlinks if
+    skip_symlinks is True.
 
     Ignore special device files.
     Do not preserve the permissions and owners.
@@ -159,12 +163,13 @@ def extract_tar(location, target_dir, skip_symlinks=True, trace=TRACE):
                 events.append(ExtractEvent(type=ExtractEvent.ERROR, source=tarinfo.name, message=msg))
                 if trace:
                     logger.debug(f'extract_tar: {msg}')
-
+    if not as_events:
+        events = [e.to_string() for e in events]
     return events
 
 
-def extract_tar_with_symlinks(location, target_dir):
-    return extract_tar(location=location, target_dir=target_dir, skip_symlinks=False)
+def extract_tar_with_symlinks(location, target_dir, as_events=False):
+    return extract_tar(location=location, target_dir=target_dir, as_events=as_events, skip_symlinks=False,)
 
 
 def lower_keys(mapping):

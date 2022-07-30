@@ -76,13 +76,13 @@ def rebuild_rootfs(img, target_dir, skip_symlinks=True):
         # Note that we are not preserving any special file and any file permission
         extracted_loc = tempfile.mkdtemp('container_inspector-docker')
         # TODO: do not ignore extract events
-        _extract_events = layer.extract(
+        _events = layer.extract(
             extracted_location=extracted_loc,
             skip_symlinks=skip_symlinks,
         )
         if TRACE:
             logger.debug(f'  Extracted layer to: {extracted_loc} with skip_symlinks: {skip_symlinks}')
-            for ev in _extract_events:
+            for ev in _events:
                 logger.debug(f'  {ev}')
 
         # 2. find whiteouts in that layer.
