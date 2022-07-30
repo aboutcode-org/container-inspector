@@ -356,14 +356,23 @@ class Image(ArchiveMixin, ConfigMixin):
         """
         return self.layers[0]
 
-    def extract_layers(self, extracted_location):
+    def extract_layers(self, extracted_location, as_events=False, skip_symlinks=True):
         """
         Extract all layer archives to the `extracted_location` directory.
         Each layer is extracted to its own directory named after its `layer_id`.
+        Skip symlinks and links if ``skip_symlinks`` is True.
+        Return a list of ExtractEvent if ``as_events`` is True or a list of message strings otherwise.
         """
+        all_events = []
         for layer in self.layers:
             exloc = os.path.join(extracted_location, layer.layer_id)
-            layer.extract(extracted_location=exloc)
+            events = layer.extract(
+                extracted_location=exloc,
+                skip_symlinks=skip_symlinks,
+                as_events=as_events,
+            )
+            all_events.extend(events)
+        return events
 
     def get_layers_resources(self, with_dir=False):
         """
@@ -450,15 +459,18 @@ class Image(ArchiveMixin, ConfigMixin):
                 yield purl, package, layer
 
     @staticmethod
-    def extract(archive_location, extracted_location, skip_symlinks=False):
+    def extract(archive_location, extracted_location, as_events=False, skip_symlinks=False):
         """
         Extract the image archive tarball at ``archive_location`` to
-        ``extracted_location``. Skip symlinks and links if ``skip_symlinks`` is True.
+        ``extracted_location``.
+        Skip symlinks and links if ``skip_symlinks`` is True.
+        Return a list of ExtractEvent if ``as_events`` is True or a list of message strings otherwise.
         """
-        utils.extract_tar(
+        return utils.extract_tar(
             location=archive_location,
             target_dir=extracted_location,
             skip_symlinks=skip_symlinks,
+            as_events=as_events,
         )
 
     @staticmethod
@@ -466,25 +478,34 @@ class Image(ArchiveMixin, ConfigMixin):
         archive_location,
         extracted_location,
         verify=True,
+        skip_symlinks=False,
     ):
         """
-        Return a list of Images found in the tarball at `archive_location` that
-        will be extracted to `extracted_location`. The tarball must be in the
+        Return a list of Images found in the tarball at ``archive_location`` that
+        will be extracted to ``extracted_location``. The tarball must be in the
         format of a "docker save" command tarball.
 
-        If `verify` is True, perform extra checks on the config data and layers
+        If ``verify`` is True, perform extra checks on the config data and layers
         checksums.
+        Skip symlinks and links if ``skip_symlinks`` is True.
+        Ignore the extract events from extraction.
         """
         if TRACE:
             logger.debug(
-                f'get_images_from_tarball: {archive_location} , '
+                f'get_images_from_tarball: {archive_location} '
                 f'extracting to: {extracted_location}'
             )
 
-        Image.extract(
+        # TODO: do not ignore extract events
+        _events = Image.extract(
             archive_location=archive_location,
             extracted_location=extracted_location,
+            skip_symlinks=skip_symlinks,
         )
+        if TRACE:
+            logger.debug(f'get_images_from_tarball: events')
+            for e in _events:
+                logger.debug(str(e))
 
         return Image.get_images_from_dir(
             extracted_location=extracted_location,
@@ -1071,16 +1092,19 @@ class Layer(ArchiveMixin, ConfigMixin):
         if not self.size:
             self.size = os.path.getsize(self.archive_location)
 
-    def extract(self, extracted_location, skip_symlinks=True):
+    def extract(self, extracted_location, as_events=False, skip_symlinks=False):
         """
         Extract this layer archive in the `extracted_location` directory and set
         this Layer ``extracted_location`` attribute to ``extracted_location``.
+        Skip symlinks and links if ``skip_symlinks`` is True.
+        Return a list of ExtractEvent if ``as_events`` is True or a list of message strings otherwise.
         """
         self.extracted_location = extracted_location
-        utils.extract_tar(
+        return utils.extract_tar(
             location=self.archive_location,
             target_dir=extracted_location,
             skip_symlinks=skip_symlinks,
+            as_events=as_events,
         )
 
     def get_resources(self, with_dir=False, walker=os.walk):
