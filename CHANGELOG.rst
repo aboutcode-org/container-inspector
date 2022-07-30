@@ -6,10 +6,11 @@ v32.0.0
 
 This is a minor release with bug fixes and an output change.
 
+- We no longer support Python 3.6, only 3.7 and up.
 - "utils.extract_tar" function now behaves correctly with links and return
   ExtractEvent to track extraction errors and warnings.
   This replaces the simpler list of error messages.
-- in all places where extract is callable (Image, Layer) there is a new
+- In all places where extract is callable (Image, Layer) there is a new
   skip_symlinks argument defaulting to True. If True, we skip symlinks and links.
 
 
