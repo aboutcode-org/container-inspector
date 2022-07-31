@@ -108,13 +108,14 @@ def rebuild_rootfs(img, target_dir, skip_symlinks=True):
     return deletions
 
 
-WHITEOUT_EXPLICIT_PREFIX = '.wh.'
-WHITEOUT_OPAQUE_PREFIX = '.wh..wh.opq'
+WHITEOUT_PREFIX = '.wh.'
+WHITEOUT_SPECIAL_PREFIX = '.wh..wh'
+WHITEOUT_OPAQUE_PREFIX = '.wh..wh..opq'
 
 
-def is_whiteout_marker(path):
+def is_whiteout_marker(file_name):
     """
-    Return True if the ``path`` is a whiteout marker file.
+    Return True if the ``file_name`` is a whiteout marker file.
 
     For example::
     >>> is_whiteout_marker('.wh.somepath')
@@ -123,32 +124,80 @@ def is_whiteout_marker(path):
     True
     >>> is_whiteout_marker('somepath.wh.')
     False
-    >>> is_whiteout_marker('somepath/.wh.foo')
-    True
-    >>> is_whiteout_marker('somepath/.wh.foo/')
+    >>> is_whiteout_marker('.wh.foo')
     True
     """
-    file_name = path and os.path.basename(path.strip('/')) or ''
-    return file_name.startswith(WHITEOUT_EXPLICIT_PREFIX)
+    return file_name and file_name.startswith(WHITEOUT_PREFIX)
+
+
+def is_whiteout_opaque_marker(file_name):
+    """
+    Return True if the ``file_name`` is an opaque whiteout marker file.
+
+    For example::
+    >>> is_whiteout_opaque_marker('.wh.somepath')
+    False
+    >>> is_whiteout_opaque_marker('.wh..wh.opq')
+    False
+    >>> is_whiteout_opaque_marker('.wh..wh..opq')
+    True
+    >>> is_whiteout_opaque_marker('somepath..wh..wh..opq')
+    False
+    >>> is_whiteout_opaque_marker('.wh..wh.plnk')
+    False
+    >>> is_whiteout_opaque_marker('.wh..wh..opq.foo')
+    False
+    >>> is_whiteout_opaque_marker('somepath/.wh..wh..opq/')
+    False
+    """
+    return file_name and file_name == WHITEOUT_OPAQUE_PREFIX
+
+
+def is_whiteout_special_marker(file_name):
+    """
+    Return True if the ``file_name`` is an opaque whiteout marker file.
+
+    For example::
+    >>> is_whiteout_special_marker('.wh.somepath')
+    False
+    >>> is_whiteout_special_marker('.wh..wh.opq')
+    True
+    >>> is_whiteout_special_marker('.wh..wh..opq')
+    True
+    >>> is_whiteout_special_marker('.wh..wh.plnk')
+    True
+    >>> is_whiteout_special_marker('somepath..wh..wh..opq')
+    False
+    >>> is_whiteout_special_marker('.wh..wh..opq.foo')
+    True
+    >>> is_whiteout_special_marker('somepath/.wh..wh..opq/')
+    False
+    """
+    return file_name and file_name.startswith(WHITEOUT_SPECIAL_PREFIX)
 
 
 def get_whiteable_path(path):
     """
     Return the whiteable path for ``path`` or None if this not a whiteable path.
-    TODO: Handle OSses with case-insensitive FS (e.g. Windows)
     """
+    # FIXME: Handle OSses with case-insensitive FS (e.g. Windows)
     file_name = os.path.basename(path)
     parent_dir = os.path.dirname(path)
 
-    if file_name == WHITEOUT_OPAQUE_PREFIX:
+    if is_whiteout_special_marker(file_name):
         # Opaque whiteouts means the whole parent directory should be removed
         # https://github.com/opencontainers/image-spec/blob/master/layer.md#whiteouts
+        # note as a simplification we treat all of these as opaque, and log these that are not
+        if not is_whiteout_opaque_marker(file_name):
+            # This is the case for legacy AUFS '.wh..wh.plnk' and '.wh..wh.aufs'
+            # only seen in legacy Docker
+            logger.error(f'ERROR: unsupported whiteout filename: {file_name}')
         return parent_dir
 
-    if file_name.startswith(WHITEOUT_EXPLICIT_PREFIX):
+    elif is_whiteout_marker(file_name):
         # Explicit, file-only whiteout
         # https://github.com/opencontainers/image-spec/blob/master/layer.md#whiteouts
-        _, _, real_file_name = file_name.rpartition(WHITEOUT_EXPLICIT_PREFIX)
+        _, _, real_file_name = file_name.rpartition(WHITEOUT_PREFIX)
         return os.path.join(parent_dir, real_file_name)
 
 

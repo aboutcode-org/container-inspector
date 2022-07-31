@@ -54,9 +54,9 @@ class TestUtils(testcase.FileBasedTesting):
                 source=e.source.replace(extract_dir, ''),
                 message=e.message.replace(self.test_data_dir, ''),
             )
-            events_results.append(ne._asdict())
-
-        return events_results
+            events_results.append(ne)
+        events_results = sorted(events_results, key=lambda x: x.source)
+        return [dict(ne._asdict()) for ne in events_results]
 
     def clean_paths(self, extract_dir):
         return sorted([p.replace(extract_dir, '') for p in
@@ -70,7 +70,7 @@ class TestUtils(testcase.FileBasedTesting):
         expected = (
             'colon/libc6:amd64.list',
         )
-        test_dir = self.get_test_loc('tar/colon.tar.xz')
+        test_dir = self.get_test_loc('utils/colon.tar.xz')
         extract_dir = self.get_temp_dir()
         events = utils.extract_tar(location=test_dir, target_dir=extract_dir)
         check_files(target_dir=extract_dir, expected=expected)
@@ -78,20 +78,45 @@ class TestUtils(testcase.FileBasedTesting):
 
     def test_extract_tar_relative(self):
         expected = ()
-        test_dir = self.get_test_loc('tar/tar_relative.tar')
+        test_dir = self.get_test_loc('utils/tar_relative.tar')
         extract_dir = self.get_temp_dir()
         events = utils.extract_tar(location=test_dir, target_dir=extract_dir, as_events=True)
         check_files(target_dir=extract_dir, expected=expected)
         events = self.clean_events(extract_dir, events)
         expected_events = [
-            {'message': '/tar/tar_relative.tar: skipping unsupported ../a_parent_folder.txt with relative path.',
-             'source': '../a_parent_folder.txt',
-             'type': 'warning'},
-            {'message': '/tar/tar_relative.tar: skipping unsupported ../../another_folder/b_two_root.txt with relative path.',
+            {'message': '/utils/tar_relative.tar: skipping unsupported ../../another_folder/b_two_root.txt with relative path.',
              'source': '../../another_folder/b_two_root.txt',
              'type': 'warning'},
-            {'message': '/tar/tar_relative.tar: skipping unsupported ../folder/subfolder/b_subfolder.txt with relative path.',
+            {'message': '/utils/tar_relative.tar: skipping unsupported ../a_parent_folder.txt with relative path.',
+             'source': '../a_parent_folder.txt',
+             'type': 'warning'},
+            {'message': '/utils/tar_relative.tar: skipping unsupported ../folder/subfolder/b_subfolder.txt with relative path.',
              'source': '../folder/subfolder/b_subfolder.txt',
+             'type': 'warning'},
+        ]
+
+        assert events == expected_events
+
+    def test_extract_tar_relative_with_whiteouts(self):
+        expected = (
+            '.wh..wh..opq',
+            '.wh..wh..plnk',
+            '.wh.foo.txt'
+        )
+        test_dir = self.get_test_loc('utils/tar_relative-with-whiteouts.tar')
+        extract_dir = self.get_temp_dir()
+        events = utils.extract_tar(location=test_dir, target_dir=extract_dir, as_events=True)
+        check_files(target_dir=extract_dir, expected=expected)
+        events = self.clean_events(extract_dir, events)
+        expected_events = [
+            {'message': '/utils/tar_relative-with-whiteouts.tar: skipping unsupported ../../another_folder/.wh..wh..opq with relative path.',
+             'source': '../../another_folder/.wh..wh..opq',
+             'type': 'warning'},
+            {'message': '/utils/tar_relative-with-whiteouts.tar: skipping unsupported ../.wh..wh..opq with relative path.',
+             'source': '../.wh..wh..opq',
+             'type': 'warning'},
+            {'message': '/utils/tar_relative-with-whiteouts.tar: skipping unsupported ../folder/subfolder/.wh..wh..opq with relative path.',
+             'source': '../folder/subfolder/.wh..wh..opq',
              'type': 'warning'},
         ]
 
@@ -99,16 +124,16 @@ class TestUtils(testcase.FileBasedTesting):
 
     def test_extract_tar_relative_as_strings(self):
         expected = ()
-        test_dir = self.get_test_loc('tar/tar_relative.tar')
+        test_dir = self.get_test_loc('utils/tar_relative.tar')
         extract_dir = self.get_temp_dir()
         events = utils.extract_tar(location=test_dir, target_dir=extract_dir, as_events=False)
         check_files(target_dir=extract_dir, expected=expected)
 
         events = [e.replace(self.test_data_dir, '') for e in events]
         expected_events = [
-            'warning: /tar/tar_relative.tar: skipping unsupported ../a_parent_folder.txt with relative path.',
-            'warning: /tar/tar_relative.tar: skipping unsupported ../../another_folder/b_two_root.txt with relative path.',
-            'warning: /tar/tar_relative.tar: skipping unsupported ../folder/subfolder/b_subfolder.txt with relative path.',
+            'warning: /utils/tar_relative.tar: skipping unsupported ../a_parent_folder.txt with relative path.',
+            'warning: /utils/tar_relative.tar: skipping unsupported ../../another_folder/b_two_root.txt with relative path.',
+            'warning: /utils/tar_relative.tar: skipping unsupported ../folder/subfolder/b_subfolder.txt with relative path.',
             ]
         assert events == expected_events
 
@@ -117,20 +142,20 @@ class TestUtils(testcase.FileBasedTesting):
             'tmp/subdir/a.txt',
             'tmp/subdir/b.txt',
         )
-        test_dir = self.get_test_loc('tar/absolute_path.tar')
+        test_dir = self.get_test_loc('utils/absolute_path.tar')
         extract_dir = self.get_temp_dir()
         events = utils.extract_tar(location=test_dir, target_dir=extract_dir, as_events=True)
         check_files(target_dir=extract_dir, expected=expected)
 
         events = self.clean_events(extract_dir, events)
         expected_events = [
-            {'message': '/tar/absolute_path.tar: absolute path name: /tmp/subdir transformed in relative path.',
+            {'message': '/utils/absolute_path.tar: absolute path name: /tmp/subdir transformed in relative path.',
              'source': '/tmp/subdir',
              'type': 'warning'},
-            {'message': '/tar/absolute_path.tar: absolute path name: /tmp/subdir/a.txt transformed in relative path.',
+            {'message': '/utils/absolute_path.tar: absolute path name: /tmp/subdir/a.txt transformed in relative path.',
              'source': '/tmp/subdir/a.txt',
              'type': 'warning'},
-            {'message': '/tar/absolute_path.tar: absolute path name: /tmp/subdir/b.txt transformed in relative path.',
+            {'message': '/utils/absolute_path.tar: absolute path name: /tmp/subdir/b.txt transformed in relative path.',
              'source': '/tmp/subdir/b.txt',
              'type': 'warning'},
         ]
