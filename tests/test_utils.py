@@ -70,7 +70,7 @@ class TestUtils(testcase.FileBasedTesting):
         expected = (
             'colon/libc6:amd64.list',
         )
-        test_dir = self.get_test_loc('tar/colon.tar.xz')
+        test_dir = self.get_test_loc('utils/colon.tar.xz')
         extract_dir = self.get_temp_dir()
         events = utils.extract_tar(location=test_dir, target_dir=extract_dir)
         check_files(target_dir=extract_dir, expected=expected)
@@ -78,7 +78,7 @@ class TestUtils(testcase.FileBasedTesting):
 
     def test_extract_tar_relative(self):
         expected = ()
-        test_dir = self.get_test_loc('tar/tar_relative.tar')
+        test_dir = self.get_test_loc('utils/tar_relative.tar')
         extract_dir = self.get_temp_dir()
         events = utils.extract_tar(location=test_dir, target_dir=extract_dir, as_events=True)
         check_files(target_dir=extract_dir, expected=expected)
@@ -99,7 +99,7 @@ class TestUtils(testcase.FileBasedTesting):
 
     def test_extract_tar_relative_as_strings(self):
         expected = ()
-        test_dir = self.get_test_loc('tar/tar_relative.tar')
+        test_dir = self.get_test_loc('utils/tar_relative.tar')
         extract_dir = self.get_temp_dir()
         events = utils.extract_tar(location=test_dir, target_dir=extract_dir, as_events=False)
         check_files(target_dir=extract_dir, expected=expected)
@@ -117,7 +117,7 @@ class TestUtils(testcase.FileBasedTesting):
             'tmp/subdir/a.txt',
             'tmp/subdir/b.txt',
         )
-        test_dir = self.get_test_loc('tar/absolute_path.tar')
+        test_dir = self.get_test_loc('utils/absolute_path.tar')
         extract_dir = self.get_temp_dir()
         events = utils.extract_tar(location=test_dir, target_dir=extract_dir, as_events=True)
         check_files(target_dir=extract_dir, expected=expected)
