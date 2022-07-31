@@ -103,6 +103,23 @@ class ExtractEvent(NamedTuple):
         return f"{self.type}: {self.message}"
 
 
+def is_relative_path(path):
+    """
+    Return True if ``path`` is a relative path.
+    >>> is_relative_path('.wh..wh..opq')
+    False
+    >>> is_relative_path('.wh/../wh..opq')
+    True
+    >>> is_relative_path('..foor')
+    False
+    >>> is_relative_path('../foor')
+    True
+    >>> is_relative_path('.//.foor//..')
+    True
+    """
+    return any(name == '..' for name in path.split('/'))
+
+
 def extract_tar(location, target_dir, as_events=False, skip_symlinks=True, trace=TRACE):
     """
     Extract a tar archive at ``location`` in the ``target_dir`` directory.
@@ -133,7 +150,7 @@ def extract_tar(location, target_dir, as_events=False, skip_symlinks=True, trace
                     logger.debug(f'extract_tar: {msg}')
                 continue
 
-            if '..' in tarinfo.name:
+            if is_relative_path(tarinfo.name):
                 msg = f'{location}: skipping unsupported {tarinfo.name} with relative path.'
                 events.append(ExtractEvent(type=ExtractEvent.WARNING, source=tarinfo.name, message=msg))
                 if trace:

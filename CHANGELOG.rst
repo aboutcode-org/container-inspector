@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v32.0.1
+--------
+
+This is a minor release with bug fixes.
+
+- We now correctly process the opaque whiteouts seen in container image layers
+  tarballs.
+
+Thank you to AJ Arena @sig-aarena
+
+
 v32.0.0 
 --------
 
