@@ -7,7 +7,7 @@ for Docker images, containers, root filesystems and virtual machine images.
 
 For Docker images, it can process layers and how these relate to each other as
 well as Dockerfiles.
- 
+
 **container-inspector** provides utilities to:
 
  - identify Docker images in a file system, its layers and the related metadata.
@@ -21,7 +21,7 @@ well as Dockerfiles.
    (implemented using a provided callable)
  - detect the "distro" of a rootfs of image using os-release files (and an
    extensive test suite for these)
- - detect the operating system, architecture and 
+ - detect the operating system, architecture and
 
 
 Quick start
@@ -32,12 +32,12 @@ Quick start
 - Check out a clone or download of container-inspector, then run: `./configure --dev`.
 - Then run `env/bin/container-inspector -h` for help.
 
- 
+
 Container image formats
 -----------------------
 
 container-inspector handles the formats of Docker images as created by the
-`docker save` command. There are three versions for this Docker image format. 
+`docker save` command. There are three versions for this Docker image format.
 The latest v1.2 is a minor update to v1.1.
 
 - v1.1 provides improved and richer metadata over v1.0 with a top level manifest.json
@@ -49,13 +49,13 @@ The latest v1.2 is a minor update to v1.1.
   format is no longer support in the latest version of container-inspector.
 
 - All V1.x formats use the same storage format for layers e.g the layer format V1.0
-  where each layer is stored in a sub-directories named after the layer id. 
-  Each of this directories contains a "layer.tar" tarball with the layer payload, 
+  where each layer is stored in a sub-directories named after the layer id.
+  Each of this directories contains a "layer.tar" tarball with the layer payload,
   a "json" JSON metadata file describing the layer and a "VERSION" file describing
   the layer format version. Each tarball represents a slice or diff of the image
   root file system using the AUFS conventions.
 
-At runtime, in a sequence of layers of an image, each root filesystem slice of a 
+At runtime, in a sequence of layers of an image, each root filesystem slice of a
 layer is "layered" on top of each other from the root bottom layer to the latest
 layer (or selected tagged layer) using a union file system (e.g. AUFS).
 In AUFS, any file or directory prefixed with .wh. are "white outs" files deleting
