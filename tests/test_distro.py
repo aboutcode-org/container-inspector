@@ -12,23 +12,12 @@ from commoncode.testcase import FileBasedTesting
 from commoncode.fileutils import resource_iter
 
 from container_inspector.distro import Distro
-from container_inspector.distro import parse_os_release
 
 from utilities import check_expected
 
 
 class TestDistro(FileBasedTesting):
     test_data_dir = os.path.join(os.path.dirname(__file__), 'data')
-
-    def test_parse_os_release(self):
-        test_dir = self.get_test_loc('distro/os-release')
-
-        for test_file in resource_iter(test_dir, with_dirs=False):
-            if test_file.endswith('expected.json'):
-                continue
-            expected = test_file + '-expected.json'
-            result = parse_os_release(test_file)
-            check_expected(result, expected, regen=False)
 
     def test_distro_from_os_release_file(self):
         test_dir = self.get_test_loc('distro/os-release')

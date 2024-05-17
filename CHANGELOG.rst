@@ -1,6 +1,16 @@
 Changelog
 =========
 
+v33.0.0
+--------
+
+This is a major release with an API change.
+
+- ``container_inspector.distro.parse_os_release`` and its tests have been moved
+  to ``commoncode.distro.parse_os_release``. container-inspector has been
+  updated to use ``commoncode.distro.parse_os_release``.
+
+
 v32.0.1
 --------
 
@@ -12,7 +22,7 @@ This is a minor release with bug fixes.
 Thank you to AJ Arena @sig-aarena
 
 
-v32.0.0 
+v32.0.0
 --------
 
 This is a minor release with bug fixes and an output change.
