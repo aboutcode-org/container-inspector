@@ -2,7 +2,7 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 # See http://www.apache.org/licenses/LICENSE-2.0 for the license text.
-# See https://github.com/nexB/container-inspector for support or download.
+# See https://github.com/aboutcode-org/container-inspector for support or download.
 # See https://aboutcode.org for more information about nexB OSS projects.
 #
 
@@ -98,7 +98,8 @@ class TestImages(FileBasedTesting):
             'hello-world.tar.flatten.expected.json',
         )
         images = list(Image.get_images_from_dir(test_dir))
-        result = list(flatten_images_data(images, layer_path_segments=2, _test=True))
+        result = list(flatten_images_data(
+            images, layer_path_segments=2, _test=True))
         check_expected(result, expected, regen=False)
 
     def test_Image_get_images_from_dir_with_direct_at_root_layerid_dot_tar_tarball(self):
@@ -120,7 +121,8 @@ class TestImages(FileBasedTesting):
     def test_Image_get_images_from_dir_with_anotations(self):
         test_arch = self.get_test_loc('repos/images.tar.gz')
         test_dir = self.extract_test_tar(test_arch)
-        expected = os.path.join(self.get_test_loc('repos'), 'images.tar.gz.expected.json')
+        expected = os.path.join(self.get_test_loc(
+            'repos'), 'images.tar.gz.expected.json')
         images = Image.get_images_from_dir(test_dir, verify=False)
         result = [i.to_dict(layer_path_segments=2, _test=True) for i in images]
         check_expected(result, expected, regen=False)

@@ -2,7 +2,7 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 # See http://www.apache.org/licenses/LICENSE-2.0 for the license text.
-# See https://github.com/nexB/container-inspector for support or download.
+# See https://github.com/aboutcode-org/container-inspector for support or download.
 # See https://aboutcode.org for more information about nexB OSS projects.
 #
 
@@ -21,4 +21,3 @@ def is_image_or_layer_id(s):
     Return True if the string `s` looks like a layer ID e.g. a SHA256-like id.
     """
     return re(r'^[a-f0-9]{64}$', re.IGNORECASE).match(s)
-

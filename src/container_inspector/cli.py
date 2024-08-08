@@ -2,7 +2,7 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 # See http://www.apache.org/licenses/LICENSE-2.0 for the license text.
-# See https://github.com/nexB/container-inspector for support or download.
+# See https://github.com/aboutcode-org/container-inspector for support or download.
 # See https://aboutcode.org for more information about nexB OSS projects.
 #
 
@@ -68,7 +68,8 @@ def _container_inspector_dockerfile(directory, json=False, csv=False):
     if not dockerfiles:
         return
     if json:
-        click.echo(json_module.dumps([df for _loc, df in dockerfiles.items()], indent=2))
+        click.echo(json_module.dumps(
+            [df for _loc, df in dockerfiles.items()], indent=2))
 
     if csv:
         dockerfiles = list(dockerfile.flatten_dockerfiles(dockerfiles))
@@ -100,7 +101,8 @@ def _container_inspector(image_path, extract_to=None, csv=False, _layer_path_seg
     as_json = not csv
 
     if as_json:
-        images = [i.to_dict(layer_path_segments=_layer_path_segments) for i in images]
+        images = [i.to_dict(layer_path_segments=_layer_path_segments)
+                  for i in images]
         return json_module.dumps(images, indent=2)
     else:
         from io import StringIO

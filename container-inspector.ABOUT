@@ -3,7 +3,7 @@ name: container-inspector
 owner: nexB Inc.
 home_url: http://nexb.com
 vcs_tool: git
-vcs_repository: https://github.com/nexB/container_inspector.git
+vcs_repository: https://github.com/aboutcode-org/container_inspector.git
 description: Docker utilities
 license: apache-2.0
 license_text_file: apache-2.0.LICENSE

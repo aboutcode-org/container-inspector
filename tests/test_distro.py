@@ -2,7 +2,7 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 # See http://www.apache.org/licenses/LICENSE-2.0 for the license text.
-# See https://github.com/nexB/container-inspector for support or download.
+# See https://github.com/aboutcode-org/container-inspector for support or download.
 # See https://aboutcode.org for more information about nexB OSS projects.
 #
 
@@ -86,4 +86,5 @@ class TestDistro(FileBasedTesting):
         try:
             Distro.from_rootfs(test_dir, base_distro=base)
         except Exception as e:
-            assert str(e) == 'Inconsistent base distro OS: freebsd and found distro OS : windows'
+            assert str(
+                e) == 'Inconsistent base distro OS: freebsd and found distro OS : windows'

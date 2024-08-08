@@ -2,7 +2,7 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 # See http://www.apache.org/licenses/LICENSE-2.0 for the license text.
-# See https://github.com/nexB/container-inspector for support or download.
+# See https://github.com/aboutcode-org/container-inspector for support or download.
 # See https://aboutcode.org for more information about nexB OSS projects.
 #
 
@@ -177,10 +177,9 @@ class ConfigMixin(object):
 
     labels = attr.attrib(
         default=attr.Factory(list),
-        metadata=dict(doc=
-            'List of labels for this layer merged from the '
-            'original config and container_config.'
-        )
+        metadata=dict(doc='List of labels for this layer merged from the '
+                      'original config and container_config.'
+                      )
     )
 
     @classmethod
@@ -217,22 +216,21 @@ class ArchiveMixin:
 
     extracted_location = attr.attrib(
         default=None,
-        metadata=dict(doc=
-            'Absolute directory location where this Archive is extracted.'
-        )
+        metadata=dict(doc='Absolute directory location where this Archive is extracted.'
+                      )
     )
 
     archive_location = attr.attrib(
         default=None,
-        metadata=dict(doc=
-            'Absolute directory location of this Archive original file.'
-            'May be empty if this was created from an extracted_location directory.'
-        )
+        metadata=dict(doc='Absolute directory location of this Archive original file.'
+                      'May be empty if this was created from an extracted_location directory.'
+                      )
     )
 
     sha256 = attr.attrib(
         default=None,
-        metadata=dict(doc='SHA256 digest of this archive (if there is an archive.)')
+        metadata=dict(
+            doc='SHA256 digest of this archive (if there is an archive.)')
     )
 
     def set_sha256(self):
@@ -257,33 +255,29 @@ class Image(ArchiveMixin, ConfigMixin):
 
     image_format = attr.attrib(
         default=None,
-        metadata=dict(doc=
-            'Format of this this image as of one of: "docker" or "oci".'
-        )
+        metadata=dict(doc='Format of this this image as of one of: "docker" or "oci".'
+                      )
     )
 
     image_id = attr.attrib(
         default=None,
-        metadata=dict(doc=
-            'Id for this image. '
-            'This is the base name of the config json file '
-            'and is the same as a non-prefixed digest for the config JSON file.'
-        )
+        metadata=dict(doc='Id for this image. '
+                      'This is the base name of the config json file '
+                      'and is the same as a non-prefixed digest for the config JSON file.'
+                      )
     )
 
     config_digest = attr.attrib(
         default=None,
-        metadata=dict(doc=
-            'Digest of the config JSON file for this image. '
-            'This is supposed to be the same as the id. '
-        )
+        metadata=dict(doc='Digest of the config JSON file for this image. '
+                      'This is supposed to be the same as the id. '
+                      )
     )
 
     tags = attr.attrib(
         default=attr.Factory(list),
-        metadata=dict(doc=
-            'List of tags for this image".'
-        )
+        metadata=dict(doc='List of tags for this image".'
+                      )
     )
     distro = attr.attrib(
         default=None,
@@ -292,10 +286,9 @@ class Image(ArchiveMixin, ConfigMixin):
 
     layers = attr.attrib(
         default=attr.Factory(list),
-        metadata=dict(doc=
-            'List of Layer objects ordered from bottom to top, excluding empty '
-            'layers."'
-        )
+        metadata=dict(doc='List of Layer objects ordered from bottom to top, excluding empty '
+                      'layers."'
+                      )
     )
 
     history = attr.attrib(
@@ -537,21 +530,22 @@ class Image(ArchiveMixin, ConfigMixin):
 
         image_format = Image.find_format(extracted_location)
 
-        if TRACE: logger.debug(f'get_images_from_dir: image_format: {image_format}')
+        if TRACE:
+            logger.debug(f'get_images_from_dir: image_format: {image_format}')
 
         if image_format == 'docker':
             return Image.get_docker_images_from_dir(
                 extracted_location=extracted_location,
                 archive_location=archive_location,
                 verify=verify,
-        )
+            )
 
         if image_format == 'oci':
             return Image.get_oci_images_from_dir(
                 extracted_location=extracted_location,
                 archive_location=archive_location,
                 verify=verify,
-        )
+            )
 
         raise Exception(
             f'Unknown container image format {image_format} '
@@ -605,7 +599,8 @@ class Image(ArchiveMixin, ConfigMixin):
         # NOTE: we are only looking at V1.1/2 repos layout for now and not the
         # legacy v1.0.
         if not os.path.exists(manifest_loc):
-            raise Exception(f'manifest.json file missing in {extracted_location}')
+            raise Exception(
+                f'manifest.json file missing in {extracted_location}')
 
         manifest = load_json(manifest_loc)
 
@@ -615,7 +610,8 @@ class Image(ArchiveMixin, ConfigMixin):
         images = []
         for manifest_config in manifest:
             if TRACE:
-                logger.debug(f'get_docker_images_from_dir: manifest_config: {manifest_config}')
+                logger.debug(
+                    f'get_docker_images_from_dir: manifest_config: {manifest_config}')
             img = Image.from_docker_manifest_config(
                 extracted_location=extracted_location,
                 archive_location=archive_location,
@@ -623,7 +619,8 @@ class Image(ArchiveMixin, ConfigMixin):
                 verify=verify,
 
             )
-            if TRACE: logger.debug(f'get_docker_images_from_dir: img: {img!r}')
+            if TRACE:
+                logger.debug(f'get_docker_images_from_dir: img: {img!r}')
 
             images.append(img)
 
@@ -700,7 +697,9 @@ class Image(ArchiveMixin, ConfigMixin):
             }
          }
         """
-        if TRACE: logger.debug(f'from_docker_manifest_config: manifest_config: {manifest_config!r}')
+        if TRACE:
+            logger.debug(
+                f'from_docker_manifest_config: manifest_config: {manifest_config!r}')
 
         manifest_config = utils.lower_keys(manifest_config)
 
@@ -748,7 +747,8 @@ class Image(ArchiveMixin, ConfigMixin):
         # diff for an empty layer with a digest for some EMPTY content e.g.
         # e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 
-        layers_sha256s = [as_bare_id(lsha256) for lsha256 in rootfs['diff_ids']]
+        layers_sha256s = [as_bare_id(lsha256)
+                          for lsha256 in rootfs['diff_ids']]
         layer_arch_locs_and_sha256s = zip(layers_archive_locs, layers_sha256s)
 
         layers = []
@@ -795,7 +795,7 @@ class Image(ArchiveMixin, ConfigMixin):
         clue_files_by_image_format = {
             'docker': ('manifest.json',),
             'oci': ('blobs', 'index.json', 'oci-layout',)
-         }
+        }
 
         files = os.listdir(extracted_location)
         for image_format, clues in clue_files_by_image_format.items():
@@ -943,17 +943,17 @@ class Image(ArchiveMixin, ConfigMixin):
 
 
 def get_oci_blob(extracted_location, sha256, verify=True):
-        loc = os.path.join(extracted_location, 'blobs', 'sha256', sha256)
-        if not os.path.exists(loc):
-            raise Exception(f'Missing OCI image file {loc}')
-        if verify:
-            on_disk_sha256 = sha256_digest(loc)
-            if sha256 != on_disk_sha256:
-                raise Exception(
-                    f'For {loc} on disk SHA256:{on_disk_sha256} does not '
-                    f'match its expected index SHA256:{sha256}'
-                )
-        return loc
+    loc = os.path.join(extracted_location, 'blobs', 'sha256', sha256)
+    if not os.path.exists(loc):
+        raise Exception(f'Missing OCI image file {loc}')
+    if verify:
+        on_disk_sha256 = sha256_digest(loc)
+        if sha256 != on_disk_sha256:
+            raise Exception(
+                f'For {loc} on disk SHA256:{on_disk_sha256} does not '
+                f'match its expected index SHA256:{sha256}'
+            )
+    return loc
 
 
 def assign_history_to_layers(history, layers):
@@ -1013,9 +1013,8 @@ class Resource:
 
     layer_path = attr.attrib(
         default=None,
-        metadata=dict(doc=
-            'Rootfs-relative path with the addition of the layer id as a prefix.'
-        )
+        metadata=dict(doc='Rootfs-relative path with the addition of the layer id as a prefix.'
+                      )
     )
 
     location = attr.attrib(
@@ -1045,9 +1044,8 @@ class Layer(ArchiveMixin, ConfigMixin):
 
     layer_id = attr.attrib(
         default=None,
-        metadata=dict(doc=
-            'Id for this layer which must be set to the SHA256 of its archive.'
-        )
+        metadata=dict(doc='Id for this layer which must be set to the SHA256 of its archive.'
+                      )
     )
 
     size = attr.attrib(
@@ -1057,9 +1055,8 @@ class Layer(ArchiveMixin, ConfigMixin):
 
     is_empty_layer = attr.attrib(
         default=False,
-        metadata=dict(doc=
-            'True if this is an empty layer. An empty layer has no content.'
-        )
+        metadata=dict(doc='True if this is an empty layer. An empty layer has no content.'
+                      )
     )
 
     author = attr.attrib(

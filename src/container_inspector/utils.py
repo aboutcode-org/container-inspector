@@ -2,7 +2,7 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 # See http://www.apache.org/licenses/LICENSE-2.0 for the license text.
-# See https://github.com/nexB/container-inspector for support or download.
+# See https://github.com/aboutcode-org/container-inspector for support or download.
 # See https://aboutcode.org for more information about nexB OSS projects.
 #
 
@@ -132,7 +132,8 @@ def extract_tar(location, target_dir, as_events=False, skip_symlinks=True, trace
     """
     import tarfile
     if trace:
-        logger.debug(f'_extract_tar: {location} to {target_dir} skip_symlinks: {skip_symlinks}')
+        logger.debug(
+            f'_extract_tar: {location} to {target_dir} skip_symlinks: {skip_symlinks}')
 
     fileutils.create_dir(target_dir)
 
@@ -145,14 +146,16 @@ def extract_tar(location, target_dir, as_events=False, skip_symlinks=True, trace
 
             if tarinfo.isdev() or tarinfo.ischr() or tarinfo.isblk() or tarinfo.isfifo() or tarinfo.sparse:
                 msg = f'skipping unsupported {tarinfo.name} file type: block, chr, dev or sparse file'
-                events.append(ExtractEvent(type=ExtractEvent.INFO, source=tarinfo.name, message=msg))
+                events.append(ExtractEvent(type=ExtractEvent.INFO,
+                              source=tarinfo.name, message=msg))
                 if trace:
                     logger.debug(f'extract_tar: {msg}')
                 continue
 
             if is_relative_path(tarinfo.name):
                 msg = f'{location}: skipping unsupported {tarinfo.name} with relative path.'
-                events.append(ExtractEvent(type=ExtractEvent.WARNING, source=tarinfo.name, message=msg))
+                events.append(ExtractEvent(
+                    type=ExtractEvent.WARNING, source=tarinfo.name, message=msg))
                 if trace:
                     logger.debug(f'extract_tar: {msg}')
                 continue
@@ -165,7 +168,8 @@ def extract_tar(location, target_dir, as_events=False, skip_symlinks=True, trace
 
             if tarinfo.name.startswith('/'):
                 msg = f'{location}: absolute path name: {tarinfo.name} transformed in relative path.'
-                events.append(ExtractEvent(type=ExtractEvent.WARNING, source=tarinfo.name, message=msg))
+                events.append(ExtractEvent(
+                    type=ExtractEvent.WARNING, source=tarinfo.name, message=msg))
                 tarinfo.name = tarinfo.name.lstrip('/')
                 if trace:
                     logger.debug(f'extract_tar: {msg}')
@@ -174,10 +178,12 @@ def extract_tar(location, target_dir, as_events=False, skip_symlinks=True, trace
             tarinfo.mode = 0o755
 
             try:
-                tarball.extract(member=tarinfo, path=target_dir, set_attrs=False,)
+                tarball.extract(
+                    member=tarinfo, path=target_dir, set_attrs=False,)
             except Exception:
                 msg = f'{location}: failed to extract: {tarinfo.name}: {traceback.format_exc()}'
-                events.append(ExtractEvent(type=ExtractEvent.ERROR, source=tarinfo.name, message=msg))
+                events.append(ExtractEvent(type=ExtractEvent.ERROR,
+                              source=tarinfo.name, message=msg))
                 if trace:
                     logger.debug(f'extract_tar: {msg}')
     if not as_events:

@@ -2,7 +2,7 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 # See http://www.apache.org/licenses/LICENSE-2.0 for the license text.
-# See https://github.com/nexB/container-inspector for support or download.
+# See https://github.com/aboutcode-org/container-inspector for support or download.
 # See https://aboutcode.org for more information about nexB OSS projects.
 #
 
@@ -67,10 +67,11 @@ def rebuild_rootfs(img, target_dir, skip_symlinks=True):
     deletions = []
 
     for layer_num, layer in enumerate(img.layers):
-        if TRACE: logger.debug(
-            f'Extracting layer {layer_num} - {layer.layer_id} '
-            f'tarball: {layer.archive_location}'
-        )
+        if TRACE:
+            logger.debug(
+                f'Extracting layer {layer_num} - {layer.layer_id} '
+                f'tarball: {layer.archive_location}'
+            )
 
         # 1. extract a layer to temp.
         # Note that we are not preserving any special file and any file permission
@@ -81,18 +82,25 @@ def rebuild_rootfs(img, target_dir, skip_symlinks=True):
             skip_symlinks=skip_symlinks,
         )
         if TRACE:
-            logger.debug(f'  Extracted layer to: {extracted_loc} with skip_symlinks: {skip_symlinks}')
+            logger.debug(
+                f'  Extracted layer to: {extracted_loc} with skip_symlinks: {skip_symlinks}')
             for ev in _events:
                 logger.debug(f'  {ev}')
 
         # 2. find whiteouts in that layer.
         whiteouts = list(find_whiteouts(extracted_loc))
-        if TRACE: logger.debug('  Merging extracted layers and applying unionfs whiteouts')
-        if TRACE: logger.debug('  Whiteouts:\n' + '     \n'.join(map(repr, whiteouts)))
+        if TRACE:
+            logger.debug(
+                '  Merging extracted layers and applying unionfs whiteouts')
+        if TRACE:
+            logger.debug('  Whiteouts:\n' +
+                         '     \n'.join(map(repr, whiteouts)))
 
         # 3. remove whiteouts in the previous layer stack (e.g. the WIP rootfs)
         for whiteout_marker_loc, whiteable_path in whiteouts:
-            if TRACE: logger.debug(f'    Deleting dir or file with whiteout marker: {whiteout_marker_loc}')
+            if TRACE:
+                logger.debug(
+                    f'    Deleting dir or file with whiteout marker: {whiteout_marker_loc}')
             whiteable_loc = os.path.join(target_dir, whiteable_path)
             delete(whiteable_loc)
             # also delete the whiteout marker file
@@ -100,9 +108,12 @@ def rebuild_rootfs(img, target_dir, skip_symlinks=True):
             deletions.append(whiteable_loc)
 
         # 4. finall copy/overwrite the extracted layer over the WIP rootfs
-        if TRACE: logger.debug(f'  Moving extracted layer from: {extracted_loc} to: {target_dir}')
+        if TRACE:
+            logger.debug(
+                f'  Moving extracted layer from: {extracted_loc} to: {target_dir}')
         copytree(extracted_loc, target_dir)
-        if TRACE: logger.debug(f'  Moved layer to: {target_dir}')
+        if TRACE:
+            logger.debug(f'  Moved layer to: {target_dir}')
         delete(extracted_loc)
 
     return deletions
@@ -286,27 +297,36 @@ def find_root(
 
     ``walker`` is a callable behaving like ``os.walk()`` and is used for testing.
     """
-    if TRACE: logger.debug(
-        f'find_root: location={location!r}, max_depth={max_depth!r}, '
-        f'root_paths={root_paths!r}, min_paths={min_paths!r}'
-    )
+    if TRACE:
+        logger.debug(
+            f'find_root: location={location!r}, max_depth={max_depth!r}, '
+            f'root_paths={root_paths!r}, min_paths={min_paths!r}'
+        )
     depth = 0
     for top, dirs, files in walker(location):
-        if TRACE: logger.debug(f' find_root: top={top!r}, dirs={dirs!r}, files={files!r}')
+        if TRACE:
+            logger.debug(
+                f' find_root: top={top!r}, dirs={dirs!r}, files={files!r}')
         if max_depth:
             depth = compute_path_depth(location, top)
-            if TRACE: logger.debug(f'  find_root: top depth={depth!r}')
+            if TRACE:
+                logger.debug(f'  find_root: top depth={depth!r}')
             if depth > max_depth:
-                if TRACE: logger.debug(
-                    f'    find_root: max_depth={max_depth!r}, '
-                    f'depth={depth!r} returning None')
+                if TRACE:
+                    logger.debug(
+                        f'    find_root: max_depth={max_depth!r}, '
+                        f'depth={depth!r} returning None')
                 return
 
         matches = len(set(dirs + files) & root_paths)
-        if TRACE: logger.debug(f'  find_root: top={top!r}, matches={matches!r}')
+        if TRACE:
+            logger.debug(f'  find_root: top={top!r}, matches={matches!r}')
 
         if matches >= min_paths:
-            if TRACE: logger.debug(f'    find_root: matches >= min_paths: returning {top!r}')
+            if TRACE:
+                logger.debug(
+                    f'    find_root: matches >= min_paths: returning {top!r}')
             return top
 
-    if TRACE: logger.debug(f'find_root: noting found: returning None')
+    if TRACE:
+        logger.debug(f'find_root: noting found: returning None')

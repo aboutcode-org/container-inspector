@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v33.0.1
+--------
+
+This is a minor release with reference link updated.
+
+ - Update link references of ownership from nexB to aboutcode-org
+
 v33.0.0
 --------
 

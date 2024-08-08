@@ -2,7 +2,7 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 # See http://www.apache.org/licenses/LICENSE-2.0 for the license text.
-# See https://github.com/nexB/container-inspector for support or download.
+# See https://github.com/aboutcode-org/container-inspector for support or download.
 # See https://aboutcode.org for more information about nexB OSS projects.
 #
 
@@ -60,10 +60,10 @@ class TestUtils(testcase.FileBasedTesting):
 
     def clean_paths(self, extract_dir):
         return sorted([p.replace(extract_dir, '') for p in
-            fileutils.resource_iter(
-                location=extract_dir,
-                with_dirs=True,
-                follow_symlinks=True)]
+                       fileutils.resource_iter(
+            location=extract_dir,
+            with_dirs=True,
+            follow_symlinks=True)]
         )
 
     def test_extract_tree_with_colon_in_filenames(self):
@@ -80,7 +80,8 @@ class TestUtils(testcase.FileBasedTesting):
         expected = ()
         test_dir = self.get_test_loc('utils/tar_relative.tar')
         extract_dir = self.get_temp_dir()
-        events = utils.extract_tar(location=test_dir, target_dir=extract_dir, as_events=True)
+        events = utils.extract_tar(
+            location=test_dir, target_dir=extract_dir, as_events=True)
         check_files(target_dir=extract_dir, expected=expected)
         events = self.clean_events(extract_dir, events)
         expected_events = [
@@ -105,7 +106,8 @@ class TestUtils(testcase.FileBasedTesting):
         )
         test_dir = self.get_test_loc('utils/tar_relative-with-whiteouts.tar')
         extract_dir = self.get_temp_dir()
-        events = utils.extract_tar(location=test_dir, target_dir=extract_dir, as_events=True)
+        events = utils.extract_tar(
+            location=test_dir, target_dir=extract_dir, as_events=True)
         check_files(target_dir=extract_dir, expected=expected)
         events = self.clean_events(extract_dir, events)
         expected_events = [
@@ -126,7 +128,8 @@ class TestUtils(testcase.FileBasedTesting):
         expected = ()
         test_dir = self.get_test_loc('utils/tar_relative.tar')
         extract_dir = self.get_temp_dir()
-        events = utils.extract_tar(location=test_dir, target_dir=extract_dir, as_events=False)
+        events = utils.extract_tar(
+            location=test_dir, target_dir=extract_dir, as_events=False)
         check_files(target_dir=extract_dir, expected=expected)
 
         events = [e.replace(self.test_data_dir, '') for e in events]
@@ -134,7 +137,7 @@ class TestUtils(testcase.FileBasedTesting):
             'warning: /utils/tar_relative.tar: skipping unsupported ../a_parent_folder.txt with relative path.',
             'warning: /utils/tar_relative.tar: skipping unsupported ../../another_folder/b_two_root.txt with relative path.',
             'warning: /utils/tar_relative.tar: skipping unsupported ../folder/subfolder/b_subfolder.txt with relative path.',
-            ]
+        ]
         assert events == expected_events
 
     def test_extract_tar_absolute(self):
@@ -144,7 +147,8 @@ class TestUtils(testcase.FileBasedTesting):
         )
         test_dir = self.get_test_loc('utils/absolute_path.tar')
         extract_dir = self.get_temp_dir()
-        events = utils.extract_tar(location=test_dir, target_dir=extract_dir, as_events=True)
+        events = utils.extract_tar(
+            location=test_dir, target_dir=extract_dir, as_events=True)
         check_files(target_dir=extract_dir, expected=expected)
 
         events = self.clean_events(extract_dir, events)
@@ -166,69 +170,85 @@ class TestUtils(testcase.FileBasedTesting):
         test_tarball = self.get_test_loc('utils/layer_with_links.tar')
         extract_dir = self.get_temp_dir()
 
-        events = utils.extract_tar(location=test_tarball, target_dir=extract_dir, as_events=True, skip_symlinks=False)
+        events = utils.extract_tar(
+            location=test_tarball, target_dir=extract_dir, as_events=True, skip_symlinks=False)
 
         results = self.clean_paths(extract_dir)
-        expected_results = self.get_test_loc('utils/layer_with_links.tar.expected.json', must_exist=False)
+        expected_results = self.get_test_loc(
+            'utils/layer_with_links.tar.expected.json', must_exist=False)
         check_expected(results, expected_results, regen=False)
 
         events_results = self.clean_events(extract_dir, events)
-        expected_events = self.get_test_loc('utils/layer_with_links.tar.expected-events.json', must_exist=False)
+        expected_events = self.get_test_loc(
+            'utils/layer_with_links.tar.expected-events.json', must_exist=False)
         check_expected(events_results, expected_events, regen=False)
 
     def test_extract_tar_skipping_links(self):
         test_tarball = self.get_test_loc('utils/layer_with_links.tar')
         extract_dir = self.get_temp_dir()
 
-        events = utils.extract_tar(location=test_tarball, target_dir=extract_dir, as_events=True, skip_symlinks=True)
+        events = utils.extract_tar(
+            location=test_tarball, target_dir=extract_dir, as_events=True, skip_symlinks=True)
 
         results = self.clean_paths(extract_dir)
-        expected_results = self.get_test_loc('utils/layer_with_links.tar.expected-skipping.json', must_exist=False)
+        expected_results = self.get_test_loc(
+            'utils/layer_with_links.tar.expected-skipping.json', must_exist=False)
         check_expected(results, expected_results, regen=False)
 
         events_results = self.clean_events(extract_dir, events)
-        expected_events = self.get_test_loc('utils/layer_with_links.tar.expected-events-skipping.json', must_exist=False)
+        expected_events = self.get_test_loc(
+            'utils/layer_with_links.tar.expected-events-skipping.json', must_exist=False)
         check_expected(events_results, expected_events, regen=False)
 
     def test_extract_tar_with_symlinks(self):
         test_tarball = self.get_test_loc('utils/layer_with_links.tar')
         extract_dir = self.get_temp_dir()
 
-        events = utils.extract_tar_with_symlinks(location=test_tarball, as_events=True, target_dir=extract_dir)
+        events = utils.extract_tar_with_symlinks(
+            location=test_tarball, as_events=True, target_dir=extract_dir)
 
         results = self.clean_paths(extract_dir)
-        expected_results = self.get_test_loc('utils/layer_with_links.tar.expected.json', must_exist=False)
+        expected_results = self.get_test_loc(
+            'utils/layer_with_links.tar.expected.json', must_exist=False)
         check_expected(results, expected_results, regen=False)
 
         events_results = self.clean_events(extract_dir, events)
-        expected_events = self.get_test_loc('utils/layer_with_links.tar.expected-events.json', must_exist=False)
+        expected_events = self.get_test_loc(
+            'utils/layer_with_links.tar.expected-events.json', must_exist=False)
         check_expected(events_results, expected_events, regen=False)
 
     def test_extract_tar_with_broken_links_skipping_links(self):
-        test_tarball = self.get_test_loc('utils/layer_with_links_missing_targets.tar')
+        test_tarball = self.get_test_loc(
+            'utils/layer_with_links_missing_targets.tar')
         extract_dir = self.get_temp_dir()
 
-        events = utils.extract_tar(location=test_tarball, target_dir=extract_dir, as_events=True, skip_symlinks=True)
+        events = utils.extract_tar(
+            location=test_tarball, target_dir=extract_dir, as_events=True, skip_symlinks=True)
 
         results = self.clean_paths(extract_dir)
-        expected_results = self.get_test_loc('utils/layer_with_links_missing_targets.tar.expected.json', must_exist=False)
+        expected_results = self.get_test_loc(
+            'utils/layer_with_links_missing_targets.tar.expected.json', must_exist=False)
         check_expected(results, expected_results, regen=False)
 
         events_results = self.clean_events(extract_dir, events)
-        expected_events = self.get_test_loc('utils/layer_with_links_missing_targets.tar.expected-events.json', must_exist=False)
+        expected_events = self.get_test_loc(
+            'utils/layer_with_links_missing_targets.tar.expected-events.json', must_exist=False)
         check_expected(events_results, expected_events, regen=False)
 
     def test_extract_tar_with_symlinks_with_broken_links(self):
-        test_tarball = self.get_test_loc('utils/layer_with_links_missing_targets.tar')
+        test_tarball = self.get_test_loc(
+            'utils/layer_with_links_missing_targets.tar')
         extract_dir = self.get_temp_dir()
 
-        events = utils.extract_tar_with_symlinks(location=test_tarball, target_dir=extract_dir)
+        events = utils.extract_tar_with_symlinks(
+            location=test_tarball, target_dir=extract_dir)
 
         results = self.clean_paths(extract_dir)
-        expected_results = self.get_test_loc('utils/layer_with_links_missing_targets.tar.expected-broken.json', must_exist=False)
+        expected_results = self.get_test_loc(
+            'utils/layer_with_links_missing_targets.tar.expected-broken.json', must_exist=False)
         check_expected(results, expected_results, regen=False)
 
         events_results = self.clean_events(extract_dir, events)
-        expected_events = self.get_test_loc('utils/layer_with_links_missing_targets.tar.expected-events-broken.json', must_exist=False)
+        expected_events = self.get_test_loc(
+            'utils/layer_with_links_missing_targets.tar.expected-events-broken.json', must_exist=False)
         check_expected(events_results, expected_events, regen=False)
-

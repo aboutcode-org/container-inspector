@@ -2,7 +2,7 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 # See http://www.apache.org/licenses/LICENSE-2.0 for the license text.
-# See https://github.com/nexB/container-inspector for support or download.
+# See https://github.com/aboutcode-org/container-inspector for support or download.
 # See https://aboutcode.org for more information about nexB OSS projects.
 #
 
@@ -25,7 +25,7 @@ class TestRootfs(testcase.FileBasedTesting):
         target_dir = self.get_temp_dir()
         rebuild_rootfs(img, target_dir)
         results = sorted([p.replace(target_dir, '')
-            for p in fileutils.resource_iter(target_dir)])
+                          for p in fileutils.resource_iter(target_dir)])
         expected = ['/hello']
         assert expected == results
 
@@ -35,17 +35,18 @@ class TestRootfs(testcase.FileBasedTesting):
         target_dir = self.get_temp_dir()
         img.squash(target_dir)
         results = sorted([p.replace(target_dir, '')
-            for p in fileutils.resource_iter(target_dir)])
+                          for p in fileutils.resource_iter(target_dir)])
         expected = ['/hello']
         assert expected == results
 
     def test_rebuild_rootfs_with_delete(self):
-        test_dir = self.extract_test_tar('rootfs/she-image_from_scratch-1.0.tar')
+        test_dir = self.extract_test_tar(
+            'rootfs/she-image_from_scratch-1.0.tar')
         img = image.Image.get_images_from_dir(test_dir)[0]
         target_dir = self.get_temp_dir()
         rebuild_rootfs(img, target_dir)
         results = sorted([p.replace(target_dir, '')
-            for p in fileutils.resource_iter(target_dir)])
+                          for p in fileutils.resource_iter(target_dir)])
         expected = [
             '/additions',
             '/additions/bar',
@@ -65,7 +66,7 @@ class TestRootfs(testcase.FileBasedTesting):
             rebuild_rootfs(img, target_dir)
 
         results = sorted([p.replace(target_dir, '')
-            for p in fileutils.resource_iter(target_dir, with_dirs=False)])
+                          for p in fileutils.resource_iter(target_dir, with_dirs=False)])
         expected = [
             '/bin/busybox',
             '/etc/fstab',
@@ -205,7 +206,8 @@ class TestRootfs(testcase.FileBasedTesting):
         assert not rootfs.find_root(test_dir, max_depth=1)
         assert not rootfs.find_root(test_dir, max_depth=2)
         assert not rootfs.find_root(test_dir, max_depth=3)
-        assert rootfs.find_root(test_dir, max_depth=4).endswith('level1/level2/level3')
+        assert rootfs.find_root(test_dir, max_depth=4).endswith(
+            'level1/level2/level3')
 
         expected = '/find_root/level1/level2/level3'
         found = rootfs.find_root(test_dir, max_depth=5)
@@ -214,7 +216,8 @@ class TestRootfs(testcase.FileBasedTesting):
         found = rootfs.find_root(test_dir, max_depth=0)
         assert found.replace(test_dir, '') == expected
 
-        found = rootfs.find_root(os.path.join(test_dir, 'find_root'), max_depth=4)
+        found = rootfs.find_root(os.path.join(
+            test_dir, 'find_root'), max_depth=4)
         assert found.replace(test_dir, '') == expected
 
     def test_rootfs_compute_path_depth(self):

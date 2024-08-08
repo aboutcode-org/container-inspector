@@ -2,7 +2,7 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 # See http://www.apache.org/licenses/LICENSE-2.0 for the license text.
-# See https://github.com/nexB/container-inspector for support or download.
+# See https://github.com/aboutcode-org/container-inspector for support or download.
 # See https://aboutcode.org for more information about nexB OSS projects.
 #
 
@@ -31,10 +31,10 @@ def clean_image_data(image):
     Clean `image` data from Image.to_dict() for testing
     """
     image['extracted_location'] = ''
-    image['archive_location'] = os.path.basename(image['archive_location'] or '')
-    
-    return image
+    image['archive_location'] = os.path.basename(
+        image['archive_location'] or '')
 
+    return image
 
 
 class TestContainerInspectorCli(FileBasedTesting):
@@ -42,22 +42,27 @@ class TestContainerInspectorCli(FileBasedTesting):
 
     def test_container_inspector_single_layer_from_dir(self):
         test_dir = self.extract_test_tar('cli/hello-world.tar')
-        expected = self.get_test_loc('cli/hello-world.tar-inventory-from-dir-expected.json')
+        expected = self.get_test_loc(
+            'cli/hello-world.tar-inventory-from-dir-expected.json')
         out = cli._container_inspector(image_path=test_dir)
         result = clean_images_data(json.loads(out))
         check_expected(result, expected, regen=False)
 
     def test_container_inspector_single_layer_from_tarball(self):
         test_dir = self.get_test_loc('cli/hello-world.tar')
-        expected = self.get_test_loc('cli/hello-world.tar-inventory-from-tarball-expected.json')
-        out = cli._container_inspector(image_path=test_dir, _layer_path_segments=1)
+        expected = self.get_test_loc(
+            'cli/hello-world.tar-inventory-from-tarball-expected.json')
+        out = cli._container_inspector(
+            image_path=test_dir, _layer_path_segments=1)
         result = clean_images_data(json.loads(out))
         check_expected(result, expected, regen=False)
 
     def test_container_inspector_multiple_layers_from_tarball(self):
         test_dir = self.get_test_loc('cli/she-image_from_scratch-1.0.tar')
-        expected = self.get_test_loc('cli/she-image_from_scratch-1.0.tar-inventory-from-tarball-expected.json')
-        out = cli._container_inspector(image_path=test_dir, _layer_path_segments=1)
+        expected = self.get_test_loc(
+            'cli/she-image_from_scratch-1.0.tar-inventory-from-tarball-expected.json')
+        out = cli._container_inspector(
+            image_path=test_dir, _layer_path_segments=1)
         result = clean_images_data(json.loads(out))
         check_expected(result, expected, regen=False)
 
@@ -70,7 +75,7 @@ class TestContainerInspectorCli(FileBasedTesting):
             extract_directory=target_dir)
 
         results = sorted([p.replace(target_dir, '')
-            for p in fileutils.resource_iter(target_dir)])
+                          for p in fileutils.resource_iter(target_dir)])
         expected = ['/hello']
         assert expected == results
 
@@ -84,7 +89,7 @@ class TestContainerInspectorCli(FileBasedTesting):
         )
 
         results = sorted([p.replace(target_dir, '')
-            for p in fileutils.resource_iter(target_dir)])
+                          for p in fileutils.resource_iter(target_dir)])
         expected = [
             '/additions',
             '/additions/bar',

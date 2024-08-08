@@ -2,7 +2,7 @@
 # Copyright (c) nexB Inc. and others. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 # See http://www.apache.org/licenses/LICENSE-2.0 for the license text.
-# See https://github.com/nexB/container-inspector for support or download.
+# See https://github.com/aboutcode-org/container-inspector for support or download.
 # See https://aboutcode.org for more information about nexB OSS projects.
 #
 
@@ -296,7 +296,9 @@ class Distro(object):
         parsed
         """
         if not location or not os.path.exists(location):
-            if TRACE: logger.debug(f'from_os_release_file: {location!r} does not exists')
+            if TRACE:
+                logger.debug(
+                    f'from_os_release_file: {location!r} does not exists')
             return
 
         data = parse_os_release(location) or {}
@@ -333,7 +335,8 @@ class Distro(object):
         if data:
             new_data['extra_data'] = data
 
-        if TRACE: logger.debug(f'from_os_release_file: new_data: {new_data!r}')
+        if TRACE:
+            logger.debug(f'from_os_release_file: new_data: {new_data!r}')
 
         return cls(**new_data)
 
@@ -356,10 +359,13 @@ class Distro(object):
         manifest) and may be missing from the rootfs proper (for instance of an
         /etc/os-release is missing in the rootfs for a Linux-based image).
         """
-        if TRACE: logger.debug(f'from_rootfs: {location!r} base_distro: {base_distro!r}')
+        if TRACE:
+            logger.debug(
+                f'from_rootfs: {location!r} base_distro: {base_distro!r}')
 
         if not location or not os.path.exists(location):
-            if TRACE: logger.debug(f'from_rootfs: {location!r} does not exists')
+            if TRACE:
+                logger.debug(f'from_rootfs: {location!r} does not exists')
             return
 
         finders = {
@@ -369,10 +375,12 @@ class Distro(object):
         }
 
         for finder_os, finder in finders.items():
-            if TRACE: logger.debug(f'from_rootfs: trying finder_os: {finder_os!r}')
+            if TRACE:
+                logger.debug(f'from_rootfs: trying finder_os: {finder_os!r}')
 
             found = finder(location)
-            if TRACE: logger.debug(f'from_rootfs: trying found: {found!r}')
+            if TRACE:
+                logger.debug(f'from_rootfs: trying found: {found!r}')
             if found:
                 if base_distro:
                     if base_distro.os != finder_os:
@@ -382,11 +390,15 @@ class Distro(object):
                         )
 
                     merged = base_distro.merge(found)
-                    if TRACE: logger.debug(f'from_rootfs: returning merged: {merged!r}')
+                    if TRACE:
+                        logger.debug(
+                            f'from_rootfs: returning merged: {merged!r}')
                     return merged
 
                 else:
-                    if TRACE: logger.debug(f'from_rootfs: returning found: {found!r}')
+                    if TRACE:
+                        logger.debug(
+                            f'from_rootfs: returning found: {found!r}')
                     return found
 
     @classmethod
@@ -431,8 +443,10 @@ class Distro(object):
         """
         return dict(
             rpm=dict(
-                redhat=('fedora', 'centos', 'rhel', 'amazon', 'scientific', 'oraclelinux',),
-                suse=('opensuse', 'suse', 'sles', 'sled', 'sles_sap', 'opensuse-leap', 'opensuse-tumbleweed',),
+                redhat=('fedora', 'centos', 'rhel', 'amazon',
+                        'scientific', 'oraclelinux',),
+                suse=('opensuse', 'suse', 'sles', 'sled', 'sles_sap',
+                      'opensuse-leap', 'opensuse-tumbleweed',),
                 altlinux=('altlinux',),
                 photon=('photon',),
                 mandriva=('mandriva', 'mageia', 'mandrake', 'open-mandriva'),
@@ -456,7 +470,8 @@ class Distro(object):
         Return a new distro based on this Distro data updated with non-empty
         values from the ``other_distro`` Distro object.
         """
-        if TRACE: logger.debug(f'merge: {self!r} with: {other_distro!r}')
+        if TRACE:
+            logger.debug(f'merge: {self!r} with: {other_distro!r}')
 
         existing = self.to_dict()
         if other_distro:
@@ -465,9 +480,11 @@ class Distro(object):
                 if v
             }
             existing.update(other_non_empty)
-            if TRACE: logger.debug(f'merge: updated data: {existing!r}')
+            if TRACE:
+                logger.debug(f'merge: updated data: {existing!r}')
 
-        if TRACE: logger.debug(f'merge: merged data: {existing!r}')
+        if TRACE:
+            logger.debug(f'merge: merged data: {existing!r}')
 
         return type(self)(**existing)
 
