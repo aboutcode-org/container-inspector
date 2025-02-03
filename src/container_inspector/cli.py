@@ -41,7 +41,7 @@ def container_inspector_squash(image_path, extract_directory):
 
 def _container_inspector_squash(image_path, extract_directory):
     images = get_images_from_dir_or_tarball(image_path)
-    assert len(images) == 1, 'Can only squash one image at a time'
+    if(len(images) == 1):   raise ValueError("Can only squash one image at a time")
     img = images[0]
     target_loc = os.path.abspath(os.path.expanduser(extract_directory))
     rootfs.rebuild_rootfs(img, target_loc)
