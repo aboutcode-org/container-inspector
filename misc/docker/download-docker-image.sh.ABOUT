@@ -1,7 +1,13 @@
 name: Docker download-frozen-image.sh
 version: ca8fa6e46d9eb93e652e4045e418e41d635c6b51
 download_url: https://raw.githubusercontent.com/docker/docker/ca8fa6e46d9eb93e652e4045e418e41d635c6b51/contrib/download-frozen-image.sh
-dje_license: apache-2.0
 copyright: Copyright 2013-2015 Docker, Inc.
-license_file: download-docker-image.sh.LICENSE
 notice_file: download-docker-image.sh.NOTICE
+
+license_expression: apache-2.0
+licenses:
+  - key: apache-2.0
+    name: Apache 2.0
+    file: download-docker-image.sh.LICENSE
+    url: https://scancode-licensedb.aboutcode.org/apache-2.0.LICENSE
+    spdx_license_key: Apache-2.0
