@@ -14,6 +14,7 @@ import traceback
 from typing import NamedTuple
 
 from commoncode import fileutils
+from commoncode.system import py314
 
 TRACE = False
 
@@ -120,7 +121,7 @@ def is_relative_path(path):
     return any(name == '..' for name in path.split('/'))
 
 
-def extract_tar(location, target_dir, as_events=False, skip_symlinks=True, trace=TRACE):
+def extract_tar(location, target_dir, as_events=False, skip_symlinks=True, tar_filter=None, trace=TRACE):
     """
     Extract a tar archive at ``location`` in the ``target_dir`` directory.
     Return a list of ExtractEvent is ``as_events`` is True, or a list of message
@@ -178,8 +179,12 @@ def extract_tar(location, target_dir, as_events=False, skip_symlinks=True, trace
             tarinfo.mode = 0o755
 
             try:
-                tarball.extract(
-                    member=tarinfo, path=target_dir, set_attrs=False,)
+                if py314 and tar_filter:
+                    tarball.extract(
+                        member=tarinfo, path=target_dir, set_attrs=False, filter=tar_filter,
+                    )
+                else:
+                    tarball.extract(member=tarinfo, path=target_dir, set_attrs=False)
             except Exception:
                 msg = f'{location}: failed to extract: {tarinfo.name}: {traceback.format_exc()}'
                 events.append(ExtractEvent(type=ExtractEvent.ERROR,
