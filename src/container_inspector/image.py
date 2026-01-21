@@ -25,6 +25,7 @@ TRACE = False
 logger = logging.getLogger(__name__)
 if TRACE:
     import sys
+
     logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
     logger.setLevel(logging.DEBUG)
 
@@ -72,21 +73,21 @@ def flatten_images_data(images, layer_path_segments=0, _test=False):
     for img in images:
         img_extracted_location = img.extracted_location
         base_data = dict(
-            image_extracted_location='' if _test else img_extracted_location,
-            image_archive_location='' if _test else img.archive_location,
+            image_extracted_location="" if _test else img_extracted_location,
+            image_archive_location="" if _test else img.archive_location,
             image_id=img.image_id,
-            image_tags=','.join(img.tags),
+            image_tags=",".join(img.tags),
         )
 
         for layer in img.layers:
             layer_data = dict(base_data)
-            layer_data['is_empty_layer'] = layer.is_empty_layer
-            layer_data['layer_id'] = layer.layer_id
-            layer_data['layer_sha256'] = layer.sha256
-            layer_data['author'] = layer.author
-            layer_data['created_by'] = layer.created_by
-            layer_data['created'] = layer.created
-            layer_data['comment'] = layer.comment
+            layer_data["is_empty_layer"] = layer.is_empty_layer
+            layer_data["layer_id"] = layer.layer_id
+            layer_data["layer_sha256"] = layer.sha256
+            layer_data["author"] = layer.author
+            layer_data["created_by"] = layer.created_by
+            layer_data["created"] = layer.created
+            layer_data["comment"] = layer.comment
 
             lay_extracted_location = layer.extracted_location
             lay_archive_location = layer.archive_location
@@ -101,8 +102,8 @@ def flatten_images_data(images, layer_path_segments=0, _test=False):
                     num_segments=layer_path_segments,
                 )
 
-            layer_data['layer_archive_location'] = lay_archive_location
-            layer_data['layer_extracted_location'] = lay_extracted_location
+            layer_data["layer_archive_location"] = lay_archive_location
+            layer_data["layer_extracted_location"] = lay_extracted_location
             yield layer_data
 
 
@@ -121,11 +122,11 @@ def get_trimmed_path(location, num_segments=2):
     >>> assert get_trimmed_path('/x/a/b/c', 3) == 'a/b/c'
     """
     if location:
-        ends = location.endswith('/')
-        segments = location.strip('/').split('/')[-num_segments:]
-        relative = '/'.join(segments)
+        ends = location.endswith("/")
+        segments = location.strip("/").split("/")[-num_segments:]
+        relative = "/".join(segments)
         if ends:
-            relative += '/'
+            relative += "/"
         return relative
 
 
@@ -135,51 +136,29 @@ class ConfigMixin(object):
     Configuration data. Shared definition as found in a layer json file and an
     image config json file.
     """
-    docker_version = attr.attrib(
-        default=None,
-        metadata=dict(doc='The docker version.')
-    )
 
-    os = attr.attrib(
-        default=None,
-        metadata=dict(doc='Operating system.')
-    )
+    docker_version = attr.attrib(default=None, metadata=dict(doc="The docker version."))
 
-    os_version = attr.attrib(
-        default=None,
-        metadata=dict(doc='Operating system version.')
-    )
+    os = attr.attrib(default=None, metadata=dict(doc="Operating system."))
 
-    architecture = attr.attrib(
-        default=None,
-        metadata=dict(doc='Architecture.')
-    )
+    os_version = attr.attrib(default=None, metadata=dict(doc="Operating system version."))
 
-    variant = attr.attrib(
-        default=None,
-        metadata=dict(doc='Architecture variant.')
-    )
+    architecture = attr.attrib(default=None, metadata=dict(doc="Architecture."))
 
-    created = attr.attrib(
-        default=None,
-        metadata=dict(doc='Time stamp when this was created')
-    )
+    variant = attr.attrib(default=None, metadata=dict(doc="Architecture variant."))
 
-    author = attr.attrib(
-        default=None,
-        metadata=dict(doc='Author when present')
-    )
+    created = attr.attrib(default=None, metadata=dict(doc="Time stamp when this was created"))
 
-    comment = attr.attrib(
-        default=None,
-        metadata=dict(doc='comment')
-    )
+    author = attr.attrib(default=None, metadata=dict(doc="Author when present"))
+
+    comment = attr.attrib(default=None, metadata=dict(doc="comment"))
 
     labels = attr.attrib(
         default=attr.Factory(list),
-        metadata=dict(doc='List of labels for this layer merged from the '
-                      'original config and container_config.'
-                      )
+        metadata=dict(
+            doc="List of labels for this layer merged from the "
+            "original config and container_config."
+        ),
     )
 
     @classmethod
@@ -190,18 +169,18 @@ class ConfigMixin(object):
         """
         data = utils.lower_keys(data)
 
-        config = data.get('config', {})
-        container_config = data.get('container_config', {})
+        config = data.get("config", {})
+        container_config = data.get("container_config", {})
 
         return dict(
-            docker_version=data.get('docker_version'),
-            os=data.get('os'),
-            os_version=data.get('os.version'),
-            architecture=data.get('architecture'),
-            variant=data.get('variant'),
-            created=data.get('created'),
-            author=config.get('author'),
-            comment=data.get('comment'),
+            docker_version=data.get("docker_version"),
+            os=data.get("os"),
+            os_version=data.get("os.version"),
+            architecture=data.get("architecture"),
+            variant=data.get("variant"),
+            created=data.get("created"),
+            author=config.get("author"),
+            comment=data.get("comment"),
             labels=utils.get_labels(config, container_config),
         )
 
@@ -216,21 +195,19 @@ class ArchiveMixin:
 
     extracted_location = attr.attrib(
         default=None,
-        metadata=dict(doc='Absolute directory location where this Archive is extracted.'
-                      )
+        metadata=dict(doc="Absolute directory location where this Archive is extracted."),
     )
 
     archive_location = attr.attrib(
         default=None,
-        metadata=dict(doc='Absolute directory location of this Archive original file.'
-                      'May be empty if this was created from an extracted_location directory.'
-                      )
+        metadata=dict(
+            doc="Absolute directory location of this Archive original file."
+            "May be empty if this was created from an extracted_location directory."
+        ),
     )
 
     sha256 = attr.attrib(
-        default=None,
-        metadata=dict(
-            doc='SHA256 digest of this archive (if there is an archive.)')
+        default=None, metadata=dict(doc="SHA256 digest of this archive (if there is an archive.)")
     )
 
     def set_sha256(self):
@@ -255,50 +232,45 @@ class Image(ArchiveMixin, ConfigMixin):
 
     image_format = attr.attrib(
         default=None,
-        metadata=dict(doc='Format of this this image as of one of: "docker" or "oci".'
-                      )
+        metadata=dict(doc='Format of this this image as of one of: "docker" or "oci".'),
     )
 
     image_id = attr.attrib(
         default=None,
-        metadata=dict(doc='Id for this image. '
-                      'This is the base name of the config json file '
-                      'and is the same as a non-prefixed digest for the config JSON file.'
-                      )
+        metadata=dict(
+            doc="Id for this image. "
+            "This is the base name of the config json file "
+            "and is the same as a non-prefixed digest for the config JSON file."
+        ),
     )
 
     config_digest = attr.attrib(
         default=None,
-        metadata=dict(doc='Digest of the config JSON file for this image. '
-                      'This is supposed to be the same as the id. '
-                      )
+        metadata=dict(
+            doc="Digest of the config JSON file for this image. "
+            "This is supposed to be the same as the id. "
+        ),
     )
 
     tags = attr.attrib(
-        default=attr.Factory(list),
-        metadata=dict(doc='List of tags for this image".'
-                      )
+        default=attr.Factory(list), metadata=dict(doc='List of tags for this image".')
     )
-    distro = attr.attrib(
-        default=None,
-        metadata=dict(doc='Distro object for this image.')
-    )
+    distro = attr.attrib(default=None, metadata=dict(doc="Distro object for this image."))
 
     layers = attr.attrib(
         default=attr.Factory(list),
-        metadata=dict(doc='List of Layer objects ordered from bottom to top, excluding empty '
-                      'layers."'
-                      )
+        metadata=dict(
+            doc='List of Layer objects ordered from bottom to top, excluding empty layers."'
+        ),
     )
 
     history = attr.attrib(
-        default=attr.Factory(list),
-        metadata=dict(doc='List of mapping for the layers history.')
+        default=attr.Factory(list), metadata=dict(doc="List of mapping for the layers history.")
     )
 
     def __attrs_post_init__(self, *args, **kwargs):
         if not self.extracted_location:
-            raise TypeError('Image.extracted_location is a required argument')
+            raise TypeError("Image.extracted_location is a required argument")
 
         self.set_sha256()
 
@@ -314,24 +286,22 @@ class Image(ArchiveMixin, ConfigMixin):
         image = attr.asdict(self)
 
         if layer_path_segments:
-            for layer in image.get('layers', []):
-                layer['extracted_location'] = get_trimmed_path(
-                    location=layer.get('extracted_location'),
+            for layer in image.get("layers", []):
+                layer["extracted_location"] = get_trimmed_path(
+                    location=layer.get("extracted_location"),
                     num_segments=layer_path_segments,
                 )
 
-                layer['archive_location'] = get_trimmed_path(
-                    location=layer.get('archive_location'),
+                layer["archive_location"] = get_trimmed_path(
+                    location=layer.get("archive_location"),
                     num_segments=layer_path_segments,
                 )
 
         if _test:
-            image['extracted_location'] = ''
+            image["extracted_location"] = ""
             img_archive_location = self.archive_location
-            image['archive_location'] = (
-                img_archive_location
-                and os.path.basename(img_archive_location)
-                or ''
+            image["archive_location"] = (
+                img_archive_location and os.path.basename(img_archive_location) or ""
             )
         return image
 
@@ -383,7 +353,7 @@ class Image(ArchiveMixin, ConfigMixin):
         """
         bottom_layer = self.bottom_layer
         if not bottom_layer.extracted_location:
-            raise Exception('The image has not been extracted.')
+            raise Exception("The image has not been extracted.")
 
         distro = Distro(
             os=self.os,
@@ -401,7 +371,7 @@ class Image(ArchiveMixin, ConfigMixin):
 
     def cleanup(self):
         """
-        Removed extracted layer files from self.extracted_location.
+        Remove extracted layer files from self.extracted_location.
         """
         if self.extracted_location:
             delete(self.extracted_location)
@@ -417,6 +387,7 @@ class Image(ArchiveMixin, ConfigMixin):
         rootfs directory rooted in the `target_dir` directory.
         """
         from container_inspector import rootfs
+
         rootfs.rebuild_rootfs(self, target_dir)
 
     def get_installed_packages(self, packages_getter):
@@ -485,8 +456,7 @@ class Image(ArchiveMixin, ConfigMixin):
         """
         if TRACE:
             logger.debug(
-                f'get_images_from_tarball: {archive_location} '
-                f'extracting to: {extracted_location}'
+                f"get_images_from_tarball: {archive_location} extracting to: {extracted_location}"
             )
 
         # TODO: do not ignore extract events
@@ -496,7 +466,7 @@ class Image(ArchiveMixin, ConfigMixin):
             skip_symlinks=skip_symlinks,
         )
         if TRACE:
-            logger.debug(f'get_images_from_tarball: events')
+            logger.debug(f"get_images_from_tarball: events")
             for e in _events:
                 logger.debug(str(e))
 
@@ -521,36 +491,33 @@ class Image(ArchiveMixin, ConfigMixin):
         """
         if TRACE:
             logger.debug(
-                f'get_images_from_dir: from  {extracted_location} and '
-                f'archive_location: {archive_location}',
+                f"get_images_from_dir: from  {extracted_location} and "
+                f"archive_location: {archive_location}",
             )
 
         if not os.path.isdir(extracted_location):
-            raise Exception(f'Not a directory: {extracted_location}')
+            raise Exception(f"Not a directory: {extracted_location}")
 
         image_format = Image.find_format(extracted_location)
 
         if TRACE:
-            logger.debug(f'get_images_from_dir: image_format: {image_format}')
+            logger.debug(f"get_images_from_dir: image_format: {image_format}")
 
-        if image_format == 'docker':
+        if image_format == "docker":
             return Image.get_docker_images_from_dir(
                 extracted_location=extracted_location,
                 archive_location=archive_location,
                 verify=verify,
             )
 
-        if image_format == 'oci':
+        if image_format == "oci":
             return Image.get_oci_images_from_dir(
                 extracted_location=extracted_location,
                 archive_location=archive_location,
                 verify=verify,
             )
 
-        raise Exception(
-            f'Unknown container image format {image_format} '
-            f'at {extracted_location}'
-        )
+        raise Exception(f"Unknown container image format {image_format} at {extracted_location}")
 
     @staticmethod
     def get_docker_images_from_dir(
@@ -590,37 +557,34 @@ class Image(ArchiveMixin, ConfigMixin):
         ]
         """
         if TRACE:
-            logger.debug(f'get_docker_images_from_dir: {extracted_location}')
+            logger.debug(f"get_docker_images_from_dir: {extracted_location}")
 
         if not os.path.isdir(extracted_location):
-            raise Exception(f'Not a directory: {extracted_location}')
+            raise Exception(f"Not a directory: {extracted_location}")
 
         manifest_loc = os.path.join(extracted_location, MANIFEST_JSON_FILE)
         # NOTE: we are only looking at V1.1/2 repos layout for now and not the
         # legacy v1.0.
         if not os.path.exists(manifest_loc):
-            raise Exception(
-                f'manifest.json file missing in {extracted_location}')
+            raise Exception(f"manifest.json file missing in {extracted_location}")
 
         manifest = load_json(manifest_loc)
 
         if TRACE:
-            logger.debug(f'get_docker_images_from_dir: manifest: {manifest}')
+            logger.debug(f"get_docker_images_from_dir: manifest: {manifest}")
 
         images = []
         for manifest_config in manifest:
             if TRACE:
-                logger.debug(
-                    f'get_docker_images_from_dir: manifest_config: {manifest_config}')
+                logger.debug(f"get_docker_images_from_dir: manifest_config: {manifest_config}")
             img = Image.from_docker_manifest_config(
                 extracted_location=extracted_location,
                 archive_location=archive_location,
                 manifest_config=manifest_config,
                 verify=verify,
-
             )
             if TRACE:
-                logger.debug(f'get_docker_images_from_dir: img: {img!r}')
+                logger.debug(f"get_docker_images_from_dir: img: {img!r}")
 
             images.append(img)
 
@@ -698,26 +662,24 @@ class Image(ArchiveMixin, ConfigMixin):
          }
         """
         if TRACE:
-            logger.debug(
-                f'from_docker_manifest_config: manifest_config: {manifest_config!r}')
+            logger.debug(f"from_docker_manifest_config: manifest_config: {manifest_config!r}")
 
         manifest_config = utils.lower_keys(manifest_config)
 
-        config_file = manifest_config.get('config') or ''
+        config_file = manifest_config.get("config") or ""
         config_file_loc = os.path.join(extracted_location, config_file)
         if not os.path.exists(config_file_loc):
-            raise Exception(
-                f'Invalid configuration. Missing Config file: {config_file_loc}')
+            raise Exception(f"Invalid configuration. Missing Config file: {config_file_loc}")
 
         image_id, _ = os.path.splitext(os.path.basename(config_file_loc))
         config_digest = sha256_digest(config_file_loc)
         if verify and image_id != as_bare_id(config_digest):
             raise Exception(
-                f'Image config {config_file_loc} SHA256:{image_id} is not '
-                f'consistent with actual computed value SHA256: {config_digest}'
+                f"Image config {config_file_loc} SHA256:{image_id} is not "
+                f"consistent with actual computed value SHA256: {config_digest}"
             )
 
-        config_digest = f'sha256:{image_id}'
+        config_digest = f"sha256:{image_id}"
 
         # "Layers" can be either a path to the layer.tar:
         # "d388bee71bbf28f77042d89b353bacd14506227/layer.tar"
@@ -726,53 +688,50 @@ class Image(ArchiveMixin, ConfigMixin):
         # link to a tarball named after its sha256 and located at the root
         # 5f70bf18a086007016e948b04aed3b82103a36be.tar
 
-        layer_paths = manifest_config.get('layers') or []
-        layers_archive_locs = [
-            os.path.join(extracted_location, lp)
-            for lp in layer_paths
-        ]
+        layer_paths = manifest_config.get("layers") or []
+        layers_archive_locs = [os.path.join(extracted_location, lp) for lp in layer_paths]
 
-        tags = manifest_config.get('repotags') or []
+        tags = manifest_config.get("repotags") or []
 
         image_config = utils.lower_keys(load_json(config_file_loc))
-        rootfs = image_config['rootfs']
-        rt = rootfs['type']
-        if rt != 'layers':
+        rootfs = image_config["rootfs"]
+        rt = rootfs["type"]
+        if rt != "layers":
             raise Exception(
                 f'Unknown type for image rootfs: expecting "layers" and '
-                f'not {rt} in {config_file_loc}'
+                f"not {rt} in {config_file_loc}"
             )
 
         # TODO: add support for empty tarball as this may not work if there is a
         # diff for an empty layer with a digest for some EMPTY content e.g.
         # e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 
-        layers_sha256s = [as_bare_id(lsha256)
-                          for lsha256 in rootfs['diff_ids']]
+        layers_sha256s = [as_bare_id(lsha256) for lsha256 in rootfs["diff_ids"]]
         layer_arch_locs_and_sha256s = zip(layers_archive_locs, layers_sha256s)
 
         layers = []
         for layer_archive_loc, layer_sha256 in layer_arch_locs_and_sha256s:
-
             if verify:
                 on_disk_layer_sha256 = sha256_digest(layer_archive_loc)
                 if layer_sha256 != on_disk_layer_sha256:
                     raise Exception(
-                        f'Layer archive: SHA256:{on_disk_layer_sha256}\n at '
-                        f'{layer_archive_loc} does not match \n'
+                        f"Layer archive: SHA256:{on_disk_layer_sha256}\n at "
+                        f"{layer_archive_loc} does not match \n"
                         f'its "diff_id": SHA256:{layer_sha256}'
                     )
 
-            layers.append(Layer(
-                archive_location=layer_archive_loc,
-                sha256=layer_sha256,
-            ))
+            layers.append(
+                Layer(
+                    archive_location=layer_archive_loc,
+                    sha256=layer_sha256,
+                )
+            )
 
-        history = image_config.get('history') or {}
+        history = image_config.get("history") or {}
         assign_history_to_layers(history, layers)
 
         img = Image(
-            image_format='docker',
+            image_format="docker",
             extracted_location=extracted_location,
             archive_location=archive_location,
             image_id=image_id,
@@ -780,7 +739,7 @@ class Image(ArchiveMixin, ConfigMixin):
             config_digest=config_digest,
             history=history,
             tags=tags,
-            **ConfigMixin.from_config_data(image_config)
+            **ConfigMixin.from_config_data(image_config),
         )
 
         return img
@@ -793,8 +752,12 @@ class Image(ArchiveMixin, ConfigMixin):
         - oci (which is for the OCI format)
         """
         clue_files_by_image_format = {
-            'docker': ('manifest.json',),
-            'oci': ('blobs', 'index.json', 'oci-layout',)
+            "docker": ("manifest.json",),
+            "oci": (
+                "blobs",
+                "index.json",
+                "oci-layout",
+            ),
         }
 
         files = os.listdir(extracted_location)
@@ -808,7 +771,7 @@ class Image(ArchiveMixin, ConfigMixin):
         archive_location=None,
         verify=True,
     ):
-        """
+        r"""
         Return a list of Images created from OCI images found at
         `extracted_location` that is a directory where an OCI image tarball has
         been extracted.
@@ -886,72 +849,70 @@ class Image(ArchiveMixin, ConfigMixin):
           ]
         }
         """
-        index_loc = os.path.join(extracted_location, 'index.json')
+        index_loc = os.path.join(extracted_location, "index.json")
         index = load_json(index_loc)
         index = utils.lower_keys(index)
-        if index['schemaversion'] != 2:
+        if index["schemaversion"] != 2:
             raise Exception(
-                f'Unsupported OCI index schema version in {index_loc}. '
-                'Only 2 is supported.'
+                f"Unsupported OCI index schema version in {index_loc}. Only 2 is supported."
             )
 
         images = []
-        for manifest_data in index['manifests']:
-            mediatype = manifest_data['mediatype']
-            if mediatype != 'application/vnd.oci.image.manifest.v1+json':
-                raise Exception(
-                    f'Unsupported OCI index media type {mediatype} in {index_loc}.'
-                )
-            manifest_digest = manifest_data['digest']
+        for manifest_data in index["manifests"]:
+            mediatype = manifest_data["mediatype"]
+            if mediatype != "application/vnd.oci.image.manifest.v1+json":
+                raise Exception(f"Unsupported OCI index media type {mediatype} in {index_loc}.")
+            manifest_digest = manifest_data["digest"]
             manifest_sha256 = as_bare_id(manifest_digest)
-            manifest_loc = get_oci_blob(
-                extracted_location, manifest_sha256, verify=verify)
+            manifest_loc = get_oci_blob(extracted_location, manifest_sha256, verify=verify)
             manifest = load_json(manifest_loc)
 
-            config_digest = manifest['config']['digest']
+            config_digest = manifest["config"]["digest"]
             config_sha256 = as_bare_id(config_digest)
-            config_loc = get_oci_blob(
-                extracted_location, config_sha256, verify=verify)
+            config_loc = get_oci_blob(extracted_location, config_sha256, verify=verify)
             config = load_json(config_loc)
 
             layers = []
-            for layer in manifest['layers']:
-                layer_digest = layer['digest']
+            for layer in manifest["layers"]:
+                layer_digest = layer["digest"]
                 layer_sha256 = as_bare_id(layer_digest)
-                layer_arch_loc = get_oci_blob(
-                    extracted_location, layer_sha256, verify=verify)
-                layers.append(Layer(
-                    archive_location=layer_arch_loc,
-                    sha256=layer_sha256,
-                ))
+                layer_arch_loc = get_oci_blob(extracted_location, layer_sha256, verify=verify)
+                layers.append(
+                    Layer(
+                        archive_location=layer_arch_loc,
+                        sha256=layer_sha256,
+                    )
+                )
 
-            history = config.get('history') or {}
+            history = config.get("history") or {}
             assign_history_to_layers(history, layers)
 
-            images.append(Image(
-                image_format='oci',
-                extracted_location=extracted_location,
-                archive_location=archive_location,
-                image_id=config_sha256,
-                layers=layers,
-                config_digest=config_digest,
-                history=history,
-                **ConfigMixin.from_config_data(config)
-            ))
+            images.append(
+                Image(
+                    image_format="oci",
+                    extracted_location=extracted_location,
+                    archive_location=archive_location,
+                    image_id=config_sha256,
+                    layers=layers,
+                    config_digest=config_digest,
+                    history=history,
+                    **ConfigMixin.from_config_data(config),
+                )
+            )
 
         return images
 
 
 def get_oci_blob(extracted_location, sha256, verify=True):
-    loc = os.path.join(extracted_location, 'blobs', 'sha256', sha256)
+    loc = os.path.join(extracted_location, "blobs", "sha256", sha256)
     if not os.path.exists(loc):
-        raise Exception(f'Missing OCI image file {loc}')
+        raise Exception(f"Missing OCI image file {loc}")
     if verify:
         on_disk_sha256 = sha256_digest(loc)
         if sha256 != on_disk_sha256:
             raise Exception(
-                f'For {loc} on disk SHA256:{on_disk_sha256} does not '
-                f'match its expected index SHA256:{sha256}'
+                f"For {loc} on disk SHA256:{on_disk_sha256} does not "
+                f"match its expected index SHA256:{sha256}"
             )
     return loc
 
@@ -985,7 +946,7 @@ def assign_history_to_layers(history, layers):
     if not history:
         return
 
-    non_empty_history = [h for h in history if not h.get('empty_layer', False)]
+    non_empty_history = [h for h in history if not h.get("empty_layer", False)]
     non_empty_layers = [l for l in layers if not l.is_empty_layer]
 
     if len(non_empty_history) != len(non_empty_layers):
@@ -994,7 +955,7 @@ def assign_history_to_layers(history, layers):
         # TODO: raise some warning?
         return
 
-    fields = 'author', 'created', 'created_by', 'comment'
+    fields = "author", "created", "created_by", "comment"
 
     for hist, layer in zip(non_empty_history, non_empty_layers):
         hist = utils.lower_keys(hist)
@@ -1006,31 +967,18 @@ def assign_history_to_layers(history, layers):
 
 @attr.attributes
 class Resource:
-    path = attr.attrib(
-        default=None,
-        metadata=dict(doc='Rootfs-relative path for this Resource.')
-    )
+    path = attr.attrib(default=None, metadata=dict(doc="Rootfs-relative path for this Resource."))
 
     layer_path = attr.attrib(
         default=None,
-        metadata=dict(doc='Rootfs-relative path with the addition of the layer id as a prefix.'
-                      )
+        metadata=dict(doc="Rootfs-relative path with the addition of the layer id as a prefix."),
     )
 
-    location = attr.attrib(
-        default=None,
-        metadata=dict(doc='Absolute location of this Resource.')
-    )
+    location = attr.attrib(default=None, metadata=dict(doc="Absolute location of this Resource."))
 
-    is_file = attr.ib(
-        default=True,
-        metadata=dict(doc='True for file, False for directory.')
-    )
+    is_file = attr.ib(default=True, metadata=dict(doc="True for file, False for directory."))
 
-    is_symlink = attr.ib(
-        default=False,
-        metadata=dict(doc='True for symlink.')
-    )
+    is_symlink = attr.ib(default=False, metadata=dict(doc="True for symlink."))
 
     def to_dict(self, **kwargs):
         return attr.asdict(self)
@@ -1044,44 +992,29 @@ class Layer(ArchiveMixin, ConfigMixin):
 
     layer_id = attr.attrib(
         default=None,
-        metadata=dict(doc='Id for this layer which must be set to the SHA256 of its archive.'
-                      )
+        metadata=dict(doc="Id for this layer which must be set to the SHA256 of its archive."),
     )
 
-    size = attr.attrib(
-        default=0,
-        metadata=dict(doc='Size in byte of the layer archive')
-    )
+    size = attr.attrib(default=0, metadata=dict(doc="Size in byte of the layer archive"))
 
     is_empty_layer = attr.attrib(
         default=False,
-        metadata=dict(doc='True if this is an empty layer. An empty layer has no content.'
-                      )
+        metadata=dict(doc="True if this is an empty layer. An empty layer has no content."),
     )
 
-    author = attr.attrib(
-        default=None,
-        metadata=dict(doc='Author of this layer.')
-    )
+    author = attr.attrib(default=None, metadata=dict(doc="Author of this layer."))
 
     created = attr.attrib(
-        default=None,
-        metadata=dict(doc='Date/timestamp for when this layer was created.')
+        default=None, metadata=dict(doc="Date/timestamp for when this layer was created.")
     )
 
-    created_by = attr.attrib(
-        default=None,
-        metadata=dict(doc='Command used to create this layer.')
-    )
+    created_by = attr.attrib(default=None, metadata=dict(doc="Command used to create this layer."))
 
-    comment = attr.attrib(
-        default=None,
-        metadata=dict(doc='A comment for this layer.')
-    )
+    comment = attr.attrib(default=None, metadata=dict(doc="A comment for this layer."))
 
     def __attrs_post_init__(self, *args, **kwargs):
         if not self.archive_location:
-            raise TypeError('Layer.archive_location is a required argument')
+            raise TypeError("Layer.archive_location is a required argument")
 
         self.set_sha256()
         self.layer_id = self.sha256
@@ -1110,12 +1043,12 @@ class Layer(ArchiveMixin, ConfigMixin):
         ``with_dir`` is False.
         """
         if not self.extracted_location:
-            raise Exception('The layer has not been extracted.')
+            raise Exception("The layer has not been extracted.")
 
         def build_resource(_top, _name, _is_file):
             _loc = os.path.join(top, _name)
-            _path = _loc.replace(self.extracted_location, '')
-            _layer_path = os.path.join(self.layer_id, _path.lstrip('/'))
+            _path = _loc.replace(self.extracted_location, "")
+            _layer_path = os.path.join(self.layer_id, _path.lstrip("/"))
 
             return Resource(
                 location=_loc,

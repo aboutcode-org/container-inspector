@@ -28,9 +28,11 @@ if TRACE:
 
 
 @click.command()
-@click.argument('image_path', metavar='IMAGE_path', type=click.Path(exists=True, readable=True))
-@click.argument('extract_directory', metavar='TARGET_DIR', type=click.Path(exists=True, writable=True))
-@click.help_option('-h', '--help')
+@click.argument("image_path", metavar="IMAGE_path", type=click.Path(exists=True, readable=True))
+@click.argument(
+    "extract_directory", metavar="TARGET_DIR", type=click.Path(exists=True, writable=True)
+)
+@click.help_option("-h", "--help")
 def container_inspector_squash(image_path, extract_directory):
     """
     Given a Docker image at IMAGE_PATH, extract and squash that image in TARGET_DIR
@@ -41,17 +43,17 @@ def container_inspector_squash(image_path, extract_directory):
 
 def _container_inspector_squash(image_path, extract_directory):
     images = get_images_from_dir_or_tarball(image_path)
-    assert len(images) == 1, 'Can only squash one image at a time'
+    assert len(images) == 1, "Can only squash one image at a time"
     img = images[0]
     target_loc = os.path.abspath(os.path.expanduser(extract_directory))
     rootfs.rebuild_rootfs(img, target_loc)
 
 
 @click.command()
-@click.argument('directory', metavar='DIR', type=click.Path(exists=True, readable=True))
-@click.option('--json', is_flag=True, help='Print information as JSON.')
-@click.option('--csv', is_flag=True, help='Print information  as CSV.')
-@click.help_option('-h', '--help')
+@click.argument("directory", metavar="DIR", type=click.Path(exists=True, readable=True))
+@click.option("--json", is_flag=True, help="Print information as JSON.")
+@click.option("--csv", is_flag=True, help="Print information  as CSV.")
+@click.help_option("-h", "--help")
 def container_inspector_dockerfile(directory, json=False, csv=False):
     """
     Find source Dockerfile files in DIR. Print information as JSON or CSV to stdout.
@@ -61,15 +63,14 @@ def container_inspector_dockerfile(directory, json=False, csv=False):
 
 
 def _container_inspector_dockerfile(directory, json=False, csv=False):
-    assert json or csv, 'At least one of --json or --csv is required.'
+    assert json or csv, "At least one of --json or --csv is required."
     dir_loc = os.path.abspath(os.path.expanduser(directory))
 
     dockerfiles = dockerfile.collect_dockerfiles(location=dir_loc)
     if not dockerfiles:
         return
     if json:
-        click.echo(json_module.dumps(
-            [df for _loc, df in dockerfiles.items()], indent=2))
+        click.echo(json_module.dumps([df for _loc, df in dockerfiles.items()], indent=2))
 
     if csv:
         dockerfiles = list(dockerfile.flatten_dockerfiles(dockerfiles))
@@ -81,10 +82,14 @@ def _container_inspector_dockerfile(directory, json=False, csv=False):
 
 
 @click.command()
-@click.argument('image_path', metavar='IMAGE_PATH', type=click.Path(exists=True, readable=True))
-@click.option('--extract-to', default=None, metavar='PATH', type=click.Path(exists=True, readable=True))
-@click.option('--csv', is_flag=True, default=False, help='Print information as CSV instead of JSON.')
-@click.help_option('-h', '--help')
+@click.argument("image_path", metavar="IMAGE_PATH", type=click.Path(exists=True, readable=True))
+@click.option(
+    "--extract-to", default=None, metavar="PATH", type=click.Path(exists=True, readable=True)
+)
+@click.option(
+    "--csv", is_flag=True, default=False, help="Print information as CSV instead of JSON."
+)
+@click.help_option("-h", "--help")
 def container_inspector(image_path, extract_to=None, csv=False):
     """
     Find Docker images and their layers in IMAGE_PATH.
@@ -101,16 +106,15 @@ def _container_inspector(image_path, extract_to=None, csv=False, _layer_path_seg
     as_json = not csv
 
     if as_json:
-        images = [i.to_dict(layer_path_segments=_layer_path_segments)
-                  for i in images]
+        images = [i.to_dict(layer_path_segments=_layer_path_segments) for i in images]
         return json_module.dumps(images, indent=2)
     else:
         from io import StringIO
+
         output = StringIO()
-        flat = list(image.flatten_images_data(
-            images=images,
-            layer_path_segments=_layer_path_segments
-        ))
+        flat = list(
+            image.flatten_images_data(images=images, layer_path_segments=_layer_path_segments)
+        )
         if not flat:
             return
         keys = flat[0].keys()
@@ -139,5 +143,5 @@ def get_images_from_dir_or_tarball(image_path, extract_to=None, quiet=False):
         for img in images:
             img.extract_layers(extracted_location=extract_to)
         if not quiet:
-            click.echo('Extracting image tarball to: {}'.format(extract_to))
+            click.echo("Extracting image tarball to: {}".format(extract_to))
     return images

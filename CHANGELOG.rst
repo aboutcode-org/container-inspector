@@ -1,6 +1,14 @@
 Changelog
 =========
 
+v33.1.0
+--------
+
+This is a minor release with updated python support.
+
+ - support python 3.14 and deprecate support for python3.9
+   and earlier versions.
+
 v33.0.1
 --------
 
