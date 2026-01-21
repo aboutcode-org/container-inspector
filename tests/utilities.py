@@ -15,7 +15,7 @@ def check_expected(result, expected, regen=False):
     Regen the expected file if regen is True.
     """
     if regen:
-        with open(expected, 'w') as ex:
+        with open(expected, "w") as ex:
             ex.write(json.dumps(result, indent=2))
 
     with open(expected) as ex:

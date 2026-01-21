@@ -21,6 +21,7 @@ TRACE = False
 logger = logging.getLogger(__name__)
 if TRACE:
     import sys
+
     logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
     logger.setLevel(logging.DEBUG)
 
@@ -42,8 +43,17 @@ def get_command(cmds):
     """
     # FIXME: this need to be cleaned further
     cmds = cmds or []
-    cmds = [c for c in cmds if not c.startswith(('/bin/sh', '-c',))]
-    return ' '.join(cmds)
+    cmds = [
+        c
+        for c in cmds
+        if not c.startswith(
+            (
+                "/bin/sh",
+                "-c",
+            )
+        )
+    ]
+    return " ".join(cmds)
 
 
 def sha256_digest(location):
@@ -51,7 +61,7 @@ def sha256_digest(location):
     Return a SHA256 checksum for the file content at location.
     """
     if location and os.path.exists(location):
-        with open(location, 'rb') as loc:
+        with open(location, "rb") as loc:
             sha256 = hashlib.sha256(loc.read())
         return str(sha256.hexdigest())
 
@@ -62,8 +72,8 @@ def as_bare_id(string):
     """
     if not string:
         return string
-    if string.startswith('sha256:'):
-        _, _, string = string.partition('sha256:')
+    if string.startswith("sha256:"):
+        _, _, string = string.partition("sha256:")
     return string
 
 
@@ -75,11 +85,11 @@ def get_labels(config, container_config):
     labels = {}
 
     config = lower_keys(config)
-    config_labels = config.get('labels', {}) or {}
+    config_labels = config.get("labels", {}) or {}
     labels.update(config_labels.items())
 
     container_config = lower_keys(container_config)
-    container_labels = container_config.get('labels', {}) or {}
+    container_labels = container_config.get("labels", {}) or {}
     labels.update(container_labels.items())
     return dict(sorted(labels.items()))
 
@@ -118,10 +128,12 @@ def is_relative_path(path):
     >>> is_relative_path('.//.foor//..')
     True
     """
-    return any(name == '..' for name in path.split('/'))
+    return any(name == ".." for name in path.split("/"))
 
 
-def extract_tar(location, target_dir, as_events=False, skip_symlinks=True, tar_filter=None, trace=TRACE):
+def extract_tar(
+    location, target_dir, as_events=False, skip_symlinks=True, tar_filter="tar", trace=TRACE
+):
     """
     Extract a tar archive at ``location`` in the ``target_dir`` directory.
     Return a list of ExtractEvent is ``as_events`` is True, or a list of message
@@ -132,48 +144,60 @@ def extract_tar(location, target_dir, as_events=False, skip_symlinks=True, tar_f
     Do not preserve the permissions and owners.
     """
     import tarfile
+
     if trace:
-        logger.debug(
-            f'_extract_tar: {location} to {target_dir} skip_symlinks: {skip_symlinks}')
+        logger.debug(f"_extract_tar: {location} to {target_dir} skip_symlinks: {skip_symlinks}")
 
     fileutils.create_dir(target_dir)
 
     events = []
     with tarfile.open(location) as tarball:
-
         for tarinfo in tarball:
             if trace:
-                logger.debug(f'extract_tar: {location!r}: {tarinfo}')
+                logger.debug(f"extract_tar: {location!r}: {tarinfo}")
 
-            if tarinfo.isdev() or tarinfo.ischr() or tarinfo.isblk() or tarinfo.isfifo() or tarinfo.sparse:
-                msg = f'skipping unsupported {tarinfo.name} file type: block, chr, dev or sparse file'
-                events.append(ExtractEvent(type=ExtractEvent.INFO,
-                              source=tarinfo.name, message=msg))
+            if (
+                tarinfo.isdev()
+                or tarinfo.ischr()
+                or tarinfo.isblk()
+                or tarinfo.isfifo()
+                or tarinfo.sparse
+            ):
+                msg = (
+                    f"skipping unsupported {tarinfo.name} file type: block, chr, dev or sparse file"
+                )
+                events.append(
+                    ExtractEvent(type=ExtractEvent.INFO, source=tarinfo.name, message=msg)
+                )
                 if trace:
-                    logger.debug(f'extract_tar: {msg}')
+                    logger.debug(f"extract_tar: {msg}")
                 continue
 
             if is_relative_path(tarinfo.name):
-                msg = f'{location}: skipping unsupported {tarinfo.name} with relative path.'
-                events.append(ExtractEvent(
-                    type=ExtractEvent.WARNING, source=tarinfo.name, message=msg))
+                msg = f"{location}: skipping unsupported {tarinfo.name} with relative path."
+                events.append(
+                    ExtractEvent(type=ExtractEvent.WARNING, source=tarinfo.name, message=msg)
+                )
                 if trace:
-                    logger.debug(f'extract_tar: {msg}')
+                    logger.debug(f"extract_tar: {msg}")
                 continue
 
             if skip_symlinks and (tarinfo.islnk() or tarinfo.issym()):
-                msg = f'{location}: skipping link with skip_symlinks: {skip_symlinks}: {tarinfo.name} -> {tarinfo.linkname}'
+                msg = f"{location}: skipping link with skip_symlinks: {skip_symlinks}: {tarinfo.name} -> {tarinfo.linkname}"
                 if trace:
-                    logger.debug(f'extract_tar: {msg}')
+                    logger.debug(f"extract_tar: {msg}")
                 continue
 
-            if tarinfo.name.startswith('/'):
-                msg = f'{location}: absolute path name: {tarinfo.name} transformed in relative path.'
-                events.append(ExtractEvent(
-                    type=ExtractEvent.WARNING, source=tarinfo.name, message=msg))
-                tarinfo.name = tarinfo.name.lstrip('/')
+            if tarinfo.name.startswith("/"):
+                msg = (
+                    f"{location}: absolute path name: {tarinfo.name} transformed in relative path."
+                )
+                events.append(
+                    ExtractEvent(type=ExtractEvent.WARNING, source=tarinfo.name, message=msg)
+                )
+                tarinfo.name = tarinfo.name.lstrip("/")
                 if trace:
-                    logger.debug(f'extract_tar: {msg}')
+                    logger.debug(f"extract_tar: {msg}")
 
             # finally extract proper
             tarinfo.mode = 0o755
@@ -181,23 +205,32 @@ def extract_tar(location, target_dir, as_events=False, skip_symlinks=True, tar_f
             try:
                 if py314 and tar_filter:
                     tarball.extract(
-                        member=tarinfo, path=target_dir, set_attrs=False, filter=tar_filter,
+                        member=tarinfo,
+                        path=target_dir,
+                        set_attrs=False,
+                        filter=tar_filter,
                     )
                 else:
                     tarball.extract(member=tarinfo, path=target_dir, set_attrs=False)
             except Exception:
-                msg = f'{location}: failed to extract: {tarinfo.name}: {traceback.format_exc()}'
-                events.append(ExtractEvent(type=ExtractEvent.ERROR,
-                              source=tarinfo.name, message=msg))
+                msg = f"{location}: failed to extract: {tarinfo.name}: {traceback.format_exc()}"
+                events.append(
+                    ExtractEvent(type=ExtractEvent.ERROR, source=tarinfo.name, message=msg)
+                )
                 if trace:
-                    logger.debug(f'extract_tar: {msg}')
+                    logger.debug(f"extract_tar: {msg}")
     if not as_events:
         events = [e.to_string() for e in events]
     return events
 
 
 def extract_tar_with_symlinks(location, target_dir, as_events=False):
-    return extract_tar(location=location, target_dir=target_dir, as_events=as_events, skip_symlinks=False,)
+    return extract_tar(
+        location=location,
+        target_dir=target_dir,
+        as_events=as_events,
+        skip_symlinks=False,
+    )
 
 
 def lower_keys(mapping):

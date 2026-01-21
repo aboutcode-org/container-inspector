@@ -18,6 +18,7 @@ TRACE = False
 logger = logging.getLogger(__name__)
 if TRACE:
     import sys
+
     logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
     logger.setLevel(logging.DEBUG)
 
@@ -69,13 +70,12 @@ def rebuild_rootfs(img, target_dir, skip_symlinks=True):
     for layer_num, layer in enumerate(img.layers):
         if TRACE:
             logger.debug(
-                f'Extracting layer {layer_num} - {layer.layer_id} '
-                f'tarball: {layer.archive_location}'
+                f"Extracting layer {layer_num} - {layer.layer_id} tarball: {layer.archive_location}"
             )
 
         # 1. extract a layer to temp.
         # Note that we are not preserving any special file and any file permission
-        extracted_loc = tempfile.mkdtemp('container_inspector-docker')
+        extracted_loc = tempfile.mkdtemp("container_inspector-docker")
         # TODO: do not ignore extract events
         _events = layer.extract(
             extracted_location=extracted_loc,
@@ -83,24 +83,24 @@ def rebuild_rootfs(img, target_dir, skip_symlinks=True):
         )
         if TRACE:
             logger.debug(
-                f'  Extracted layer to: {extracted_loc} with skip_symlinks: {skip_symlinks}')
+                f"  Extracted layer to: {extracted_loc} with skip_symlinks: {skip_symlinks}"
+            )
             for ev in _events:
-                logger.debug(f'  {ev}')
+                logger.debug(f"  {ev}")
 
         # 2. find whiteouts in that layer.
         whiteouts = list(find_whiteouts(extracted_loc))
         if TRACE:
-            logger.debug(
-                '  Merging extracted layers and applying unionfs whiteouts')
+            logger.debug("  Merging extracted layers and applying unionfs whiteouts")
         if TRACE:
-            logger.debug('  Whiteouts:\n' +
-                         '     \n'.join(map(repr, whiteouts)))
+            logger.debug("  Whiteouts:\n" + "     \n".join(map(repr, whiteouts)))
 
         # 3. remove whiteouts in the previous layer stack (e.g. the WIP rootfs)
         for whiteout_marker_loc, whiteable_path in whiteouts:
             if TRACE:
                 logger.debug(
-                    f'    Deleting dir or file with whiteout marker: {whiteout_marker_loc}')
+                    f"    Deleting dir or file with whiteout marker: {whiteout_marker_loc}"
+                )
             whiteable_loc = os.path.join(target_dir, whiteable_path)
             delete(whiteable_loc)
             # also delete the whiteout marker file
@@ -109,19 +109,18 @@ def rebuild_rootfs(img, target_dir, skip_symlinks=True):
 
         # 4. finall copy/overwrite the extracted layer over the WIP rootfs
         if TRACE:
-            logger.debug(
-                f'  Moving extracted layer from: {extracted_loc} to: {target_dir}')
+            logger.debug(f"  Moving extracted layer from: {extracted_loc} to: {target_dir}")
         copytree(extracted_loc, target_dir)
         if TRACE:
-            logger.debug(f'  Moved layer to: {target_dir}')
+            logger.debug(f"  Moved layer to: {target_dir}")
         delete(extracted_loc)
 
     return deletions
 
 
-WHITEOUT_PREFIX = '.wh.'
-WHITEOUT_SPECIAL_PREFIX = '.wh..wh'
-WHITEOUT_OPAQUE_PREFIX = '.wh..wh..opq'
+WHITEOUT_PREFIX = ".wh."
+WHITEOUT_SPECIAL_PREFIX = ".wh..wh"
+WHITEOUT_OPAQUE_PREFIX = ".wh..wh..opq"
 
 
 def is_whiteout_marker(file_name):
@@ -202,7 +201,7 @@ def get_whiteable_path(path):
         if not is_whiteout_opaque_marker(file_name):
             # This is the case for legacy AUFS '.wh..wh.plnk' and '.wh..wh.aufs'
             # only seen in legacy Docker
-            logger.error(f'ERROR: unsupported whiteout filename: {file_name}')
+            logger.error(f"ERROR: unsupported whiteout filename: {file_name}")
         return parent_dir
 
     elif is_whiteout_marker(file_name):
@@ -228,35 +227,39 @@ def find_whiteouts(root_location, walker=os.walk):
             whiteout_marker_loc = os.path.join(top, fil)
             whiteable_path = get_whiteable_path(whiteout_marker_loc)
             if whiteable_path:
-                whiteable_path = whiteable_path.replace(
-                    root_location, '').strip(os.path.sep)
+                whiteable_path = whiteable_path.replace(root_location, "").strip(os.path.sep)
                 yield whiteout_marker_loc, whiteable_path
+
 
 # Set of well known file and directory paths found at the root of a filesystem
 
 
-LINUX_PATHS = set([
-    'usr',
-    'etc',
-    'var',
-    'home',
-    'sbin',
-    'sys',
-    'lib',
-    'bin',
-    'vmlinuz',
-])
+LINUX_PATHS = set(
+    [
+        "usr",
+        "etc",
+        "var",
+        "home",
+        "sbin",
+        "sys",
+        "lib",
+        "bin",
+        "vmlinuz",
+    ]
+)
 
-WINDOWS_PATHS = set([
-    'Program Files',
-    'Program Files(x86)',
-    'Windows',
-    'ProgramData',
-    'Users',
-    '$Recycle.Bin',
-    'PerfLogs',
-    'System Volume Information',
-])
+WINDOWS_PATHS = set(
+    [
+        "Program Files",
+        "Program Files(x86)",
+        "Windows",
+        "ProgramData",
+        "Users",
+        "$Recycle.Bin",
+        "PerfLogs",
+        "System Volume Information",
+    ]
+)
 
 
 def compute_path_depth(root_path, dir_path):
@@ -266,14 +269,14 @@ def compute_path_depth(root_path, dir_path):
     """
     if not dir_path:
         return 0
-    dir_path = dir_path.strip('/')
+    dir_path = dir_path.strip("/")
 
     if not root_path:
         return len(split(dir_path))
 
-    root_path = root_path.strip('/')
+    root_path = root_path.strip("/")
 
-    suffix = dir_path[len(root_path):]
+    suffix = dir_path[len(root_path) :]
     return len(split(suffix))
 
 
@@ -299,34 +302,32 @@ def find_root(
     """
     if TRACE:
         logger.debug(
-            f'find_root: location={location!r}, max_depth={max_depth!r}, '
-            f'root_paths={root_paths!r}, min_paths={min_paths!r}'
+            f"find_root: location={location!r}, max_depth={max_depth!r}, "
+            f"root_paths={root_paths!r}, min_paths={min_paths!r}"
         )
     depth = 0
     for top, dirs, files in walker(location):
         if TRACE:
-            logger.debug(
-                f' find_root: top={top!r}, dirs={dirs!r}, files={files!r}')
+            logger.debug(f" find_root: top={top!r}, dirs={dirs!r}, files={files!r}")
         if max_depth:
             depth = compute_path_depth(location, top)
             if TRACE:
-                logger.debug(f'  find_root: top depth={depth!r}')
+                logger.debug(f"  find_root: top depth={depth!r}")
             if depth > max_depth:
                 if TRACE:
                     logger.debug(
-                        f'    find_root: max_depth={max_depth!r}, '
-                        f'depth={depth!r} returning None')
+                        f"    find_root: max_depth={max_depth!r}, depth={depth!r} returning None"
+                    )
                 return
 
         matches = len(set(dirs + files) & root_paths)
         if TRACE:
-            logger.debug(f'  find_root: top={top!r}, matches={matches!r}')
+            logger.debug(f"  find_root: top={top!r}, matches={matches!r}")
 
         if matches >= min_paths:
             if TRACE:
-                logger.debug(
-                    f'    find_root: matches >= min_paths: returning {top!r}')
+                logger.debug(f"    find_root: matches >= min_paths: returning {top!r}")
             return top
 
     if TRACE:
-        logger.debug(f'find_root: noting found: returning None')
+        logger.debug(f"find_root: noting found: returning None")

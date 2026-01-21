@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 if TRACE:
     import sys
+
     logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
     logger.setLevel(logging.DEBUG)
 
@@ -33,7 +34,11 @@ See https://www.freedesktop.org/software/systemd/man/os-release.html
 
 """
 
-os_choices = 'linux', 'bsd', 'windows',
+os_choices = (
+    "linux",
+    "bsd",
+    "windows",
+)
 
 
 @attr.attributes
@@ -45,32 +50,30 @@ class Distro(object):
 
     os = attr.attrib(
         default=None,
-        metadata=dict(
-            doc='Operating system. '
-                'One of: {}'.format(', '.join(os_choices)))
+        metadata=dict(doc="Operating system. One of: {}".format(", ".join(os_choices))),
     )
 
     architecture = attr.attrib(
-        default=None,
-        metadata=dict(
-            doc='Processor architecture such as x86, x86_64, arm or amd64.'
-        )
+        default=None, metadata=dict(doc="Processor architecture such as x86, x86_64, arm or amd64.")
     )
 
     name = attr.attrib(
         default=None,
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             NAME= A string identifying the operating system, without a version
             component, and suitable for presentation to the user. If not set,
             defaults to "NAME=Linux". Example: "NAME=Fedora" or "NAME="Debian
             GNU/Linux"".
-        ''')
+        """
+        ),
     )
 
     version = attr.attrib(
         default=None,
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
 
             VERSION= A string identifying the operating system version,
@@ -78,24 +81,28 @@ class Distro(object):
             name, and suitable for presentation to the user. This field is
             optional. Example: "VERSION=17" or
             "VERSION="17 (Beefy Miracle)"".
-        ''')
+        """
+        ),
     )
 
     identifier = attr.attrib(
         default=None,
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             ID= A lower-case string (no spaces or other characters outside of
             0–9, a–z, ".", "_" and "-") identifying the operating system,
             excluding any version information and suitable for processing by
             scripts or usage in generated filenames. If not set, defaults to
             "ID=linux". Example: "ID=fedora" or "ID=debian".
-        ''')
+        """
+        ),
     )
 
     id_like = attr.attrib(
         default=attr.Factory(list),
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             This is a list of ids, not a space-separated string. ID_LIKE= A
             space-separated list of operating system identifiers in the same
@@ -114,12 +121,14 @@ class Distro(object):
             "ID=centos", an assignment of "ID_LIKE="rhel fedora"" would be
             appropriate. For an operating system with "ID=ubuntu", an assignment
             of "ID_LIKE=debian" is appropriate.
-        ''')
+        """
+        ),
     )
 
     version_codename = attr.attrib(
         default=None,
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             VERSION_CODENAME= A lower-case string (no spaces or other characters
             outside of 0–9, a–z, ".", "_" and "-") identifying the operating
@@ -128,12 +137,14 @@ class Distro(object):
             generated filenames. This field is optional and may not be
             implemented on all systems. Examples: "VERSION_CODENAME=buster",
             "VERSION_CODENAME=xenial"
-        ''')
+        """
+        ),
     )
 
     version_id = attr.attrib(
         default=None,
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             VERSION_ID=A lower-case string (mostly numeric, no spaces or other
             characters outside of 0–9, a–z, ".", "_" and "-") identifying the
@@ -141,83 +152,99 @@ class Distro(object):
             release code name, and suitable for processing by scripts or usage
             in generated filenames. This field is optional. Example:
             "VERSION_ID=17" or "VERSION_ID=11.04".
-        ''')
+        """
+        ),
     )
 
     pretty_name = attr.attrib(
         default=None,
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             PRETTY_NAME=A pretty operating system name in a format suitable for
             presentation to the user. May or may not contain a release code name
             or OS version of some kind, as suitable. If not set, defaults to
             "PRETTY_NAME="Linux"". Example:
             "PRETTY_NAME="Fedora 17 (Beefy Miracle)"".
-        ''')
+        """
+        ),
     )
 
     cpe_name = attr.attrib(
         default=None,
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             CPE_NAME=A CPE name for the operating system, in URI binding syntax,
             following the Common Platform Enumeration Specification as proposed
             by the NIST. This field is optional. Example:
             "CPE_NAME="cpe:/o:fedoraproject:fedora:17""
-        ''')
+        """
+        ),
     )
 
     home_url = attr.attrib(
         default=None,
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             HOME_URL= should refer to the homepage of the operating system, or
             alternatively some homepage of the specific version of the operating
             system.
-        ''')
+        """
+        ),
     )
 
     documentation_url = attr.attrib(
         default=None,
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             DOCUMENTATION_URL= should refer to the main documentation page for
             this operating system.
-        ''')
+        """
+        ),
     )
 
     support_url = attr.attrib(
         default=None,
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             SUPPORT_URL= should refer to the main support page for the operating
             system, if there is any. This is primarily intended for operating
             systems which vendors provide support for.
-        ''')
+        """
+        ),
     )
 
     bug_report_url = attr.attrib(
         default=None,
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             BUG_REPORT_URL= should refer to the main bug reporting page for the
             operating system, if there is any. This is primarily intended for
             operating systems that rely on community QA.
-        ''')
+        """
+        ),
     )
 
     privacy_policy_url = attr.attrib(
         default=None,
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             PRIVACY_POLICY_URL= should refer to the main privacy policy page for
             the operating system, if there is any.
-        ''')
+        """
+        ),
     )
 
     build_id = attr.attrib(
         default=None,
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             BUILD_ID=A string uniquely identifying the system image used as the
             origin for a distribution (it is not updated with system updates).
@@ -227,12 +254,14 @@ class Distro(object):
             VERSION_ID as each build is already distinct based on the
             VERSION_ID. This field is optional. Example:
             "BUILD_ID="2013-03-20.3"" or "BUILD_ID=201303203".
-        ''')
+        """
+        ),
     )
 
     variant = attr.attrib(
         default=None,
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             VARIANT= A string identifying a specific variant or edition of the
             operating system suitable for presentation to the user. This field
@@ -243,12 +272,14 @@ class Distro(object):
             "VARIANT="Smart Refrigerator Edition"" Note: this field is for
             display purposes only. The VARIANT_ID field should be used for
             making programmatic decisions.
-        ''')
+        """
+        ),
     )
 
     variant_id = attr.attrib(
         default=None,
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             VARIANT_ID= A lower-case string (no spaces or other characters
             outside of 0–9, a–z, ".", "_" and "-"), identifying a specific
@@ -256,12 +287,14 @@ class Distro(object):
             by other packages in order to determine a divergent default
             configuration. This field is optional and may not be implemented on
             all systems. Examples: "VARIANT_ID=server", "VARIANT_ID=embedded"
-        ''')
+        """
+        ),
     )
 
     logo = attr.attrib(
         default=None,
-        metadata=dict(doc='''Based on os-release:
+        metadata=dict(
+            doc="""Based on os-release:
             https://www.freedesktop.org/software/systemd/man/os-release.html
             LOGO= A string, specifying the name of an icon as defined by
             freedesktop.org Icon Theme Specification. This can be used by
@@ -269,19 +302,19 @@ class Distro(object):
             distributor's logo. This field is optional and may not necessarily
             be implemented on all systems. Examples: "LOGO=fedora-logo", "LOGO
             =distributor-logo-opensuse"
-        ''')
+        """
+        ),
     )
 
     extra_data = attr.attrib(
-        default=attr.Factory(dict),
-        metadata=dict(doc='''A mapping of extra data key/value pairs''')
+        default=attr.Factory(dict), metadata=dict(doc="""A mapping of extra data key/value pairs""")
     )
 
     def is_debian_based(self):
         return (
-            self.identifier == 'debian'
-            or self.identifier == 'ubuntu'
-            or (self.id_like and 'debian' in (self.id_like or ''))
+            self.identifier == "debian"
+            or self.identifier == "ubuntu"
+            or (self.id_like and "debian" in (self.id_like or ""))
         )
 
     def to_dict(self):
@@ -297,46 +330,44 @@ class Distro(object):
         """
         if not location or not os.path.exists(location):
             if TRACE:
-                logger.debug(
-                    f'from_os_release_file: {location!r} does not exists')
+                logger.debug(f"from_os_release_file: {location!r} does not exists")
             return
 
         data = parse_os_release(location) or {}
         new_data = dict(
             # This idiom looks a tad wierd but we want to always get a linux as
             # default even if the poped value is an empty string or None
-            os=data.pop('OS', 'linux') or 'linux',
-            name=data.pop('NAME', 'linux') or 'linux',
-            identifier=data.pop('ID', 'linux') or 'linux',
-
-            architecture=data.pop('ARCHITECTURE', None),
-            version=data.pop('VERSION', None),
-            id_like=data.pop('ID_LIKE', None),
-            version_codename=data.pop('VERSION_CODENAME', None),
-            version_id=data.pop('VERSION_ID', None),
-            pretty_name=data.pop('PRETTY_NAME', None),
-            cpe_name=data.pop('CPE_NAME', None),
-            home_url=data.pop('HOME_URL', None),
-            documentation_url=data.pop('DOCUMENTATION_URL', None),
-            support_url=data.pop('SUPPORT_URL', None),
-            bug_report_url=data.pop('BUG_REPORT_URL', None),
-            privacy_policy_url=data.pop('PRIVACY_POLICY_URL', None),
-            build_id=data.pop('BUILD_ID', None),
-            variant=data.pop('VARIANT', None),
-            variant_id=data.pop('VARIANT_ID', None),
-            logo=data.pop('LOGO', None),
+            os=data.pop("OS", "linux") or "linux",
+            name=data.pop("NAME", "linux") or "linux",
+            identifier=data.pop("ID", "linux") or "linux",
+            architecture=data.pop("ARCHITECTURE", None),
+            version=data.pop("VERSION", None),
+            id_like=data.pop("ID_LIKE", None),
+            version_codename=data.pop("VERSION_CODENAME", None),
+            version_id=data.pop("VERSION_ID", None),
+            pretty_name=data.pop("PRETTY_NAME", None),
+            cpe_name=data.pop("CPE_NAME", None),
+            home_url=data.pop("HOME_URL", None),
+            documentation_url=data.pop("DOCUMENTATION_URL", None),
+            support_url=data.pop("SUPPORT_URL", None),
+            bug_report_url=data.pop("BUG_REPORT_URL", None),
+            privacy_policy_url=data.pop("PRIVACY_POLICY_URL", None),
+            build_id=data.pop("BUILD_ID", None),
+            variant=data.pop("VARIANT", None),
+            variant_id=data.pop("VARIANT_ID", None),
+            logo=data.pop("LOGO", None),
         )
 
         # ignored this
-        data.pop('ANSI_COLOR', None)
+        data.pop("ANSI_COLOR", None)
 
         # note: we poped all known key/value pairs above.
         # therefore the remainder are unknown, extra data.
         if data:
-            new_data['extra_data'] = data
+            new_data["extra_data"] = data
 
         if TRACE:
-            logger.debug(f'from_os_release_file: new_data: {new_data!r}')
+            logger.debug(f"from_os_release_file: new_data: {new_data!r}")
 
         return cls(**new_data)
 
@@ -360,45 +391,42 @@ class Distro(object):
         /etc/os-release is missing in the rootfs for a Linux-based image).
         """
         if TRACE:
-            logger.debug(
-                f'from_rootfs: {location!r} base_distro: {base_distro!r}')
+            logger.debug(f"from_rootfs: {location!r} base_distro: {base_distro!r}")
 
         if not location or not os.path.exists(location):
             if TRACE:
-                logger.debug(f'from_rootfs: {location!r} does not exists')
+                logger.debug(f"from_rootfs: {location!r} does not exists")
             return
 
         finders = {
-            'linux': cls.find_linux_details,
-            'windows': cls.find_windows_details,
-            'freebsd': cls.find_freebsd_details,
+            "linux": cls.find_linux_details,
+            "windows": cls.find_windows_details,
+            "freebsd": cls.find_freebsd_details,
         }
 
         for finder_os, finder in finders.items():
             if TRACE:
-                logger.debug(f'from_rootfs: trying finder_os: {finder_os!r}')
+                logger.debug(f"from_rootfs: trying finder_os: {finder_os!r}")
 
             found = finder(location)
             if TRACE:
-                logger.debug(f'from_rootfs: trying found: {found!r}')
+                logger.debug(f"from_rootfs: trying found: {found!r}")
             if found:
                 if base_distro:
                     if base_distro.os != finder_os:
                         raise Exception(
-                            f'Inconsistent base distro OS: {base_distro.os} '
-                            f'and found distro OS : {found.os}'
+                            f"Inconsistent base distro OS: {base_distro.os} "
+                            f"and found distro OS : {found.os}"
                         )
 
                     merged = base_distro.merge(found)
                     if TRACE:
-                        logger.debug(
-                            f'from_rootfs: returning merged: {merged!r}')
+                        logger.debug(f"from_rootfs: returning merged: {merged!r}")
                     return merged
 
                 else:
                     if TRACE:
-                        logger.debug(
-                            f'from_rootfs: returning found: {found!r}')
+                        logger.debug(f"from_rootfs: returning found: {found!r}")
                     return found
 
     @classmethod
@@ -410,7 +438,10 @@ class Distro(object):
         Raise an Exception if an os-release file is found that cannot be parsed.
         """
         # note: /etc/os-release has precedence over /usr/lib/os-release.
-        for candidate_path in ('etc/os-release', 'usr/lib/os-release',):
+        for candidate_path in (
+            "etc/os-release",
+            "usr/lib/os-release",
+        ):
             os_release = path.join(location, candidate_path)
             if path.exists(os_release):
                 return cls.from_os_release_file(location=os_release)
@@ -425,7 +456,10 @@ class Distro(object):
             max_depth=3,
             root_paths=rootfs.WINDOWS_PATHS,
         ):
-            return cls(os='windows', identifier='windows',)
+            return cls(
+                os="windows",
+                identifier="windows",
+            )
 
     @classmethod
     def find_freebsd_details(cls, location):
@@ -443,25 +477,51 @@ class Distro(object):
         """
         return dict(
             rpm=dict(
-                redhat=('fedora', 'centos', 'rhel', 'amazon',
-                        'scientific', 'oraclelinux',),
-                suse=('opensuse', 'suse', 'sles', 'sled', 'sles_sap',
-                      'opensuse-leap', 'opensuse-tumbleweed',),
-                altlinux=('altlinux',),
-                photon=('photon',),
-                mandriva=('mandriva', 'mageia', 'mandrake', 'open-mandriva'),
+                redhat=(
+                    "fedora",
+                    "centos",
+                    "rhel",
+                    "amazon",
+                    "scientific",
+                    "oraclelinux",
+                ),
+                suse=(
+                    "opensuse",
+                    "suse",
+                    "sles",
+                    "sled",
+                    "sles_sap",
+                    "opensuse-leap",
+                    "opensuse-tumbleweed",
+                ),
+                altlinux=("altlinux",),
+                photon=("photon",),
+                mandriva=("mandriva", "mageia", "mandrake", "open-mandriva"),
             ),
-            debian=('debian', 'kali', 'linuxmint', 'raspbian', 'ubuntu',),
-            arch=('archlinux', 'antergos', 'manjaro',),
-            slackware=('slackware',),
-            gentoo=('gentoo',),
-            alpine=('alpine',),
-            openwrt=('openwrt', 'lede',),
+            debian=(
+                "debian",
+                "kali",
+                "linuxmint",
+                "raspbian",
+                "ubuntu",
+            ),
+            arch=(
+                "archlinux",
+                "antergos",
+                "manjaro",
+            ),
+            slackware=("slackware",),
+            gentoo=("gentoo",),
+            alpine=("alpine",),
+            openwrt=(
+                "openwrt",
+                "lede",
+            ),
             bsd=dict(
-                freebsd=('freebsd',),
-                openbsd=('openbsd',),
-                netbsd=('netbsd',),
-                dragonfly=('dragonfly',),
+                freebsd=("freebsd",),
+                openbsd=("openbsd",),
+                netbsd=("netbsd",),
+                dragonfly=("dragonfly",),
             ),
         )
 
@@ -471,20 +531,17 @@ class Distro(object):
         values from the ``other_distro`` Distro object.
         """
         if TRACE:
-            logger.debug(f'merge: {self!r} with: {other_distro!r}')
+            logger.debug(f"merge: {self!r} with: {other_distro!r}")
 
         existing = self.to_dict()
         if other_distro:
-            other_non_empty = {
-                k: v for k, v in other_distro.to_dict().items()
-                if v
-            }
+            other_non_empty = {k: v for k, v in other_distro.to_dict().items() if v}
             existing.update(other_non_empty)
             if TRACE:
-                logger.debug(f'merge: updated data: {existing!r}')
+                logger.debug(f"merge: updated data: {existing!r}")
 
         if TRACE:
-            logger.debug(f'merge: merged data: {existing!r}')
+            logger.debug(f"merge: merged data: {existing!r}")
 
         return type(self)(**existing)
 
@@ -499,7 +556,7 @@ def get_debian_details():
 
 def get_alpine_details():
     """
-    arch is in  /etc/apk/arch
+    Arch is in  /etc/apk/arch
     release is in /etc/alpine-release
     See /etc/apk/repositories to get a list of base repo URLS
     """
@@ -577,12 +634,12 @@ def get_centos_details():
 
 def get_distroless_details():
     """
-    The presence of /var/lib/dpkg/status.d/ dir with one Package-like file for each
-    installed file replaces using a /var/lib/dpkg/status file.
-
     /etc/os-release is the file to check for details
     There are no apt sources and no dpkg/info details
     the /usr/lib/os-release is that of upstream Debian
+
+    The presence of /var/lib/dpkg/status.d/ dir with one Package-like file for each
+    installed file replaces using a /var/lib/dpkg/status file.
 
     PRETTY_NAME="Distroless"
     NAME="Debian GNU/Linux"
@@ -598,7 +655,7 @@ def get_distroless_details():
 
 def get_busybox_details():
     """
-    A bare busybox-based image has a base layer with only busybox
+    Bare busybox-based image has a base layer with only busybox
     So we can find about the /bin/[' exe and the '/bin/busybox' ... one of them
     should contain these strings
     "Usage: busybox"

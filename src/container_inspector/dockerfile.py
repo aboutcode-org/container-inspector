@@ -17,6 +17,7 @@ TRACE = False
 logger = logging.getLogger(__name__)
 if TRACE:
     import sys
+
     logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
     logger.setLevel(logging.DEBUG)
 
@@ -31,10 +32,11 @@ def get_dockerfile(location):
     otherwise return None.
     """
     fn = path.basename(location)
-    if not 'Dockerfile' in fn:
+    if not "Dockerfile" in fn:
         return {}
 
-    if TRACE: logger.debug('Found Dockerfile at: %(location)r' % locals())
+    if TRACE:
+        logger.debug("Found Dockerfile at: %(location)r" % locals())
 
     try:
         # TODO: keep comments instead of ignoring them:
@@ -44,17 +46,28 @@ def get_dockerfile(location):
         df = dockerfile_parse.DockerfileParser(location)
 
         df_data = dict()
-        df_data['location'] = location
-        df_data['base_image'] = df.baseimage
-        df_data['instructions'] = []
+        df_data["location"] = location
+        df_data["base_image"] = df.baseimage
+        df_data["instructions"] = []
 
         for entry in df.structure:
-            entry = dict([(k, v) for k, v in sorted(entry.items())
-                                 if k in ('instruction', 'startline', 'value',)])
-            df_data['instructions'].append(entry)
+            entry = dict(
+                [
+                    (k, v)
+                    for k, v in sorted(entry.items())
+                    if k
+                    in (
+                        "instruction",
+                        "startline",
+                        "value",
+                    )
+                ]
+            )
+            df_data["instructions"].append(entry)
         return {location: df_data}
     except:
-        if TRACE: logger.debug('Error parsing Dockerfile at: %(location)r' % locals())
+        if TRACE:
+            logger.debug("Error parsing Dockerfile at: %(location)r" % locals())
         return {}
 
 
@@ -64,12 +77,12 @@ def flatten_dockerfiles(dockerfiles):
     'location', 'base_image', 'order', 'instruction', 'value'
     """
     for loc, df in dockerfiles.items():
-        for order, instruction in enumerate(df['instructions']):
+        for order, instruction in enumerate(df["instructions"]):
             ndf = dict(order=order)
             ndf.update(instruction)
-            del ndf['startline']
-            ndf['location'] = loc
-            ndf['base_image'] = df['base_image']
+            del ndf["startline"]
+            ndf["location"] = loc
+            ndf["base_image"] = df["base_image"]
             yield ndf
 
 
@@ -82,16 +95,17 @@ def collect_dockerfiles(location):
     for top, dirs, files in os.walk(location):
         for f in files:
             dfiles.update(get_dockerfile(path.join(top, f)))
-    if TRACE: logger.debug('collect_dockerfiles: %(dfiles)r' % locals())
+    if TRACE:
+        logger.debug("collect_dockerfiles: %(dfiles)r" % locals())
     return dfiles
 
 
 def all_strings_in(d, l):
-    return all(x.strip('\'"') in l for x in d.split())
+    return all(x.strip("'\"") in l for x in d.split())
 
 
 def add_equals_or_unknown(d, l):
-    if 'file:' in l or 'dir:' in l:
+    if "file:" in l or "dir:" in l:
         return True
     else:
         return d == l
@@ -102,24 +116,24 @@ def add_equals_or_unknown(d, l):
 # the callable args are: dockerfile_cmd, layer_cmd
 INSTRUCTION_MATCHERS = {
     # FROM is special because always empty in Layers
-    'FROM': lambda d, l: True,
+    "FROM": lambda d, l: True,
     # ADD is special because scratch layers can have a ADD file:xsdsd  or ADD
     # dir:xsdsd that cannot be matched to a Dockerfile
-    'ADD': add_equals_or_unknown,
-    'WORKDIR': operator.eq,
-    'CMD': all_strings_in,
-    'ENV': operator.eq,
-    'EXPOSE': all_strings_in,
-    'MAINTAINER': operator.eq,
-    'VOLUME': operator.contains,
-    'RUN': operator.eq,
+    "ADD": add_equals_or_unknown,
+    "WORKDIR": operator.eq,
+    "CMD": all_strings_in,
+    "ENV": operator.eq,
+    "EXPOSE": all_strings_in,
+    "MAINTAINER": operator.eq,
+    "VOLUME": operator.contains,
+    "RUN": operator.eq,
     # these are less common instructionds
-    'COPY': operator.eq,
-    'LABEL': operator.eq,
-    'ENTRYPOINT': operator.eq,
-    'USER': operator.eq,
+    "COPY": operator.eq,
+    "LABEL": operator.eq,
+    "ENTRYPOINT": operator.eq,
+    "USER": operator.eq,
     # this further executes commands from the base on build!
-    'ONBUILD': operator.eq,
+    "ONBUILD": operator.eq,
 }
 
 
@@ -129,34 +143,37 @@ def normalized_layer_command(layer_command):
     for this layer extracted from the layer command and normalized to look like
     they were in the original Dockerfile.
     """
-    cmd = layer_command and layer_command.strip() or ''
-    cmd = cmd.replace('#(nop) ', '', 1)
+    cmd = layer_command and layer_command.strip() or ""
+    cmd = cmd.replace("#(nop) ", "", 1)
     cmd = cmd.strip()
 
     if not cmd:
-        instruct = 'FROM'
-        cmd = ''
+        instruct = "FROM"
+        cmd = ""
         return instruct, cmd
 
     if not cmd.startswith(tuple(INSTRUCTION_MATCHERS)):
         # RUN instructions are not kept
-        instruct = 'RUN'
+        instruct = "RUN"
     else:
-        instruct, _, cmd = cmd.partition(' ')
+        instruct, _, cmd = cmd.partition(" ")
         instruct = instruct.strip()
         cmd = cmd.strip()
 
-    if instruct in ('ADD', 'COPY',):
+    if instruct in (
+        "ADD",
+        "COPY",
+    ):
         # normalize ADD and COPY commands
         # #(nop) ADD src/docker/fs/ in /
-        cmd = cmd.replace(' in ', ' ', 1)
+        cmd = cmd.replace(" in ", " ", 1)
 
-    shell = '[/bin/sh -c '
-    if instruct == 'CMD' and cmd.startswith(shell):
+    shell = "[/bin/sh -c "
+    if instruct == "CMD" and cmd.startswith(shell):
         # normalize CMD
         # #(nop) CMD [/bin/sh -c ./opt/bin/startup.sh && supervisord -c /etc/supervisord.conf]
-        cmd = cmd.replace(shell, '', 1)
-        cmd = cmd.strip('[]')
+        cmd = cmd.replace(shell, "", 1)
+        cmd = cmd.strip("[]")
 
     return instruct, cmd
 
@@ -183,7 +200,18 @@ def clean_created_by(created_by):
     if isinstance(created_by, (list, tuple)):
         # this is a structure, pre-parsed command as found in a layer "json" file
         # we strip the prefix
-        return ' '.join([c for c in created_by if not c.startswith(('/bin/sh', '-c',))])
+        return " ".join(
+            [
+                c
+                for c in created_by
+                if not c.startswith(
+                    (
+                        "/bin/sh",
+                        "-c",
+                    )
+                )
+            ]
+        )
     else:
         # a string as found in a Dockerfile or Config json
         pass
@@ -210,15 +238,15 @@ def map_image_to_dockerfile(image, dockerfile):
     """
     # collect and remove the FROM image instruction of the dockerfile
     # because it never exists in the layers
-    from_base = dockerfile['instructions'].pop(0)
-    from_image_instruction = from_base['instruction']
-    assert from_image_instruction == 'FROM'
-    from_image_startline = from_base['startline']
-    from_image_name_tag = from_base['value'].strip()
-    from_image_name, _, from_image_tag = from_image_name_tag.partition(':')
+    from_base = dockerfile["instructions"].pop(0)
+    from_image_instruction = from_base["instruction"]
+    assert from_image_instruction == "FROM"
+    from_image_startline = from_base["startline"]
+    from_image_name_tag = from_base["value"].strip()
+    from_image_name, _, from_image_tag = from_image_name_tag.partition(":")
 
     # align layers and dockerfile lines, from top to bottom
-    aligned = map(None, reversed(image.layers), reversed(dockerfile['instructions']))
+    aligned = map(None, reversed(image.layers), reversed(dockerfile["instructions"]))
 
     # TODO: keep track of original image for these layers
     base_image_layers = []
@@ -236,14 +264,19 @@ def map_image_to_dockerfile(image, dockerfile):
 
         # verify command and instruction
         if not dckrfl_instruct == layer_instruct:
-            msg = ('Unable to align ImageV10 layers with Dockerfile instructions: '
-                   'order=%(order)d, dckrfl_instruct=%(dckrfl_instruct)r, layer_instruct=%(layer_instruct)r' % locals())
+            msg = (
+                "Unable to align ImageV10 layers with Dockerfile instructions: "
+                "order=%(order)d, dckrfl_instruct=%(dckrfl_instruct)r, layer_instruct=%(layer_instruct)r"
+                % locals()
+            )
             raise CannotAlignImageToDockerfileError(msg)
 
         has_same_command = INSTRUCTION_MATCHERS[dckrfl_instruct]
         if not has_same_command(dckrfl_cmd, layer_cmd):
-            msg = ('Different commands for aligned layer and Dockerfile: '
-                   'Dockerfile=%(dckrfl_cmd)r, layer=%(layer_cmd)r' % locals())
+            msg = (
+                "Different commands for aligned layer and Dockerfile: "
+                "Dockerfile=%(dckrfl_cmd)r, layer=%(layer_cmd)r" % locals()
+            )
             raise AlignedInstructionWithDifferentCommandError(msg)
 
 
@@ -253,4 +286,3 @@ def match_images2dockerfiles(images, dockerfiles):
     to determine which Dockerfile was used for a given image, which ImageV10 Layers
     are for the base image.
     """
-
