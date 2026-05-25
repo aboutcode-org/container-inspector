@@ -1,0 +1,22 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Ubuntu",
+  "version": "15.10 (Wily Werewolf)",
+  "identifier": "ubuntu",
+  "id_like": "debian",
+  "version_codename": null,
+  "version_id": "15.10",
+  "pretty_name": "Ubuntu 15.10",
+  "cpe_name": null,
+  "home_url": "http://www.ubuntu.com/",
+  "documentation_url": null,
+  "support_url": "http://help.ubuntu.com/",
+  "bug_report_url": "http://bugs.launchpad.net/ubuntu/",
+  "privacy_policy_url": null,
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {}
+}

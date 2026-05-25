@@ -1,0 +1,24 @@
+{
+  "os": "linux",
+  "architecture": null,
+  "name": "Ubuntu",
+  "version": "16.10 (Yakkety Yak)",
+  "identifier": "ubuntu",
+  "id_like": "debian",
+  "version_codename": "yakkety",
+  "version_id": "16.10",
+  "pretty_name": "Ubuntu 16.10",
+  "cpe_name": null,
+  "home_url": "http://www.ubuntu.com/",
+  "documentation_url": null,
+  "support_url": "http://help.ubuntu.com/",
+  "bug_report_url": "http://bugs.launchpad.net/ubuntu/",
+  "privacy_policy_url": "http://www.ubuntu.com/legal/terms-and-policies/privacy-policy",
+  "build_id": null,
+  "variant": null,
+  "variant_id": null,
+  "logo": null,
+  "extra_data": {
+    "UBUNTU_CODENAME": "yakkety"
+  }
+}
