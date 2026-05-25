@@ -10,11 +10,22 @@ import os
 
 from commoncode.testcase import FileBasedTesting
 
+from container_inspector.dockerfile import get_dockerfile
 from container_inspector.dockerfile import normalized_layer_command
 
 
 class TestDockerfile(FileBasedTesting):
     test_data_dir = os.path.join(os.path.dirname(__file__), "data")
+
+    def test_get_dockerfile_accepts_lowercase_prefixed_dockerfile_name(self):
+        test_file = os.path.join(
+            self.test_data_dir,
+            "dockerfiles",
+            "container-inspector.dockerfile",
+        )
+        dockerfiles = get_dockerfile(test_file)
+        assert test_file in dockerfiles
+        assert "alpine:3.20" == dockerfiles[test_file]["base_image"]
 
     def test_normalized_layer_command(self):
         # tuple of command and expected result tuples

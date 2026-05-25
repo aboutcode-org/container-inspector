@@ -32,7 +32,7 @@ def get_dockerfile(location):
     otherwise return None.
     """
     fn = path.basename(location)
-    if not "Dockerfile" in fn:
+    if "dockerfile" not in fn.lower():
         return {}
 
     if TRACE:
@@ -43,27 +43,28 @@ def get_dockerfile(location):
         # assign the comments before an instruction line to a line "comment" attribute
         # assign end of line comment to the line
         # assign top of file and  end of file comments to file level comment attribute
-        df = dockerfile_parse.DockerfileParser(location)
+        with open(location, "rb") as df_file:
+            df = dockerfile_parse.DockerfileParser(fileobj=df_file)
 
-        df_data = dict()
-        df_data["location"] = location
-        df_data["base_image"] = df.baseimage
-        df_data["instructions"] = []
+            df_data = dict()
+            df_data["location"] = location
+            df_data["base_image"] = df.baseimage
+            df_data["instructions"] = []
 
-        for entry in df.structure:
-            entry = dict(
-                [
-                    (k, v)
-                    for k, v in sorted(entry.items())
-                    if k
-                    in (
-                        "instruction",
-                        "startline",
-                        "value",
-                    )
-                ]
-            )
-            df_data["instructions"].append(entry)
+            for entry in df.structure:
+                entry = dict(
+                    [
+                        (k, v)
+                        for k, v in sorted(entry.items())
+                        if k
+                        in (
+                            "instruction",
+                            "startline",
+                            "value",
+                        )
+                    ]
+                )
+                df_data["instructions"].append(entry)
         return {location: df_data}
     except:
         if TRACE:
