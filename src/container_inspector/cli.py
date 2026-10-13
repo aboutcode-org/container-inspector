@@ -6,18 +6,17 @@
 # See https://aboutcode.org for more information about nexB OSS projects.
 #
 
+import csv as csv_module
+import json as json_module
 import logging
 import os
 import sys
 import tempfile
-import csv as csv_module
-import json as json_module
 from os import path
 
 import click
-
-from container_inspector import image
 from container_inspector import dockerfile
+from container_inspector import image
 from container_inspector import rootfs
 
 TRACE = False
@@ -43,7 +42,8 @@ def container_inspector_squash(image_path, extract_directory):
 
 def _container_inspector_squash(image_path, extract_directory):
     images = get_images_from_dir_or_tarball(image_path)
-    assert len(images) == 1, "Can only squash one image at a time"
+    if len(images) != 1:
+        raise ValueError("Can only squash one image at a time")
     img = images[0]
     target_loc = os.path.abspath(os.path.expanduser(extract_directory))
     rootfs.rebuild_rootfs(img, target_loc)
@@ -63,7 +63,8 @@ def container_inspector_dockerfile(directory, json=False, csv=False):
 
 
 def _container_inspector_dockerfile(directory, json=False, csv=False):
-    assert json or csv, "At least one of --json or --csv is required."
+    if not (json or csv):
+        raise ValueError("At least one of --json or --csv is required.")
     dir_loc = os.path.abspath(os.path.expanduser(directory))
 
     dockerfiles = dockerfile.collect_dockerfiles(location=dir_loc)
