@@ -19,7 +19,7 @@ import click
 from container_inspector import image
 from container_inspector import dockerfile
 from container_inspector import rootfs
-
+ 
 TRACE = False
 logger = logging.getLogger(__name__)
 if TRACE:
